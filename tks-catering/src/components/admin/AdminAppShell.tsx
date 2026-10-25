@@ -79,7 +79,7 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
     : 'AM'
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-sans flex flex-col lg:flex-row">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)] font-sans flex flex-col lg:flex-row">
       <Toaster position="bottom-center" richColors />
 
       {/* 1. Desktop Left Sidebar (from 1024px per spec: "From 1024px the bottom bar becomes a left sidebar with the same items") */}
@@ -198,7 +198,7 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
       </aside>
 
       {/* 2. Main Viewport */}
-      <div className="flex-1 flex flex-col min-w-0 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-8">
+      <div className="flex-1 flex flex-col min-w-0 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:h-screen lg:overflow-hidden">
         
         {/* Mobile Top Bar (per spec: "on mobile, a glass top bar (logo, 'Admin', avatar menu with Log out)") */}
         <header className="lg:hidden sticky top-0 z-10 glass-top-bar px-4 py-2.5 flex items-center justify-between border-b border-slate-200/80">
@@ -257,7 +257,7 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
         </header>
 
         {/* Desktop Top Header (shows title and actions when on desktop) */}
-        <header className="hidden lg:flex sticky top-0 z-10 glass-top-bar px-8 py-4 items-center justify-between border-b border-slate-200/80">
+        <header className="hidden lg:flex sticky top-0 z-10 glass-top-bar px-8 py-4 items-center justify-between border-b border-slate-200/80 shrink-0">
           <div>
             <h1 className="font-heading font-black text-xl text-[var(--brand-900)] leading-tight">
               {title}
@@ -274,7 +274,7 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
         </header>
 
         {/* Content Container */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-[1600px] mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-[1600px] mx-auto lg:overflow-y-auto scroll-smooth">
           <PageTransition direction="admin">
             {children}
           </PageTransition>
