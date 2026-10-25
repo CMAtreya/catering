@@ -446,10 +446,10 @@ export const AdminOrderDetailPage: React.FC = () => {
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <Link
               to="/admin/orders"
-              className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-colors shrink-0 tap-target-48 sm:tap-target-auto"
+              className="w-9 h-9 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-[var(--brand)] transition-colors shrink-0 tap-target-48 sm:tap-target-auto border border-red-100"
               title="Back to All Orders"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
             </Link>
 
             <div className="min-w-0">

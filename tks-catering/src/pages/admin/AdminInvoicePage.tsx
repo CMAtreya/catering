@@ -229,9 +229,9 @@ export const AdminInvoicePage: React.FC = () => {
       <div className="max-w-3xl mx-auto mb-5 flex items-center justify-between gap-3 print:hidden">
         <Link
           to={`/admin/orders/${order.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[var(--brand)] bg-white px-3.5 py-2 rounded-full border border-slate-200 shadow-xs transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--brand)] hover:text-[var(--brand-600)] bg-red-50/50 hover:bg-red-50 px-3.5 py-2 rounded-full border border-red-100 shadow-xs transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
           <span>Back to Order #{order.id}</span>
         </Link>
 
