@@ -1,5 +1,6 @@
 import React from 'react'
-import { Phone, Award, ShieldCheck, Sparkles, Clock } from 'lucide-react'
+import { Phone, Award, ShieldCheck } from 'lucide-react'
+import { AppFooter } from '@/components/common/AppFooter'
 
 interface CustomerDesktopShellProps {
   children: React.ReactNode
@@ -96,41 +97,7 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
       {/* ======================================================== */}
       {/* 4. LUXURY FULL-SCREEN FOOTER (conditionally rendered)    */}
       {/* ======================================================== */}
-      {showFooter && (
-        <footer className="w-full bg-white border-t border-slate-200/80 py-8 pb-32 sm:pb-32 px-4 sm:px-6 lg:px-8 mt-auto relative z-10">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[var(--text-muted)]">
-            <div className="flex items-center gap-3 text-center md:text-left">
-              <div className="w-8 h-8 rounded-lg bg-white shadow-xs p-1 flex items-center justify-center border border-slate-100 shrink-0">
-                <img src="/logo-128.webp" alt="TKS Logo" width="32" height="32" decoding="async" className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <p className="font-heading font-black text-[var(--brand-900)] text-sm">
-                  TKS Iyengars Mysore Catering
-                </p>
-                <p className="text-[11px] text-[var(--text-muted)] font-medium">
-                  142/A, Krishnamurthy Puram, Mysuru, Karnataka 570004
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-medium">
-              <span className="flex items-center gap-1 text-slate-700 font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>Pure South Indian Vegetarian</span>
-              </span>
-              <span className="text-slate-300">•</span>
-              <span className="flex items-center gap-1 text-slate-700 font-bold">
-                <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Available 8:00 AM – 9:00 PM IST daily</span>
-              </span>
-              <span className="text-slate-300">•</span>
-              <a href="tel:+919000000000" className="text-[var(--brand)] font-bold hover:underline">
-                +91 90000 00000
-              </a>
-            </div>
-          </div>
-        </footer>
-      )}
+      {showFooter && <AppFooter />}
 
     </div>
   )

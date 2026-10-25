@@ -183,7 +183,7 @@ export const ContactPage: React.FC = () => {
 
 
   return (
-    <CustomerDesktopShell maxWidth="w-full" showFooter={false}>
+    <CustomerDesktopShell maxWidth="w-full">
       <div className="w-full flex flex-col bg-transparent relative min-h-screen">
         
         {/* ==========================================================

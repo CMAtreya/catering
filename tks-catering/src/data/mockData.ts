@@ -65,26 +65,32 @@ export interface CustomerRecord {
 
 export interface BusinessInfo {
   name: string
+  legalName?: string
   tagline: string
   phone: string
   email: string
   address: string
+  registeredOffice?: string
   city: string
   pincode: string
   fssaiNumber: string
   gstNumber: string
+  businessHours?: string
 }
 
 export const INITIAL_BUSINESS_INFO: BusinessInfo = {
-  name: 'TKS Iyengars Catering System',
+  name: 'TKS Iyengars Mysore Catering',
+  legalName: 'TKS Catering Services Private Limited',
   tagline: 'Authentic Traditional Mysuru Banquet & Catering Heritage',
   phone: '+91 90000 00000',
   email: 'orders@tksiyengarscatering.com',
-  address: 'Shop 14, 5th Main Road, Vani Vilas Mohalla',
+  address: '142/A, Krishnamurthy Puram',
+  registeredOffice: 'Shop 14, 5th Main Road, Vani Vilas Mohalla',
   city: 'Mysuru, Karnataka',
   pincode: '570002',
   fssaiNumber: '11223344556677',
-  gstNumber: '29ABCDE1234F1Z5'
+  gstNumber: '29ABCDE1234F1Z5',
+  businessHours: 'Monday – Sunday: 8:00 AM – 9:00 PM IST'
 }
 
 export const INITIAL_CATEGORIES: Category[] = [

@@ -197,6 +197,11 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
           </button>
         </div>
 
+        {/* Legal & FSSAI indicator */}
+        <div className="px-3.5 py-2 border-t border-slate-100 bg-slate-50/30 text-[9.5px] text-slate-400 text-center select-none">
+          TKS Catering Services Pvt. Ltd. • FSSAI: 11223344556677
+        </div>
+
       </aside>
 
       {/* 2. Main Viewport */}

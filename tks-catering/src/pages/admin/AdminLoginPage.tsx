@@ -343,9 +343,12 @@ export const AdminLoginPage: React.FC = () => {
         </form>
 
         {/* Small Grey Text under Button: 'Forgot your password? Contact your developer.' */}
-        <div className="text-center pt-1 border-t border-slate-100">
+        <div className="text-center pt-2 border-t border-slate-100 space-y-1">
           <p className="text-[11px] text-slate-400 font-medium">
             Forgot your password? Contact your developer.
+          </p>
+          <p className="text-[10px] text-slate-400">
+            TKS Catering Services Pvt. Ltd. • FSSAI Lic. No: 11223344556677
           </p>
         </div>
       </motion.div>

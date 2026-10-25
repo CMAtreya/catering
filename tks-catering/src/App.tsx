@@ -23,6 +23,11 @@ const AdminCustomersPage = lazy(() => import('@/pages/admin/AdminCustomersPage')
 const AdminCustomerDetailPage = lazy(() => import('@/pages/admin/AdminCustomerDetailPage'))
 const AdminNotFoundPage = lazy(() => import('@/pages/admin/AdminNotFoundPage'))
 
+// Legal & Consumer Advisory Routes
+const PrivacyPolicyPage = lazy(() => import('@/pages/legal/PrivacyPolicyPage'))
+const AllergyDietaryPage = lazy(() => import('@/pages/legal/AllergyDietaryPage'))
+const FoodSafetyPage = lazy(() => import('@/pages/legal/FoodSafetyPage'))
+
 import { AdminRouteGuard } from '@/components/admin/AdminRouteGuard'
 import { AdminErrorBoundary } from '@/components/admin/AdminErrorBoundary'
 
@@ -66,6 +71,9 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/submitted" element={<SubmittedPage />} />
           <Route path="/enquiries" element={<EnquiriesPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/allergy-dietary-info" element={<AllergyDietaryPage />} />
+          <Route path="/food-safety" element={<FoodSafetyPage />} />
 
           {/* Admin Login Route (Unprotected) */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
