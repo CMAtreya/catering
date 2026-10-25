@@ -13,7 +13,15 @@ import {
   X, 
   Check, 
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  Search,
+  LayoutGrid,
+  List,
+  Sparkles,
+  UtensilsCrossed,
+  Eye,
+  EyeOff,
+  FolderPlus
 } from 'lucide-react'
 import { MOTION_SPRINGS } from '@/motion/tokens'
 import imageCompression from 'browser-image-compression'
@@ -89,6 +97,12 @@ export const AdminMenuPage: React.FC = () => {
     }
   }, [])
 
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'hidden'>('all')
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
+
   // Mobile collapsed category blocks
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({})
 
@@ -153,6 +167,15 @@ export const AdminMenuPage: React.FC = () => {
     loadMenuData()
   }, [])
 
+  // Computed metrics
+  const availableCount = useMemo(() => items.filter((i) => i.available).length, [items])
+  const hiddenCount = useMemo(() => items.filter((i) => !i.available).length, [items])
+  const avgPlatePrice = useMemo(() => {
+    if (items.length === 0) return 0
+    const total = items.reduce((sum, item) => sum + item.pricePerPlate, 0)
+    return Math.round(total / items.length)
+  }, [items])
+
   // Map items by category name
   const itemsByCategory = useMemo(() => {
     const map: Record<string, MenuItem[]> = {}
@@ -163,13 +186,48 @@ export const AdminMenuPage: React.FC = () => {
       if (map[item.category]) {
         map[item.category].push(item)
       } else {
-        // If orphaned or unmapped category, group under its category name
         if (!map[item.category]) map[item.category] = []
         map[item.category].push(item)
       }
     })
     return map
   }, [categories, items])
+
+  // Filtered items based on search, status and category pills
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    return items.filter((item) => {
+      // Search
+      const matchesSearch = !query || 
+        item.name.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query)
+      
+      // Status
+      const matchesStatus = 
+        statusFilter === 'all' ? true :
+        statusFilter === 'available' ? item.available :
+        !item.available
+      
+      // Category
+      const matchesCat = 
+        selectedCategoryFilter === 'all' || item.category === selectedCategoryFilter
+      
+      return matchesSearch && matchesStatus && matchesCat
+    })
+  }, [items, searchQuery, statusFilter, selectedCategoryFilter])
+
+  // Filtered items mapped by category
+  const filteredItemsByCategory = useMemo(() => {
+    const map: Record<string, MenuItem[]> = {}
+    categories.forEach((cat) => {
+      map[cat.name] = []
+    })
+    filteredItems.forEach((item) => {
+      if (!map[item.category]) map[item.category] = []
+      map[item.category].push(item)
+    })
+    return map
+  }, [categories, filteredItems])
 
   // Other categories for move dropdowns
   const availableTargetCategories = useMemo(() => {
@@ -208,7 +266,6 @@ export const AdminMenuPage: React.FC = () => {
         name: cleanName
       })
       
-      // Optimistic update of local state
       setCategories(updatedCats)
       if (oldCatName && oldCatName !== cleanName) {
         setItems((prev) =>
@@ -235,7 +292,6 @@ export const AdminMenuPage: React.FC = () => {
     const [movedCat] = newOrder.splice(index, 1)
     newOrder.splice(targetIndex, 0, movedCat)
 
-    // Optimistically update display order
     const orderedIds = newOrder.map((c) => c.id)
     setCategories(newOrder)
 
@@ -402,7 +458,6 @@ export const AdminMenuPage: React.FC = () => {
 
   // Toggle Item Availability (Optimistic update)
   const handleToggleItemAvailability = async (item: MenuItem, newStatus: boolean) => {
-    // Optimistic state update
     setItems((prev) =>
       prev.map((i) => (i.id === item.id ? { ...i, available: newStatus } : i))
     )
@@ -416,7 +471,6 @@ export const AdminMenuPage: React.FC = () => {
       }
     } catch (err) {
       console.error('Toggle availability failed:', err)
-      // Rollback
       setItems((prev) =>
         prev.map((i) => (i.id === item.id ? { ...i, available: !newStatus } : i))
       )
@@ -440,7 +494,6 @@ export const AdminMenuPage: React.FC = () => {
     const previousCategory = itemToMove.category
     const targetItem = itemToMove
 
-    // Optimistic update
     setItems((prev) =>
       prev.map((i) => (i.id === targetItem.id ? { ...i, category: targetCategoryName } : i))
     )
@@ -451,7 +504,6 @@ export const AdminMenuPage: React.FC = () => {
       await moveItem(targetItem.id, targetCategoryName)
     } catch (err) {
       console.error('Move item failed:', err)
-      // Rollback
       setItems((prev) =>
         prev.map((i) => (i.id === targetItem.id ? { ...i, category: previousCategory } : i))
       )
@@ -465,7 +517,6 @@ export const AdminMenuPage: React.FC = () => {
     const idToDelete = itemToDelete.id
     const deletedName = itemToDelete.name
 
-    // Optimistic delete
     setItems((prev) => prev.filter((i) => i.id !== idToDelete))
     setItemToDelete(null)
 
@@ -700,52 +751,262 @@ export const AdminMenuPage: React.FC = () => {
       title="Menu" 
       subtitle="Manage categories, dishes, prices and live catering catalogue"
     >
-      <div className="max-w-4xl mx-auto space-y-6 pb-36">
+      <div className="max-w-6xl mx-auto space-y-5 pb-36">
 
         {/* ======================================================== */}
         {/* HEADER: Title with '+ Category' and '+ Item' buttons     */}
         {/* ======================================================== */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
-          <div>
-            <h1 className="font-heading font-black text-xl sm:text-2xl text-[var(--brand-900)] tracking-tight">
-              Banquet Menu Management
-            </h1>
-            <p className="text-xs text-[var(--text-muted)] font-medium">
-              {categories.length} categories • {items.length} total dishes • All changes update customer catalogue in real-time
-            </p>
+        <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-white shadow-lg relative overflow-hidden border border-amber-950/20">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] tracking-wider uppercase font-black text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-300/30 inline-flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-300" />
+                  <span>Live Catalogue Master</span>
+                </span>
+                <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                  Real-time Sync
+                </span>
+              </div>
+              <h1 className="font-heading font-black text-xl sm:text-2xl lg:text-3xl tracking-tight leading-tight">
+                Banquet Menu Management
+              </h1>
+              <p className="text-xs sm:text-sm text-white/80 font-medium">
+                {categories.length} categories • {items.length} total dishes • Live updates sync instantly across customer booking app
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              {/* + Category Button */}
+              <button
+                type="button"
+                onClick={handleOpenAddCategory}
+                disabled={!isOnline}
+                className="h-10 px-4 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 text-white font-heading font-bold text-xs sm:text-sm border border-white/20 shadow-xs active:scale-95 transition-all flex items-center gap-1.5 tap-target-48 sm:tap-target-auto cursor-pointer backdrop-blur-xs disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <FolderPlus className="w-4 h-4 text-amber-300" />
+                <span>+ Category</span>
+              </button>
+
+              {/* + Item Button */}
+              <button
+                type="button"
+                onClick={() => handleOpenAddItem()}
+                disabled={!isOnline}
+                className="h-10 px-5 rounded-xl sm:rounded-2xl bg-white text-[var(--brand-900)] hover:bg-amber-50 font-heading font-black text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center gap-1.5 tap-target-48 sm:tap-target-auto cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Plus className="w-4 h-4 text-[var(--brand)] stroke-[3]" />
+                <span>+ Item</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* 1. DYNAMIC METRIC KPI CARDS                             */}
+        {/* ======================================================== */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+          {/* Total Dishes */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center gap-3 transition-transform hover:-translate-y-0.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-700 border border-amber-500/20 flex items-center justify-center shrink-0">
+              <UtensilsCrossed className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Dishes</p>
+              <p className="font-heading font-black text-lg sm:text-xl text-slate-900 leading-tight">
+                {items.length}
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            {/* + Category Button */}
-            <button
-              type="button"
-              onClick={handleOpenAddCategory}
-              disabled={!isOnline}
-              className="h-10 px-4 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-heading font-bold text-xs sm:text-sm border border-slate-300 shadow-xs active:scale-95 transition-all flex items-center gap-1.5 tap-target-48 sm:tap-target-auto cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Plus className="w-4 h-4 text-slate-600" />
-              <span>+ Category</span>
-            </button>
+          {/* Active Dishes */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center gap-3 transition-transform hover:-translate-y-0.5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 flex items-center justify-center shrink-0">
+              <Eye className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Active Menu</p>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <p className="font-heading font-black text-lg sm:text-xl text-emerald-800 leading-tight">
+                {availableCount}
+              </p>
+            </div>
+          </div>
 
-            {/* + Item Button (Brand) */}
+          {/* Hidden / Seasonal Dishes */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center gap-3 transition-transform hover:-translate-y-0.5">
+            <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-700 border border-rose-500/20 flex items-center justify-center shrink-0">
+              <EyeOff className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Hidden / Off</p>
+              <p className="font-heading font-black text-lg sm:text-xl text-slate-700 leading-tight">
+                {hiddenCount}
+              </p>
+            </div>
+          </div>
+
+          {/* Average Price */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center gap-3 transition-transform hover:-translate-y-0.5">
+            <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--brand-200)] flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Avg Plate Price</p>
+              <p className="font-heading font-black text-lg sm:text-xl text-[var(--brand-900)] leading-tight">
+                {formatRupees(avgPlatePrice)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* 2. SEARCH, FILTER & VIEW CONTROLS                       */}
+        {/* ======================================================== */}
+        <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search dishes by name, price or category..."
+                className="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] transition-all"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-slate-700 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Status Filter Buttons + View Mode Toggle */}
+            <div className="flex items-center gap-2 justify-between sm:justify-end">
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200/80 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                    statusFilter === 'all'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  All ({items.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('available')}
+                  className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                    statusFilter === 'available'
+                      ? 'bg-white text-emerald-800 shadow-xs'
+                      : 'text-slate-600 hover:text-emerald-700'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Active ({availableCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('hidden')}
+                  className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                    statusFilter === 'hidden'
+                      ? 'bg-white text-rose-800 shadow-xs'
+                      : 'text-slate-600 hover:text-rose-700'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                  <span>Hidden ({hiddenCount})</span>
+                </button>
+              </div>
+
+              {/* View Toggle (Grid vs List) */}
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  aria-label="Grid view"
+                  title="Grid view"
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-white text-[var(--brand)] shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  aria-label="List view"
+                  title="List view"
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === 'list'
+                      ? 'bg-white text-[var(--brand)] shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Quick Category Navigation Pill Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-slate-100">
             <button
               type="button"
-              onClick={() => handleOpenAddItem()}
-              disabled={!isOnline}
-              className="h-10 px-5 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-heading font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center gap-1.5 tap-target-48 sm:tap-target-auto cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setSelectedCategoryFilter('all')}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
+                selectedCategoryFilter === 'all'
+                  ? 'bg-[var(--brand)] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
             >
-              <Plus className="w-4 h-4 text-white" />
-              <span>+ Item</span>
+              All Categories
             </button>
+            {categories.map((cat) => {
+              const catTotal = itemsByCategory[cat.name]?.length || 0
+              const isSelected = selectedCategoryFilter === cat.name
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategoryFilter(isSelected ? 'all' : cat.name)}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                    isSelected
+                      ? 'bg-[var(--brand)] text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  }`}
+                >
+                  <span>{cat.name}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                  }`}>
+                    {catTotal}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
 
         {/* Loading state skeleton */}
         {isLoading && (
           <div className="space-y-4 animate-pulse">
-            <div className="h-32 bg-slate-200/70 rounded-2xl" />
-            <div className="h-32 bg-slate-200/70 rounded-2xl" />
-            <div className="h-32 bg-slate-200/70 rounded-2xl" />
+            <div className="h-44 bg-slate-200/70 rounded-2xl" />
+            <div className="h-44 bg-slate-200/70 rounded-2xl" />
+            <div className="h-44 bg-slate-200/70 rounded-2xl" />
           </div>
         )}
 
@@ -755,7 +1016,19 @@ export const AdminMenuPage: React.FC = () => {
         {!isLoading && (
           <div className="space-y-6">
             {categories.map((cat, index) => {
-              const catItems = itemsByCategory[cat.name] || []
+              const catItems = filteredItemsByCategory[cat.name] || []
+              const allCategoryItemsCount = itemsByCategory[cat.name]?.length || 0
+
+              // If filtering by specific category and this isn't it, skip
+              if (selectedCategoryFilter !== 'all' && selectedCategoryFilter !== cat.name) {
+                return null
+              }
+
+              // If searching and this category has no matching items, skip
+              if ((searchQuery || statusFilter !== 'all') && catItems.length === 0) {
+                return null
+              }
+
               const isDragTarget = dragOverCategoryName === cat.name
 
               return (
@@ -766,14 +1039,14 @@ export const AdminMenuPage: React.FC = () => {
                   onDragOver={(e) => handleDragOverCategory(e, cat.name)}
                   onDragLeave={() => handleDragLeaveCategory(cat.name)}
                   onDrop={(e) => handleDropOnCategory(e, cat.name)}
-                  className={`content-card rounded-[22px] bg-white border transition-all duration-200 shadow-xs overflow-hidden ${
+                  className={`content-card rounded-2xl sm:rounded-3xl bg-white border transition-all duration-200 shadow-xs overflow-hidden ${
                     isDragTarget
                       ? 'border-[var(--brand)] ring-2 ring-[var(--brand)]/20 bg-amber-50/20'
-                      : 'border-slate-200/80 hover:border-slate-300'
+                      : 'border-slate-200/90 hover:border-slate-300'
                   }`}
                 >
-                  {/* Category Header: Drag handle, small up/down buttons, name, count, kebab */}
-                  <div className="p-3.5 sm:p-4 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between gap-3">
+                  {/* Category Header: Drag handle, up/down buttons, name, count, kebab */}
+                  <div className="p-3.5 sm:p-4 bg-gradient-to-r from-slate-50 via-amber-50/20 to-slate-50 border-b border-slate-100 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                       
                       {/* Drag Handle Icon */}
@@ -784,14 +1057,14 @@ export const AdminMenuPage: React.FC = () => {
                         <GripVertical className="w-4 h-4" />
                       </span>
 
-                      {/* Small up/down arrow buttons (so it works without dragging) */}
+                      {/* Small up/down arrow buttons */}
                       <div className="flex flex-col gap-0.5">
                         <button
                           type="button"
                           onClick={() => handleMoveCategory(index, 'up')}
                           disabled={index === 0}
                           aria-label={`Move category ${cat.name} up`}
-                          className="w-5 h-4.5 rounded bg-white hover:bg-slate-200 text-slate-600 disabled:opacity-25 disabled:cursor-not-allowed flex items-center justify-center border border-slate-200/80 shadow-xs transition-colors"
+                          className="w-5 h-4.5 rounded bg-white hover:bg-slate-200 text-slate-600 disabled:opacity-25 disabled:cursor-not-allowed flex items-center justify-center border border-slate-200/80 shadow-2xs transition-colors"
                           title="Move category up"
                         >
                           <ChevronUp className="w-3 h-3" />
@@ -801,7 +1074,7 @@ export const AdminMenuPage: React.FC = () => {
                           onClick={() => handleMoveCategory(index, 'down')}
                           disabled={index === categories.length - 1}
                           aria-label={`Move category ${cat.name} down`}
-                          className="w-5 h-4.5 rounded bg-white hover:bg-slate-200 text-slate-600 disabled:opacity-25 disabled:cursor-not-allowed flex items-center justify-center border border-slate-200/80 shadow-xs transition-colors"
+                          className="w-5 h-4.5 rounded bg-white hover:bg-slate-200 text-slate-600 disabled:opacity-25 disabled:cursor-not-allowed flex items-center justify-center border border-slate-200/80 shadow-2xs transition-colors"
                           title="Move category down"
                         >
                           <ChevronDown className="w-3 h-3" />
@@ -814,7 +1087,8 @@ export const AdminMenuPage: React.FC = () => {
                           {cat.name}
                         </h2>
                         <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white text-slate-600 border border-slate-200/90 shadow-2xs shrink-0">
-                          {catItems.length} {catItems.length === 1 ? 'item' : 'items'}
+                          {catItems.length} {catItems.length === 1 ? 'dish' : 'dishes'}
+                          {allCategoryItemsCount !== catItems.length && ` (of ${allCategoryItemsCount})`}
                         </span>
                       </div>
                     </div>
@@ -840,11 +1114,11 @@ export const AdminMenuPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenAddItem(cat.name)}
-                        className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-[var(--brand)] hover:bg-amber-50/80 transition-colors"
+                        className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-[var(--brand)] hover:bg-amber-50/80 transition-colors cursor-pointer"
                         title="Add dish to this category"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>Add item</span>
+                        <span>Add dish</span>
                       </button>
 
                       <DropdownMenu>
@@ -852,13 +1126,13 @@ export const AdminMenuPage: React.FC = () => {
                           <button
                             type="button"
                             aria-label={`Category options for ${cat.name}`}
-                            className="w-8 h-8 rounded-full hover:bg-slate-200/80 flex items-center justify-center text-slate-600 transition-colors tap-target-48 sm:tap-target-auto"
+                            className="w-8 h-8 rounded-full hover:bg-slate-200/80 flex items-center justify-center text-slate-600 transition-colors tap-target-48 sm:tap-target-auto cursor-pointer"
                             title="Category options"
                           >
                             <MoreVertical className="w-4 h-4" />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44 bg-white shadow-xl rounded-xl p-1 border border-slate-200 z-50">
+                        <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl rounded-xl p-1 border border-slate-200 z-50">
                           <DropdownMenuItem
                             onClick={() => handleOpenRenameCategory(cat)}
                             className="cursor-pointer text-xs font-bold text-slate-700 hover:bg-slate-100 rounded-lg p-2 flex items-center gap-2"
@@ -883,162 +1157,321 @@ export const AdminMenuPage: React.FC = () => {
 
                   {/* ITEMS LIST UNDER CATEGORY (collapsible on phones) */}
                   {!collapsedCategories[cat.id] && (
-                    <div className="divide-y divide-slate-100">
-                    {catItems.length > 0 ? (
-                      <AnimatePresence initial={false}>
-                        {catItems.map((item) => {
-                          const isUnavailable = !item.available
-                          const isBeingDragged = draggedItemId === item.id
+                    <>
+                      {catItems.length > 0 ? (
+                        viewMode === 'grid' ? (
+                          /* ==========================================================
+                             GRID VIEW: Dense Instamart/Zepto-style Modern Cards
+                             ========================================================== */
+                          <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
+                            <AnimatePresence initial={false}>
+                              {catItems.map((item) => {
+                                const isUnavailable = !item.available
+                                const isBeingDragged = draggedItemId === item.id
 
-                          return (
-                            <motion.div
-                              key={item.id}
-                              layout
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                              transition={MOTION_SPRINGS.soft}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent, item.id)}
-                              onDragEnd={() => setDraggedItemId(null)}
-                              className={`p-3 sm:p-4 flex items-center justify-between gap-3 transition-colors ${
-                                isBeingDragged
-                                  ? 'shadow-2xl ring-2 ring-[var(--brand)]/40 rounded-xl bg-white z-20 scale-[1.01]'
-                                  : ''
-                              } ${
-                                isUnavailable 
-                                  ? 'bg-slate-50/80 opacity-60 grayscale' 
-                                  : 'hover:bg-slate-50/50'
-                              }`}
-                            >
-                              {/* Left: Thumbnail & Details */}
-                              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                                
-                                {/* 56px Image Thumbnail */}
-                                <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100 border border-slate-200 shrink-0 flex items-center justify-center">
-                                  {item.image ? (
-                                    <img
-                                      src={item.image}
-                                      alt={item.name}
-                                      width="56"
-                                      height="56"
-                                      decoding="async"
-                                      className="w-full h-full object-cover"
-                                      loading="lazy"
-                                    />
-                                  ) : (
-                                    <span className="text-2xl select-none">
-                                      {item.emoji || '🍛'}
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* Item Name & Price */}
-                                <div className="min-w-0 space-y-0.5">
-                                  <p className={`font-bold text-xs sm:text-sm tracking-tight truncate ${
-                                    isUnavailable ? 'text-slate-500 line-through' : 'text-slate-900'
-                                  }`}>
-                                    {item.name}
-                                  </p>
-                                  <p className="font-heading font-black text-xs sm:text-sm text-[var(--brand)]">
-                                    {formatRupees(item.pricePerPlate)} <span className="text-[11px] font-normal text-slate-500">/ plate</span>
-                                  </p>
-                                  {!item.available && (
-                                    <span className="inline-block text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">
-                                      Unavailable in menu
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Right: Available switch and Kebab menu */}
-                              <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                                
-                                {/* Available Switch (off greys the row) */}
-                                <div className="flex items-center gap-2">
-                                  <label 
-                                    htmlFor={`switch-${item.id}`}
-                                    className="hidden md:inline-block text-[11px] font-bold text-slate-500 cursor-pointer"
+                                return (
+                                  <motion.div
+                                    key={item.id}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={MOTION_SPRINGS.soft}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent, item.id)}
+                                    onDragEnd={() => setDraggedItemId(null)}
+                                    className={`relative rounded-2xl p-2.5 bg-white border transition-all duration-200 flex flex-col justify-between group hover:shadow-md ${
+                                      isBeingDragged
+                                        ? 'shadow-2xl ring-2 ring-[var(--brand)]/40 scale-[1.02] z-20'
+                                        : ''
+                                    } ${
+                                      isUnavailable 
+                                        ? 'border-slate-200 bg-slate-50/70 opacity-75' 
+                                        : 'border-slate-200/90 hover:border-slate-300 shadow-2xs'
+                                    }`}
                                   >
-                                    {item.available ? 'Available' : 'Hidden'}
-                                  </label>
-                                  <Switch
-                                    id={`switch-${item.id}`}
-                                    checked={item.available}
-                                    onCheckedChange={(checked) => handleToggleItemAvailability(item, checked)}
-                                    className="data-checked:bg-emerald-600 transition-colors"
-                                    aria-label={`Toggle availability for ${item.name}`}
-                                    title={item.available ? 'Available in catalogue' : 'Hidden from catalogue'}
-                                  />
-                                </div>
+                                    {/* Top Image */}
+                                    <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100/60 border border-slate-100 flex items-center justify-center">
+                                      {/* Pure Veg indicator */}
+                                      <div 
+                                        aria-hidden="true" 
+                                        className="absolute top-2 left-2 z-10 w-3.5 h-3.5 rounded-[2.5px] border border-emerald-600 bg-white/95 flex items-center justify-center shadow-xs pointer-events-none"
+                                      >
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                                      </div>
 
-                                {/* Item Kebab Menu (Edit, Move to category, Delete) */}
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <button
-                                      type="button"
-                                      aria-label={`Item options for ${item.name}`}
-                                      className="w-8 h-8 rounded-full hover:bg-slate-200/70 flex items-center justify-center text-slate-600 transition-colors tap-target-48 sm:tap-target-auto"
-                                      title="Item options"
-                                    >
-                                      <MoreVertical className="w-4 h-4" />
-                                    </button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl rounded-xl p-1 border border-slate-200 z-50">
-                                    <DropdownMenuItem
-                                      onClick={() => handleOpenEditItem(item)}
-                                      className="cursor-pointer text-xs font-bold text-slate-700 hover:bg-slate-100 rounded-lg p-2 flex items-center gap-2"
-                                    >
-                                      <Edit2 className="w-3.5 h-3.5 text-slate-500" />
-                                      <span>Edit Dish</span>
-                                    </DropdownMenuItem>
+                                      {item.image ? (
+                                        <img
+                                          src={item.image}
+                                          alt={item.name}
+                                          width="240"
+                                          height="180"
+                                          decoding="async"
+                                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                          loading="lazy"
+                                        />
+                                      ) : (
+                                        <span className="text-4xl select-none">
+                                          {item.emoji || '🍛'}
+                                        </span>
+                                      )}
 
-                                    <DropdownMenuItem
-                                      onClick={() => handleOpenMoveItem(item)}
-                                      className="cursor-pointer text-xs font-bold text-slate-700 hover:bg-slate-100 rounded-lg p-2 flex items-center gap-2"
-                                    >
-                                      <FolderInput className="w-3.5 h-3.5 text-slate-500" />
-                                      <span>Move to Category</span>
-                                    </DropdownMenuItem>
+                                      {isUnavailable && (
+                                        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center z-10 pointer-events-none select-none">
+                                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-slate-700 shadow-xs">
+                                            Hidden in App
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
 
-                                    <DropdownMenuSeparator className="my-1 bg-slate-100" />
+                                    {/* Content Details */}
+                                    <div className="pt-2 pb-1 space-y-1">
+                                      <h4 className={`font-heading font-bold text-xs sm:text-sm leading-snug line-clamp-2 min-h-[2.2rem] ${
+                                        isUnavailable ? 'text-slate-500 line-through' : 'text-slate-900'
+                                      }`}>
+                                        {item.name}
+                                      </h4>
+                                      <div className="flex items-baseline gap-1">
+                                        <span className="font-heading font-black text-sm sm:text-base text-[var(--brand)]">
+                                          {formatRupees(item.pricePerPlate)}
+                                        </span>
+                                        <span className="text-[10px] text-slate-400 font-medium">/ plate</span>
+                                      </div>
+                                    </div>
 
-                                    <DropdownMenuItem
-                                      onClick={() => setItemToDelete(item)}
-                                      className="cursor-pointer text-xs font-bold text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg p-2 flex items-center gap-2"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                                      <span>Delete Dish</span>
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                                    {/* Action Toolbar */}
+                                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <Switch
+                                          id={`switch-grid-${item.id}`}
+                                          checked={item.available}
+                                          onCheckedChange={(checked) => handleToggleItemAvailability(item, checked)}
+                                          className="data-checked:bg-emerald-600 transition-colors"
+                                          aria-label={`Toggle availability for ${item.name}`}
+                                          title={item.available ? 'Available in catalogue' : 'Hidden from catalogue'}
+                                        />
+                                        <span className={`text-[10px] font-bold ${item.available ? 'text-emerald-700' : 'text-slate-400'}`}>
+                                          {item.available ? 'Active' : 'Off'}
+                                        </span>
+                                      </div>
 
-                              </div>
-                            </motion.div>
-                          )
-                        })}
-                      </AnimatePresence>
-                    ) : (
-                      /* Empty Category State: 'No items yet. Add one.' */
-                      <div className="p-6 text-center space-y-2">
-                        <p className="text-xs text-slate-500 font-medium">
-                          No items yet. Add one.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenAddItem(cat.name)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-slate-100 hover:bg-slate-200 text-[var(--brand-900)] transition-colors"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </motion.div>
-            )
-          })}
-        </div>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleOpenEditItem(item)}
+                                          className="h-7 w-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                                          title="Edit dish"
+                                        >
+                                          <Edit2 className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleOpenMoveItem(item)}
+                                          className="h-7 w-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                                          title="Move dish"
+                                        >
+                                          <FolderInput className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => setItemToDelete(item)}
+                                          className="h-7 w-7 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer"
+                                          title="Delete dish"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                )
+                              })}
+                            </AnimatePresence>
+                          </div>
+                        ) : (
+                          /* ==========================================================
+                             LIST VIEW: Sleek Row Layout
+                             ========================================================== */
+                          <div className="divide-y divide-slate-100">
+                            <AnimatePresence initial={false}>
+                              {catItems.map((item) => {
+                                const isUnavailable = !item.available
+                                const isBeingDragged = draggedItemId === item.id
+
+                                return (
+                                  <motion.div
+                                    key={item.id}
+                                    layout
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                    transition={MOTION_SPRINGS.soft}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent, item.id)}
+                                    onDragEnd={() => setDraggedItemId(null)}
+                                    className={`p-3 sm:p-4 flex items-center justify-between gap-3 transition-colors ${
+                                      isBeingDragged
+                                        ? 'shadow-2xl ring-2 ring-[var(--brand)]/40 rounded-xl bg-white z-20 scale-[1.01]'
+                                        : ''
+                                    } ${
+                                      isUnavailable 
+                                        ? 'bg-slate-50/80 opacity-60 grayscale' 
+                                        : 'hover:bg-slate-50/50'
+                                    }`}
+                                  >
+                                    {/* Left: Thumbnail & Details */}
+                                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                      <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100 border border-slate-200 shrink-0 flex items-center justify-center">
+                                        {item.image ? (
+                                          <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            width="56"
+                                            height="56"
+                                            decoding="async"
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                          />
+                                        ) : (
+                                          <span className="text-2xl select-none">
+                                            {item.emoji || '🍛'}
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      <div className="min-w-0 space-y-0.5">
+                                        <p className={`font-bold text-xs sm:text-sm tracking-tight truncate ${
+                                          isUnavailable ? 'text-slate-500 line-through' : 'text-slate-900'
+                                        }`}>
+                                          {item.name}
+                                        </p>
+                                        <p className="font-heading font-black text-xs sm:text-sm text-[var(--brand)]">
+                                          {formatRupees(item.pricePerPlate)} <span className="text-[11px] font-normal text-slate-500">/ plate</span>
+                                        </p>
+                                        {!item.available && (
+                                          <span className="inline-block text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">
+                                            Hidden in app
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Right: Available switch and actions */}
+                                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                                      <div className="flex items-center gap-2">
+                                        <label 
+                                          htmlFor={`switch-list-${item.id}`}
+                                          className="hidden md:inline-block text-[11px] font-bold text-slate-500 cursor-pointer"
+                                        >
+                                          {item.available ? 'Available' : 'Hidden'}
+                                        </label>
+                                        <Switch
+                                          id={`switch-list-${item.id}`}
+                                          checked={item.available}
+                                          onCheckedChange={(checked) => handleToggleItemAvailability(item, checked)}
+                                          className="data-checked:bg-emerald-600 transition-colors"
+                                          aria-label={`Toggle availability for ${item.name}`}
+                                          title={item.available ? 'Available in catalogue' : 'Hidden from catalogue'}
+                                        />
+                                      </div>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenEditItem(item)}
+                                        className="w-8 h-8 rounded-full hover:bg-slate-200/70 hidden sm:flex items-center justify-center text-slate-600 transition-colors cursor-pointer"
+                                        title="Edit dish"
+                                      >
+                                        <Edit2 className="w-3.5 h-3.5" />
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenMoveItem(item)}
+                                        className="w-8 h-8 rounded-full hover:bg-slate-200/70 hidden sm:flex items-center justify-center text-slate-600 transition-colors cursor-pointer"
+                                        title="Move dish"
+                                      >
+                                        <FolderInput className="w-3.5 h-3.5" />
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => setItemToDelete(item)}
+                                        className="w-8 h-8 rounded-full hover:bg-rose-50 hidden sm:flex items-center justify-center text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                        title="Delete dish"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+
+                                      {/* Mobile Dropdown Menu */}
+                                      <div className="sm:hidden">
+                                        <DropdownMenu>
+                                          <DropdownMenuTrigger asChild>
+                                            <button
+                                              type="button"
+                                              aria-label={`Item options for ${item.name}`}
+                                              className="w-8 h-8 rounded-full hover:bg-slate-200/70 flex items-center justify-center text-slate-600 transition-colors tap-target-48"
+                                            >
+                                              <MoreVertical className="w-4 h-4" />
+                                            </button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl rounded-xl p-1 border border-slate-200 z-50">
+                                            <DropdownMenuItem
+                                              onClick={() => handleOpenEditItem(item)}
+                                              className="cursor-pointer text-xs font-bold text-slate-700 hover:bg-slate-100 rounded-lg p-2 flex items-center gap-2"
+                                            >
+                                              <Edit2 className="w-3.5 h-3.5 text-slate-500" />
+                                              <span>Edit Dish</span>
+                                            </DropdownMenuItem>
+
+                                            <DropdownMenuItem
+                                              onClick={() => handleOpenMoveItem(item)}
+                                              className="cursor-pointer text-xs font-bold text-slate-700 hover:bg-slate-100 rounded-lg p-2 flex items-center gap-2"
+                                            >
+                                              <FolderInput className="w-3.5 h-3.5 text-slate-500" />
+                                              <span>Move to Category</span>
+                                            </DropdownMenuItem>
+
+                                            <DropdownMenuSeparator className="my-1 bg-slate-100" />
+
+                                            <DropdownMenuItem
+                                              onClick={() => setItemToDelete(item)}
+                                              className="cursor-pointer text-xs font-bold text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg p-2 flex items-center gap-2"
+                                            >
+                                              <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                                              <span>Delete Dish</span>
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                )
+                              })}
+                            </AnimatePresence>
+                          </div>
+                        )
+                      ) : (
+                        /* Empty Category State */
+                        <div className="p-8 text-center space-y-2.5">
+                          <p className="text-xs text-slate-500 font-medium">
+                            No dishes found in this category.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenAddItem(cat.name)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-amber-50 hover:bg-amber-100 text-[var(--brand)] transition-colors cursor-pointer border border-amber-200"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Add first dish</span>
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </motion.div>
+              )
+            })}
+          </div>
         )}
 
       </div>
@@ -1103,7 +1536,6 @@ export const AdminMenuPage: React.FC = () => {
       </Sheet>
 
       {/* ======================================================== */}
-      {/* ======================================================== */}
       {/* (2) ADD / EDIT ITEM: BOTTOM SHEET ON PHONES, DIALOG ON DESKTOP */}
       {/* ======================================================== */}
       {isDesktop ? (
@@ -1127,7 +1559,7 @@ export const AdminMenuPage: React.FC = () => {
                 </button>
               </DialogClose>
             </DialogHeader>
-            {renderItemForm()}
+            {isItemSheetOpen && renderItemForm()}
           </DialogContent>
         </Dialog>
       ) : (
@@ -1151,7 +1583,7 @@ export const AdminMenuPage: React.FC = () => {
                 </button>
               </SheetClose>
             </SheetHeader>
-            {renderItemForm()}
+            {isItemSheetOpen && renderItemForm()}
           </SheetContent>
         </Sheet>
       )}
@@ -1212,7 +1644,6 @@ export const AdminMenuPage: React.FC = () => {
 
       {/* ======================================================== */}
       {/* (4) CATEGORY DELETE CONFIRMATION DIALOG                  */}
-      {/* Forces choice if category has items                     */}
       {/* ======================================================== */}
       <AlertDialog 
         open={Boolean(categoryToDelete)} 
