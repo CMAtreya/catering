@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Rounded Crimson Brand Emblem -->
+  <rect width="64" height="64" rx="16" fill="#b60a06" />
+  
+  <!-- Subtle Inner Border -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="#ffd861" stroke-width="1.5" stroke-opacity="0.6" />
+  
+  <!-- Top Mysore Label -->
+  <text x="32" y="16" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="8" fill="#ffffff" letter-spacing="1">MYSURU</text>
+  
+  <!-- Bold TKS Wordmark -->
+  <text x="32" y="38" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="22" fill="#ffffff" letter-spacing="-0.5">TKS</text>
+  
+  <!-- Warm Gold Banner: Iyengar's -->
+  <rect x="8" y="44" width="48" height="13" rx="6.5" fill="#ffd861" />
+  <text x="32" y="53.5" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="7.5" fill="#b60a06">IYENGARS</text>
+  
+  <!-- Vegetarian Green Mark on Top Right -->
+  <rect x="49" y="7" width="8" height="8" rx="1" fill="#ffffff" />
+  <rect x="50" y="8" width="6" height="6" fill="none" stroke="#008000" stroke-width="1" />
+  <circle cx="53" cy="11" r="1.8" fill="#008000" />
+</svg>

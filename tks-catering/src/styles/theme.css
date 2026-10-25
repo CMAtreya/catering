@@ -1,0 +1,149 @@
+:root {
+  /* ==========================================================
+     1. SOURCE BRAND VARIABLES (Direct from TKS Restaurant Logo)
+     ========================================================== */
+  /* Primary Brand: Deep Ceremonial Crimson from TKS logo wordmark & banner */
+  --brand: #b60a06;
+
+  /* Secondary Brand: Warm Marigold Gold from TKS logo crown & accent flourishes */
+  --brand-2: #ffd861;
+
+  /* ==========================================================
+     2. DERIVED BRAND PALETTE (Dynamically mixed with color-mix)
+     ========================================================== */
+  --brand-50: color-mix(in srgb, var(--brand) 5%, white);
+  --brand-100: color-mix(in srgb, var(--brand) 12%, white);
+  --brand-200: color-mix(in srgb, var(--brand) 25%, white);
+  --brand-300: color-mix(in srgb, var(--brand) 42%, white);
+  --brand-400: color-mix(in srgb, var(--brand) 65%, white);
+  --brand-500: var(--brand);
+  --brand-600: color-mix(in srgb, var(--brand) 85%, black);
+  --brand-700: color-mix(in srgb, var(--brand) 70%, black);
+  --brand-800: color-mix(in srgb, var(--brand) 52%, black);
+  --brand-900: color-mix(in srgb, var(--brand) 35%, black);
+
+  /* Contrast-compliant text on brand (passes 6.92:1 WCAG AA/AAA) */
+  --on-brand: #ffffff;
+
+  /* Brand soft container tint (8% tint on white) */
+  --brand-soft: color-mix(in srgb, var(--brand) 8%, white);
+
+  /* Brand focus ring (35% alpha) */
+  --brand-ring: color-mix(in srgb, var(--brand) 35%, transparent);
+
+  /* ==========================================================
+     3. DERIVED SECONDARY BRAND PALETTE (--brand-2)
+     ========================================================== */
+  --brand-2-50: color-mix(in srgb, var(--brand-2) 10%, white);
+  --brand-2-100: color-mix(in srgb, var(--brand-2) 20%, white);
+  --brand-2-200: color-mix(in srgb, var(--brand-2) 35%, white);
+  --brand-2-300: color-mix(in srgb, var(--brand-2) 55%, white);
+  --brand-2-400: color-mix(in srgb, var(--brand-2) 80%, white);
+  --brand-2-500: var(--brand-2);
+  --brand-2-600: color-mix(in srgb, var(--brand-2) 85%, black);
+  --brand-2-700: color-mix(in srgb, var(--brand-2) 70%, black);
+  --brand-2-800: color-mix(in srgb, var(--brand-2) 50%, black);
+  --brand-2-900: color-mix(in srgb, var(--brand-2) 30%, black);
+
+  /* High-contrast text on brand-2 gold (passes 8.8:1 WCAG AAA) */
+  --on-brand-2: #3a2202;
+  --brand-2-soft: color-mix(in srgb, var(--brand-2) 10%, white);
+  --brand-2-ring: color-mix(in srgb, var(--brand-2) 35%, transparent);
+
+  /* ==========================================================
+     4. INTERFACE BASE, RADIAL BLOBS & GLASS SURFACES
+     ========================================================== */
+  /* Soft base background */
+  --bg-base: #F7F7F8;
+  --text-primary: #18181b;
+  --text-muted: #52525b;
+
+  /* Two blurred radial blobs at 10% to 14% strength */
+  --blob-brand: color-mix(in srgb, var(--brand) 12%, transparent);
+  --blob-brand-2: color-mix(in srgb, var(--brand-2) 14%, transparent);
+
+  /* Glass surfaces: white at 62% to 82% opacity with faint 3% to 5% brand tint */
+  --glass-surface: color-mix(in srgb, var(--brand) 4%, rgba(255, 255, 255, 0.76));
+  --glass-surface-subtle: color-mix(in srgb, var(--brand) 3%, rgba(255, 255, 255, 0.65));
+  --glass-surface-elevated: color-mix(in srgb, var(--brand) 4%, rgba(255, 255, 255, 0.82));
+  --glass-border: color-mix(in srgb, var(--brand) 10%, rgba(255, 255, 255, 0.85));
+  --glass-border-subtle: color-mix(in srgb, var(--brand) 6%, rgba(255, 255, 255, 0.6));
+  --glass-shadow: 0 12px 32px -8px rgba(182, 10, 6, 0.07), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  --glass-shadow-hover: 0 20px 40px -12px rgba(182, 10, 6, 0.12), 0 6px 16px -2px rgba(0, 0, 0, 0.06);
+
+  /* ==========================================================
+     5. STATUS CHIP COLOURS (Fixed & Independent of Logo)
+     ========================================================== */
+  /* New Request: Blue (Contrast: 8.01:1 - WCAG AAA) */
+  --status-new-bg: #EFF6FF;
+  --status-new-text: #1E40AF;
+  --status-new-border: #BFDBFE;
+
+  /* Under Discussion: Amber (Contrast: 8.15:1 - WCAG AAA) */
+  --status-discussion-bg: #FEF3C7;
+  --status-discussion-text: #78350F;
+  --status-discussion-border: #FDE68A;
+
+  /* Confirmed: Green (Contrast: 7.29:1 - WCAG AAA) */
+  --status-confirmed-bg: #ECFDF5;
+  --status-confirmed-text: #065F46;
+  --status-confirmed-border: #A7F3D0;
+
+  /* Completed: Grey (Contrast: 9.37:1 - WCAG AAA) */
+  --status-completed-bg: #F3F4F6;
+  --status-completed-text: #374151;
+  --status-completed-border: #E5E7EB;
+
+  /* Cancelled: Red (Contrast: 7.60:1 - WCAG AAA) */
+  --status-cancelled-bg: #FEF2F2;
+  --status-cancelled-text: #991B1B;
+  --status-cancelled-border: #FECACA;
+}
+
+/* Base Body with Soft #F7F7F8 and Two Blurred Radial Background Blobs */
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  background-image: 
+    radial-gradient(circle at 15% 15%, var(--blob-brand) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, var(--blob-brand-2) 0%, transparent 45%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+/* Glassmorphism Surface Utilities */
+.glass-surface {
+  background: var(--glass-surface);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-surface-subtle {
+  background: var(--glass-surface-subtle);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid var(--glass-border-subtle);
+}
+
+.glass-surface-elevated {
+  background: var(--glass-surface-elevated);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+/* White Logo Tile Container */
+.logo-tile {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 0.375rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

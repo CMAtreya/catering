@@ -1,0 +1,127 @@
+/* ==========================================================
+   TKS IYENGARS CATERING - APPLE & QUICK-COMMERCE FROSTED GLASS
+   Rules: Frosted glass ONLY on top bar, bottom bars, sheets,
+   and floating bars. Content cards stay solid white.
+   Optimized for budget Android 4G devices with smooth GPU compositing.
+   ========================================================== */
+
+/* Frosted Top Bar & Header with safe-area */
+.glass-top-bar {
+  background: color-mix(in srgb, var(--brand) 3%, rgba(255, 255, 255, 0.88));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid color-mix(in srgb, var(--brand) 7%, rgba(0, 0, 0, 0.08));
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+/* Frosted Sticky Bottom Action Bar & Navigation with safe-area */
+.glass-bottom-bar {
+  background: color-mix(in srgb, var(--brand) 4%, rgba(255, 255, 255, 0.90));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid color-mix(in srgb, var(--brand) 8%, rgba(0, 0, 0, 0.07));
+  box-shadow: 0 -4px 20px -2px rgba(0, 0, 0, 0.05);
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+}
+
+/* Frosted Bottom Sheets (Drawer) */
+.glass-sheet {
+  background: color-mix(in srgb, var(--brand) 3%, rgba(255, 255, 255, 0.95));
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border-top: 1px solid color-mix(in srgb, var(--brand) 10%, rgba(255, 255, 255, 0.9));
+  box-shadow: 0 -12px 40px -10px rgba(0, 0, 0, 0.12);
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+}
+
+/* Standalone polish: prevent pull-to-refresh from interfering with sheets */
+[data-slot="sheet-content"],
+[data-slot="dialog-content"],
+[role="dialog"] {
+  overscroll-behavior: contain;
+}
+
+/* Frosted Floating Pill / Notification Toast Bar */
+.glass-floating-bar {
+  background: color-mix(in srgb, var(--brand) 4%, rgba(255, 255, 255, 0.92));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid color-mix(in srgb, var(--brand) 12%, rgba(255, 255, 255, 0.95));
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Performance on Budget Android / Mobile below 768px:
+   Reduce glass blur to 10-12px, drop saturate() */
+@media (max-width: 767px) {
+  .glass-top-bar {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .glass-bottom-bar {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .glass-sheet {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .glass-floating-bar {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+/* Orientation: landscape on phones keeps bottom bars compact (48px) and lets sheets scroll */
+@media (max-height: 500px) and (orientation: landscape) {
+  .glass-bottom-bar {
+    padding-top: 0.25rem;
+    padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
+    min-height: 48px;
+  }
+  .glass-top-bar {
+    padding-top: max(0.25rem, env(safe-area-inset-top));
+    padding-bottom: 0.25rem;
+    min-height: 48px;
+  }
+}
+
+/* Fallback for browsers / devices that do not support backdrop-filter */
+@supports not (backdrop-filter: blur(10px)) {
+  .glass-top-bar {
+    background: #ffffff;
+  }
+  .glass-bottom-bar {
+    background: #ffffff;
+  }
+  .glass-sheet {
+    background: #ffffff;
+  }
+  .glass-floating-bar {
+    background: #ffffff;
+  }
+}
+
+/* Solid White Content Cards (Per Specification: Content cards stay solid white) */
+.content-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--brand) 8%, rgba(0, 0, 0, 0.06));
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  contain: content;
+}
+
+.content-card-interactive:active {
+  transform: scale(0.985);
+}
+
+/* Touch tap target utility (minimum 48px) */
+.tap-target-48 {
+  min-height: 48px;
+  min-width: 48px;
+}

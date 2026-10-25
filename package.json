@@ -1,0 +1,9 @@
+{
+  "name": "catering-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix tks-catering run dev",
+    "build": "npm --prefix tks-catering run build",
+    "lint": "npm --prefix tks-catering run lint"
+  }
+}

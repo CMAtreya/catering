@@ -1,0 +1,275 @@
+@import "./styles/theme.css";
+@import "./styles/glass.css";
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-sans: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Geist Variable', system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-kannada: 'Noto Sans Kannada', sans-serif;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  --color-brand-2-50: var(--brand-2-50);
+  --color-brand-2-100: var(--brand-2-100);
+  --color-brand-2-200: var(--brand-2-200);
+  --color-brand-2-300: var(--brand-2-300);
+  --color-brand-2-400: var(--brand-2-400);
+  --color-brand-2-500: var(--brand-2-500);
+  --color-brand-2-600: var(--brand-2-600);
+  --color-brand-2-700: var(--brand-2-700);
+  --color-brand-2-800: var(--brand-2-800);
+  --color-brand-2-900: var(--brand-2-900);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Bind shadcn system tokens to theme.css variables */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+
+  --card: var(--glass-surface);
+  --card-foreground: var(--text-primary);
+
+  --popover: var(--glass-surface-elevated);
+  --popover-foreground: var(--text-primary);
+
+  --primary: var(--brand);
+  --primary-foreground: var(--on-brand);
+
+  --secondary: var(--brand-soft);
+  --secondary-foreground: var(--brand-900);
+
+  --muted: var(--brand-50);
+  --muted-foreground: var(--text-muted);
+
+  --accent: var(--brand-soft);
+  --accent-foreground: var(--brand-800);
+
+  --destructive: var(--status-cancelled-text);
+  --destructive-foreground: #ffffff;
+
+  --border: var(--glass-border);
+  --input: var(--brand-200);
+  --ring: var(--brand-ring);
+}
+
+/* Glassmorphism interactive card */
+.glass-card {
+  background: var(--glass-surface);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-300);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+/* Glass pill badge */
+.glass-pill {
+  background: var(--glass-surface-subtle);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-subtle);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-200);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-400);
+}
+
+/* Hide scrollbar for category tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ==========================================================
+   ACCESSIBILITY (a11y) & MOBILE PERFORMANCE
+   ========================================================== */
+
+/* Visible high-contrast focus rings for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--brand) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px var(--brand-100) !important;
+}
+
+/* Canonical Z-Index Scale: content 0, sticky headers 10, bars 20, sheets 30, dialogs 40, toasts 50 */
+:root {
+  --z-content: 0;
+  --z-header: 10;
+  --z-bar: 20;
+  --z-sheet: 30;
+  --z-dialog: 40;
+  --z-toast: 50;
+}
+
+/* Smooth mobile touch scrolling & safe area root */
+html, body {
+  -webkit-overflow-scrolling: touch;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  /* Brand tint tap highlight */
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--brand) 25%, transparent);
+}
+
+/* Touch responsiveness: touch-action manipulation removes 300ms tap delay */
+button,
+[role="button"],
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* Minimum 16px font-size on inputs/select/textarea to eliminate iOS zoom on focus */
+@media screen and (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Kannada typography per spec: Kannada text keeps line-height 1.65 */
+.font-kannada,
+[lang="kn"],
+.kannada-text {
+  line-height: 1.65 !important;
+}
+
+/* Dynamic viewport height helper */
+.dvh-screen {
+  height: 100dvh;
+}
+.min-dvh-screen {
+  min-height: 100dvh;
+}
+
+/* Quiet luxury font utility */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Fine hairline borders */
+.border-hairline {
+  border-width: 0.5px;
+  border-color: color-mix(in srgb, var(--brand) 12%, rgba(0, 0, 0, 0.08));
+}
+
+/* Tactile glass for boutique hotel feel */
+.tactile-glass {
+  background: color-mix(in srgb, var(--brand) 2%, rgba(255, 255, 255, 0.92));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+/* Brand foil shimmer for invitation card unfold */
+@keyframes foilShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.foil-shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    color-mix(in srgb, var(--brand-2) 40%, rgba(255, 255, 255, 0.6)) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: foilShimmer 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* User reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
