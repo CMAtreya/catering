@@ -17,6 +17,8 @@ export default defineConfig({
         'apple-touch-icon-180x180.png',
         'logo.webp',
         'logo-128.webp',
+        'logo.svg',
+        'logo.png',
         'admin.webmanifest'
       ],
       manifest: {

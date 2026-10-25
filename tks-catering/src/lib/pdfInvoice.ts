@@ -2,6 +2,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { Order } from '@/data/mockData'
 import type { OrderPricingResult } from '@/lib/pricing'
+import { LOGO_BASE64 } from '@/lib/logoBase64'
 
 /**
  * Builds the official A4 PDF document for TKS Iyengars Catering Invoice
@@ -53,23 +54,27 @@ export function buildInvoicePdf(order: Order, pricing: OrderPricingResult): jsPD
   // Header Content
   // Logo Tile
   doc.setFillColor(255, 255, 255)
-  doc.roundedRect(margin, 7, 18, 18, 3, 3, 'F')
-  doc.setTextColor(...brandColor)
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(11)
-  doc.text('TKS', margin + 9, 18, { align: 'center' })
+  doc.roundedRect(margin, 7, 22, 18, 3, 3, 'F')
+  try {
+    doc.addImage(LOGO_BASE64, 'PNG', margin + 1.5, 8, 19, 16)
+  } catch {
+    doc.setTextColor(...brandColor)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text('TKS', margin + 11, 18, { align: 'center' })
+  }
 
   // Business Name & Subtitle
   doc.setTextColor(255, 255, 255)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(16)
-  doc.text('TKS Iyengars Catering', margin + 22, 14)
+  doc.text('TKS Iyengars Catering', margin + 26, 14)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8.5)
   doc.setTextColor(245, 230, 230)
-  doc.text('142/A, Krishnamurthy Puram, Mysuru, Karnataka 570004 | Phone: +91 90000 00000', margin + 22, 20)
-  doc.text('GSTIN: 29AAAAA0000A1Z5 | FSSAI Lic. No: 11223344556677', margin + 22, 25)
+  doc.text('142/A, Krishnamurthy Puram, Mysuru, Karnataka 570004 | Phone: +91 90000 00000', margin + 26, 20)
+  doc.text('GSTIN: 29AAAAA0000A1Z5 | FSSAI Lic. No: 11223344556677', margin + 26, 25)
 
   // Invoice Title & Metadata on the Right
   doc.setTextColor(255, 255, 255)
