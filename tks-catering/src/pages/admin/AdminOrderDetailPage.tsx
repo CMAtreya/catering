@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { 
   ArrowLeft, 
   Phone, 
-  MoreVertical, 
   Plus, 
   Minus, 
   UtensilsCrossed, 
@@ -13,7 +12,6 @@ import {
   Printer, 
   CheckCircle2, 
   Sparkles,
-  RefreshCw,
   Clock,
   ShieldAlert,
   Eye,
@@ -49,13 +47,6 @@ import {
   SheetTitle, 
   SheetClose 
 } from '@/components/ui/sheet'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -493,56 +484,6 @@ export const AdminOrderDetailPage: React.FC = () => {
                 })}
               </p>
             </div>
-          </div>
-
-          {/* Kebab Action Menu */}
-          <div className="flex items-center gap-2 shrink-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="More actions for this order"
-                  className="w-9 h-9 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors tap-target-48 sm:tap-target-auto"
-                  title="More actions"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52 bg-white shadow-xl rounded-xl p-1 border border-slate-200 z-50">
-                {initialOrder.status === 'New Request' && (
-                  <DropdownMenuItem
-                    onClick={handleMarkUnderDiscussion}
-                    className="cursor-pointer text-xs font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-900 rounded-lg p-2 flex items-center gap-2"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Mark Under Discussion</span>
-                  </DropdownMenuItem>
-                )}
-
-                {isConfirmedOrLater && (
-                  <DropdownMenuItem
-                    onClick={() => navigate(`/admin/orders/${initialOrder.id}/invoice`)}
-                    className="cursor-pointer text-xs font-bold text-slate-700 hover:bg-slate-100 rounded-lg p-2 flex items-center gap-2"
-                  >
-                    <Printer className="w-3.5 h-3.5 text-[var(--brand)]" />
-                    <span>View / Print Invoice</span>
-                  </DropdownMenuItem>
-                )}
-
-                {initialOrder.status !== 'Cancelled' && (
-                  <>
-                    <DropdownMenuSeparator className="my-1 bg-slate-100" />
-                    <DropdownMenuItem
-                      onClick={handleOpenCancelDialog}
-                      className="cursor-pointer text-xs font-bold text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg p-2 flex items-center gap-2"
-                    >
-                      <X className="w-3.5 h-3.5 text-red-500" />
-                      <span>Cancel Order</span>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
 
