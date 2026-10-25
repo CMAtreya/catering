@@ -295,7 +295,69 @@ export const AdminCreateOrderPage: React.FC = () => {
           
           {/* Left Pane: Details & Food Selection (7 cols) */}
           <div className="lg:col-span-7 space-y-4 min-w-0">
-            {/* (1) MOBILE NUMBER FIRST AND REQUIRED (+91)               */}
+
+            {/* ======================================================== */}
+            {/* (1) FOOD MENU ITEMS (AT THE BEGINNING)                   */}
+            {/* ======================================================== */}
+            <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-heading font-black text-sm sm:text-base text-[var(--brand-900)] flex items-center gap-2">
+                    <UtensilsCrossed className="w-4 h-4 text-[var(--brand)]" />
+                    <span>Food Menu Items</span>
+                  </h3>
+                  <p className="text-[11px] text-[var(--text-muted)] font-medium">
+                    {selectedItemsList.length} items chosen ({formatRupees(perPlateTotal)} / plate)
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsFoodSheetOpen(true)}
+                  className="px-4 py-2 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] font-heading font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all tap-target-48 sm:tap-target-auto cursor-pointer"
+                >
+                  <UtensilsCrossed className="w-3.5 h-3.5" />
+                  <span>{selectedItemsList.length > 0 ? 'Edit items' : 'Select items'}</span>
+                </button>
+              </div>
+
+              {/* Currently selected items preview list */}
+              {selectedItemsList.length > 0 ? (
+                <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden bg-slate-50/50">
+                  {selectedItemsList.map((item) => (
+                    <div key={item.id} className="p-2.5 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base select-none">{item.emoji || '🍽️'}</span>
+                        <span className="font-bold text-[var(--text-primary)]">{item.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-slate-600">
+                          {formatRupees(item.pricePerPlate)} / plate
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleItem(item)}
+                          className="text-slate-400 hover:text-red-500 p-1 transition-colors"
+                          title="Remove dish"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div 
+                  onClick={() => setIsFoodSheetOpen(true)}
+                  className="p-5 rounded-xl border border-dashed border-slate-200 hover:border-[var(--brand-300)] bg-slate-50/50 hover:bg-amber-50/20 text-center text-xs text-slate-500 cursor-pointer transition-colors space-y-1.5"
+                >
+                  <p className="font-bold text-slate-700">No dishes selected yet</p>
+                  <p className="text-[11px] text-slate-400">Tap here or click 'Select items' to choose dishes from the catering catalogue.</p>
+                </div>
+              )}
+            </div>
+
+            {/* (2) MOBILE NUMBER (+91)                                   */}
             <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <label htmlFor="customer-mobile" className="font-heading font-black text-sm text-[var(--brand-900)] flex items-center gap-1.5">
@@ -599,61 +661,6 @@ export const AdminCreateOrderPage: React.FC = () => {
           />
         </div>
 
-        {/* ======================================================== */}
-        {/* (9) FOOD ITEMS: BOTTOM SHEET SELECTOR                    */}
-        {/* ======================================================== */}
-        <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-heading font-black text-sm sm:text-base text-[var(--brand-900)]">
-                Food Menu Items
-              </h3>
-              <p className="text-[11px] text-[var(--text-muted)] font-medium">
-                {selectedItemsList.length} items chosen ({formatRupees(perPlateTotal)} / plate)
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsFoodSheetOpen(true)}
-              className="px-4 py-2 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] font-heading font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all tap-target-48 sm:tap-target-auto"
-            >
-              <UtensilsCrossed className="w-3.5 h-3.5" />
-              <span>{selectedItemsList.length > 0 ? 'Edit items' : 'Select items'}</span>
-            </button>
-          </div>
-
-          {/* Currently selected items preview list */}
-          {selectedItemsList.length > 0 ? (
-            <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden bg-slate-50/50">
-              {selectedItemsList.map((item) => (
-                <div key={item.id} className="p-2.5 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base select-none">{item.emoji || '🍽️'}</span>
-                    <span className="font-bold text-[var(--text-primary)]">{item.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-600">
-                      {formatRupees(item.pricePerPlate)} / plate
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleToggleItem(item)}
-                      className="text-slate-400 hover:text-red-500 p-1"
-                      title="Remove dish"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="p-4 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
-              No dishes selected yet. Tap 'Select items' to choose dishes from the catering catalogue.
-            </div>
-          )}
-          </div>
           </div>
 
           {/* Right Pane: Sticky Pricing & Action Block (5 cols on 1024px+) */}
