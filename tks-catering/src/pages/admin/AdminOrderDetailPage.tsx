@@ -14,7 +14,10 @@ import {
   CheckCircle2, 
   Sparkles,
   RefreshCw,
-  Clock
+  Clock,
+  ShieldAlert,
+  Eye,
+  EyeOff
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -120,6 +123,10 @@ export const AdminOrderDetailPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false)
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState<boolean>(false)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState<boolean>(false)
+  const [cancelPasscode, setCancelPasscode] = useState<string>('')
+  const [passcodeError, setPasscodeError] = useState<string>('')
+  const [showCancelPasscode, setShowCancelPasscode] = useState<boolean>(false)
+  const [isCancelling, setIsCancelling] = useState<boolean>(false)
 
   // Network online status for offline rules (disable actions while offline)
   const [isOnline, setIsOnline] = useState<boolean>(() => {
@@ -359,16 +366,34 @@ export const AdminOrderDetailPage: React.FC = () => {
     }
   }
 
-  // Status Action: Cancel Order
-  const handleCancelOrder = async () => {
-    if (!id) return
+  // Status Action: Cancel Order (Protected by Passcode)
+  const handleOpenCancelDialog = () => {
+    setCancelPasscode('')
+    setPasscodeError('')
+    setShowCancelPasscode(false)
+    setIsCancelDialogOpen(true)
+  }
+
+  const handleConfirmCancel = async () => {
+    if (!id || !initialOrder) return
+    const trimmed = cancelPasscode.trim()
+    const validPasscodes = ['1965', 'mysore1965', 'admin123']
+    if (!validPasscodes.includes(trimmed)) {
+      setPasscodeError('Incorrect passcode. Please enter valid admin passcode.')
+      return
+    }
     try {
+      setIsCancelling(true)
       const updated = await setStatus(id, 'Cancelled')
       setInitialOrder(updated)
       setIsCancelDialogOpen(false)
-      toast.error('Order cancelled')
+      setCancelPasscode('')
+      setPasscodeError('')
+      toast.error(`Order #${initialOrder.id} cancelled`)
     } catch {
       toast.error('Failed to cancel order')
+    } finally {
+      setIsCancelling(false)
     }
   }
 
@@ -508,7 +533,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   <>
                     <DropdownMenuSeparator className="my-1 bg-slate-100" />
                     <DropdownMenuItem
-                      onClick={() => setIsCancelDialogOpen(true)}
+                      onClick={handleOpenCancelDialog}
                       className="cursor-pointer text-xs font-bold text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg p-2 flex items-center gap-2"
                     >
                       <X className="w-3.5 h-3.5 text-red-500" />
@@ -1208,7 +1233,7 @@ export const AdminOrderDetailPage: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => setIsCancelDialogOpen(true)}
+                      onClick={handleOpenCancelDialog}
                       disabled={!isOnline}
                       className="h-8 sm:h-8.5 px-3 sm:px-3.5 rounded-full bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs border border-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
@@ -1354,28 +1379,109 @@ export const AdminOrderDetailPage: React.FC = () => {
       </AlertDialog>
 
       {/* ======================================================== */}
-      {/* CANCEL ORDER ALERT DIALOG                                */}
+      {/* CANCEL ORDER ALERT DIALOG (Passcode Protected)           */}
       {/* ======================================================== */}
-      <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
-        <AlertDialogContent className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xl max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="font-heading font-black text-lg text-rose-900">
-              Cancel this catering booking?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-xs sm:text-sm text-slate-600">
-              Are you sure you want to cancel order {initialOrder.id}? This will remove it from the active banquet schedule.
+      <AlertDialog
+        open={isCancelDialogOpen}
+        onOpenChange={(open) => {
+          setIsCancelDialogOpen(open)
+          if (!open) {
+            setCancelPasscode('')
+            setPasscodeError('')
+            setShowCancelPasscode(false)
+          }
+        }}
+      >
+        <AlertDialogContent className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-2xl max-w-md">
+          <AlertDialogHeader className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+                <ShieldAlert className="w-5 h-5" />
+              </div>
+              <div>
+                <AlertDialogTitle className="font-heading font-black text-lg text-rose-900 leading-tight">
+                  Cancel Catering Order
+                </AlertDialogTitle>
+                <p className="text-xs text-rose-600 font-semibold">
+                  Order #{initialOrder.id} • {initialOrder.customerName}
+                </p>
+              </div>
+            </div>
+            <AlertDialogDescription className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Cancelling will remove this booking from the active banquet schedule and kitchen sheets. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-4 flex gap-2">
-            <AlertDialogCancel className="rounded-full text-xs font-bold">
-              Keep Active
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleCancelOrder}
-              className="rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold"
+
+          {/* Passcode input field */}
+          <div className="space-y-2 py-3 border-y border-slate-100 my-1">
+            <label htmlFor="cancel-order-passcode" className="block text-xs font-bold text-slate-700">
+              Enter Admin Passcode to Authorize <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                id="cancel-order-passcode"
+                type={showCancelPasscode ? 'text' : 'password'}
+                autoFocus
+                value={cancelPasscode}
+                onChange={(e) => {
+                  setCancelPasscode(e.target.value)
+                  if (passcodeError) setPasscodeError('')
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleConfirmCancel()
+                  }
+                }}
+                placeholder="Enter passcode (e.g. 1965)"
+                className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-mono outline-none transition-all pr-10 ${
+                  passcodeError
+                    ? 'border-rose-400 bg-rose-50/50 focus:ring-2 focus:ring-rose-200 text-rose-900'
+                    : 'border-slate-200 bg-slate-50/50 focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-200)] text-slate-900'
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowCancelPasscode(!showCancelPasscode)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 rounded-md"
+                title={showCancelPasscode ? 'Hide passcode' : 'Show passcode'}
+              >
+                {showCancelPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {passcodeError ? (
+              <p className="text-xs font-bold text-rose-600 flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{passcodeError}</span>
+              </p>
+            ) : (
+              <p className="text-[11px] text-slate-400 font-medium">
+                Admin authorization passcode: <span className="font-mono font-bold text-slate-600">1965</span>
+              </p>
+            )}
+          </div>
+
+          <AlertDialogFooter className="mt-3 flex gap-2 sm:justify-end">
+            <AlertDialogCancel
+              onClick={() => {
+                setIsCancelDialogOpen(false)
+                setCancelPasscode('')
+                setPasscodeError('')
+              }}
+              className="rounded-full text-xs font-bold px-4 py-2 hover:bg-slate-100"
             >
-              Yes, Cancel Order
-            </AlertDialogAction>
+              Keep Order Active
+            </AlertDialogCancel>
+            <button
+              type="button"
+              id="confirm-cancel-order-btn"
+              onClick={handleConfirmCancel}
+              disabled={!cancelPasscode.trim() || isCancelling}
+              className="rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-4 py-2 shadow-md active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+            >
+              {isCancelling ? 'Cancelling...' : 'Confirm Cancellation'}
+            </button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

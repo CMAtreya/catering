@@ -126,6 +126,27 @@ test.describe('Admin Flow & Controls QA', () => {
       await page.keyboard.press('Escape')
       await expect(page).toHaveURL(/\/admin\/orders\/TKS-ORD-100$/)
     }
+
+    // 5. Test Passcode-Protected Order Cancellation
+    await page.goto('/admin/orders/TKS-ORD-101')
+    await page.waitForLoadState('networkidle')
+    const cancelBtn = page.locator('button:has-text("Cancel order")').first()
+    if (await cancelBtn.isVisible()) {
+      await cancelBtn.click()
+      const passcodeDialog = page.locator('text=Cancel Catering Order')
+      await expect(passcodeDialog).toBeVisible()
+
+      // Entering incorrect passcode should show error
+      const passcodeInput = page.locator('#cancel-order-passcode')
+      await passcodeInput.fill('wrongpass')
+      await page.locator('#confirm-cancel-order-btn').click()
+      await expect(page.locator('text=Incorrect passcode')).toBeVisible()
+
+      // Entering valid passcode (1965) should authorize cancellation
+      await passcodeInput.fill('1965')
+      await page.locator('#confirm-cancel-order-btn').click()
+      await expect(page.locator('text=This catering request was cancelled.')).toBeVisible()
+    }
   })
 
   test('Admin Menu Management & CRM matching', async ({ page }) => {
