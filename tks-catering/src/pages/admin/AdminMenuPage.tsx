@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { 
   Plus, 
-  GripVertical, 
   ChevronUp, 
   ChevronDown, 
   MoreVertical, 
@@ -1049,14 +1048,6 @@ export const AdminMenuPage: React.FC = () => {
                   <div className="p-3.5 sm:p-4 bg-gradient-to-r from-slate-50 via-amber-50/20 to-slate-50 border-b border-slate-100 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                       
-                      {/* Drag Handle Icon */}
-                      <span 
-                        className="text-slate-400 hover:text-slate-700 cursor-grab active:cursor-grabbing p-1"
-                        title="Drag to reorder"
-                      >
-                        <GripVertical className="w-4 h-4" />
-                      </span>
-
                       {/* Small up/down arrow buttons */}
                       <div className="flex flex-col gap-0.5">
                         <button
