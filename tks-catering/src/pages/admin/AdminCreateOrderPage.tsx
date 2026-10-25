@@ -297,7 +297,194 @@ export const AdminCreateOrderPage: React.FC = () => {
           <div className="lg:col-span-7 space-y-4 min-w-0">
 
             {/* ======================================================== */}
-            {/* (1) FOOD MENU ITEMS (AT THE BEGINNING)                   */}
+            {/* (1) CUSTOMER MOBILE NUMBER (+91)                         */}
+            {/* ======================================================== */}
+            <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <label htmlFor="customer-mobile" className="font-heading font-black text-sm text-[var(--brand-900)] flex items-center gap-1.5">
+                  <Phone className="w-4 h-4 text-[var(--brand)]" />
+                  <span>Customer Mobile Number</span>
+                  <span className="text-red-500 font-bold">*</span>
+                </label>
+                <span className="text-[11px] text-[var(--text-muted)] font-medium">Required to save</span>
+              </div>
+
+              <div className="flex rounded-xl overflow-hidden border border-slate-200 bg-white focus-within:ring-2 focus-within:ring-[var(--brand-300)] focus-within:border-[var(--brand)]">
+                <span className="px-3 py-2.5 bg-slate-50 text-slate-700 font-bold text-xs flex items-center border-r border-slate-200 select-none">
+                  +91
+                </span>
+                <input
+                  id="customer-mobile"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  placeholder="e.g. 98450 12345"
+                  value={mobile}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '')
+                    setMobile(val)
+                    if (mobileError) setMobileError(null)
+                  }}
+                  className="flex-1 px-3 py-2.5 text-sm font-semibold outline-none bg-transparent"
+                />
+              </div>
+
+              {mobileError && (
+                <p className="text-xs font-bold text-red-600">{mobileError}</p>
+              )}
+
+              {/* Inline card when mobile matches existing customer per spec:
+                  "When it matches an existing customer, show an inline card 'Existing customer: Name, N enquiries, M confirmed orders' with 'Use this customer'" */}
+              {matchedCustomer && (
+                <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/90 text-amber-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 mt-2 shadow-xs">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5 font-heading font-bold text-xs text-amber-900">
+                      <UserCheck className="w-4 h-4 text-amber-700" />
+                      <span>Existing customer: {matchedCustomer.name}</span>
+                    </div>
+                    <p className="text-[11px] text-amber-800 font-medium">
+                      {matchedCustomer.enquiryCount} enquiries, {matchedCustomer.confirmedCount} confirmed orders
+                    </p>
+                    {matchedCustomer.notes && (
+                      <p className="text-[10px] text-amber-700 italic truncate max-w-sm">
+                        "{matchedCustomer.notes}"
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleUseExistingCustomer}
+                    disabled={isCustomerLinked}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 tap-target-48 sm:tap-target-auto ${
+                      isCustomerLinked
+                        ? 'bg-emerald-600 text-white cursor-default'
+                        : 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs'
+                    }`}
+                  >
+                    {isCustomerLinked ? (
+                      <span className="flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>Customer linked</span>
+                      </span>
+                    ) : (
+                      'Use this customer'
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* ======================================================== */}
+            {/* (2) CUSTOMER NAME                                        */}
+            {/* ======================================================== */}
+            <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2">
+              <label htmlFor="customer-name" className="font-heading font-black text-sm text-[var(--brand-900)] block">
+                Customer Name
+              </label>
+              <Input
+                id="customer-name"
+                type="text"
+                placeholder="e.g. Kalyan Ramanathan"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="h-11 rounded-xl bg-white text-sm font-medium"
+              />
+            </div>
+
+            {/* ======================================================== */}
+            {/* (3) OCCASION DATE & MEAL TIME                            */}
+            {/* ======================================================== */}
+            <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
+              <label htmlFor="occasion-date" className="font-heading font-black text-sm text-[var(--brand-900)] block">
+                Occasion Date & Timing
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider block mb-1">
+                    Event Date
+                  </span>
+                  <div className="relative">
+                    <input
+                      id="occasion-date"
+                      type="date"
+                      min={todayStr}
+                      value={eventDate}
+                      onChange={(e) => setEventDate(e.target.value)}
+                      className="w-full h-11 px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--brand-300)]"
+                    />
+                  </div>
+                  {eventDate && (
+                    <p className="text-[11px] font-bold text-[var(--brand)] mt-1 flex items-center gap-1">
+                      <CalendarIcon className="w-3.5 h-3.5" />
+                      <span>{formatDateDisplay(eventDate)}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider block mb-1">
+                    Meal Timing
+                  </span>
+                  <div className="grid grid-cols-3 gap-1.5 h-11">
+                    {(['Morning', 'Afternoon', 'Evening'] as const).map((time) => (
+                      <button
+                        key={time}
+                        type="button"
+                        onClick={() => setEventTime(time)}
+                        className={`rounded-xl text-xs font-bold border transition-all ${
+                          eventTime === time
+                            ? 'bg-[var(--brand-900)] text-white border-[var(--brand-900)]'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ======================================================== */}
+            {/* (4) OCCASION TYPE                                        */}
+            {/* ======================================================== */}
+            <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2.5">
+              <label htmlFor="occasion-type" className="font-heading font-black text-sm text-[var(--brand-900)] block">
+                Occasion Type
+              </label>
+
+              {/* Suggestion Chips */}
+              <div className="flex flex-wrap gap-1.5 select-none pb-1">
+                {OCCASION_SUGGESTIONS.map((sug) => (
+                  <button
+                    key={sug}
+                    type="button"
+                    onClick={() => setOccasion(sug)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-all ${
+                      occasion === sug
+                        ? 'bg-[var(--brand)] text-[var(--on-brand)] border-[var(--brand)]'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {sug}
+                  </button>
+                ))}
+              </div>
+
+              <Input
+                id="occasion-type"
+                type="text"
+                placeholder="Choose above or enter custom occasion (e.g. Shastiabdapoorthi)"
+                value={occasion}
+                onChange={(e) => setOccasion(e.target.value)}
+                className="h-11 rounded-xl bg-white text-sm font-medium"
+              />
+            </div>
+
+            {/* ======================================================== */}
+            {/* (5) FOOD MENU ITEMS                                      */}
             {/* ======================================================== */}
             <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
@@ -357,309 +544,124 @@ export const AdminCreateOrderPage: React.FC = () => {
               )}
             </div>
 
-            {/* (2) MOBILE NUMBER (+91)                                   */}
+            {/* ======================================================== */}
+            {/* (6) NUMBER OF PLATES                                     */}
+            {/* ======================================================== */}
             <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <label htmlFor="customer-mobile" className="font-heading font-black text-sm text-[var(--brand-900)] flex items-center gap-1.5">
-              <Phone className="w-4 h-4 text-[var(--brand)]" />
-              <span>Customer Mobile Number</span>
-              <span className="text-red-500 font-bold">*</span>
-            </label>
-            <span className="text-[11px] text-[var(--text-muted)] font-medium">Required to save</span>
-          </div>
-
-          <div className="flex rounded-xl overflow-hidden border border-slate-200 bg-white focus-within:ring-2 focus-within:ring-[var(--brand-300)] focus-within:border-[var(--brand)]">
-            <span className="px-3 py-2.5 bg-slate-50 text-slate-700 font-bold text-xs flex items-center border-r border-slate-200 select-none">
-              +91
-            </span>
-            <input
-              id="customer-mobile"
-              type="tel"
-              inputMode="numeric"
-              maxLength={10}
-              placeholder="e.g. 98450 12345"
-              value={mobile}
-              onChange={(e) => {
-                const val = e.target.value.replace(/\D/g, '')
-                setMobile(val)
-                if (mobileError) setMobileError(null)
-              }}
-              className="flex-1 px-3 py-2.5 text-sm font-semibold outline-none bg-transparent"
-            />
-          </div>
-
-          {mobileError && (
-            <p className="text-xs font-bold text-red-600">{mobileError}</p>
-          )}
-
-          {/* Inline card when mobile matches existing customer per spec:
-              "When it matches an existing customer, show an inline card 'Existing customer: Name, N enquiries, M confirmed orders' with 'Use this customer'" */}
-          {matchedCustomer && (
-            <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/90 text-amber-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 mt-2 shadow-xs">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5 font-heading font-bold text-xs text-amber-900">
-                  <UserCheck className="w-4 h-4 text-amber-700" />
-                  <span>Existing customer: {matchedCustomer.name}</span>
-                </div>
-                <p className="text-[11px] text-amber-800 font-medium">
-                  {matchedCustomer.enquiryCount} enquiries, {matchedCustomer.confirmedCount} confirmed orders
-                </p>
-                {matchedCustomer.notes && (
-                  <p className="text-[10px] text-amber-700 italic truncate max-w-sm">
-                    "{matchedCustomer.notes}"
+              <div className="flex items-center justify-between">
+                <div>
+                  <label htmlFor="plates-input" className="font-heading font-black text-sm text-[var(--brand-900)] block">
+                    Number of Plates
+                  </label>
+                  <p className="text-[11px] text-[var(--text-muted)] font-medium">
+                    Minimum 10 plates for catering booking
                   </p>
-                )}
-              </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={handleUseExistingCustomer}
-                disabled={isCustomerLinked}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 tap-target-48 sm:tap-target-auto ${
-                  isCustomerLinked
-                    ? 'bg-emerald-600 text-white cursor-default'
-                    : 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs'
-                }`}
-              >
-                {isCustomerLinked ? (
-                  <span className="flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                    <span>Customer linked</span>
-                  </span>
-                ) : (
-                  'Use this customer'
-                )}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* ======================================================== */}
-        {/* (2) CUSTOMER NAME                                        */}
-        {/* ======================================================== */}
-        <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2">
-          <label htmlFor="customer-name" className="font-heading font-black text-sm text-[var(--brand-900)] block">
-            Customer Name
-          </label>
-          <Input
-            id="customer-name"
-            type="text"
-            placeholder="e.g. Kalyan Ramanathan"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="h-11 rounded-xl bg-white text-sm font-medium"
-          />
-        </div>
-
-        {/* ======================================================== */}
-        {/* (3) OCCASION TYPE                                        */}
-        {/* ======================================================== */}
-        <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2.5">
-          <label htmlFor="occasion-type" className="font-heading font-black text-sm text-[var(--brand-900)] block">
-            Occasion Type
-          </label>
-
-          {/* Suggestion Chips */}
-          <div className="flex flex-wrap gap-1.5 select-none pb-1">
-            {OCCASION_SUGGESTIONS.map((sug) => (
-              <button
-                key={sug}
-                type="button"
-                onClick={() => setOccasion(sug)}
-                className={`px-3 py-1 rounded-full text-xs font-bold border transition-all ${
-                  occasion === sug
-                    ? 'bg-[var(--brand)] text-[var(--on-brand)] border-[var(--brand)]'
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                {sug}
-              </button>
-            ))}
-          </div>
-
-          <Input
-            id="occasion-type"
-            type="text"
-            placeholder="Choose above or enter custom occasion (e.g. Shastiabdapoorthi)"
-            value={occasion}
-            onChange={(e) => setOccasion(e.target.value)}
-            className="h-11 rounded-xl bg-white text-sm font-medium"
-          />
-        </div>
-
-        {/* ======================================================== */}
-        {/* (4) OCCASION DATE & MEAL TIME                            */}
-        {/* ======================================================== */}
-        <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
-          <label htmlFor="occasion-date" className="font-heading font-black text-sm text-[var(--brand-900)] block">
-            Occasion Date & Timing
-          </label>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider block mb-1">
-                Event Date
-              </span>
-              <div className="relative">
-                <input
-                  id="occasion-date"
-                  type="date"
-                  min={todayStr}
-                  value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  className="w-full h-11 px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--brand-300)]"
-                />
-              </div>
-              {eventDate && (
-                <p className="text-[11px] font-bold text-[var(--brand)] mt-1 flex items-center gap-1">
-                  <CalendarIcon className="w-3.5 h-3.5" />
-                  <span>{formatDateDisplay(eventDate)}</span>
-                </p>
-              )}
-            </div>
-
-            <div>
-              <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider block mb-1">
-                Meal Timing
-              </span>
-              <div className="grid grid-cols-3 gap-1.5 h-11">
-                {(['Morning', 'Afternoon', 'Evening'] as const).map((time) => (
+                {/* Stepper controls */}
+                <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-full border border-slate-200 select-none">
                   <button
-                    key={time}
                     type="button"
-                    onClick={() => setEventTime(time)}
-                    className={`rounded-xl text-xs font-bold border transition-all ${
-                      eventTime === time
-                        ? 'bg-[var(--brand-900)] text-white border-[var(--brand-900)]'
+                    onClick={handleDecrementPlates}
+                    className="w-8 h-8 rounded-full bg-white text-slate-700 flex items-center justify-center hover:bg-slate-50 shadow-xs tap-target-48 sm:tap-target-auto"
+                    aria-label="Decrease plates"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <input
+                    id="plates-input"
+                    type="number"
+                    min={10}
+                    step={10}
+                    value={plates}
+                    onChange={(e) => setPlates(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="w-14 text-center font-heading font-black text-base bg-transparent outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleIncrementPlates}
+                    className="w-8 h-8 rounded-full bg-white text-slate-700 flex items-center justify-center hover:bg-slate-50 shadow-xs tap-target-48 sm:tap-target-auto"
+                    aria-label="Increase plates"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick plate selection chips */}
+              <div className="flex items-center gap-2 pt-1 overflow-x-auto no-scrollbar">
+                {[50, 100, 200, 300, 500].map((pCount) => (
+                  <button
+                    key={pCount}
+                    type="button"
+                    onClick={() => setPlates(pCount)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-all ${
+                      plates === pCount
+                        ? 'bg-[var(--brand)] text-[var(--on-brand)] border-[var(--brand)]'
                         : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    {time}
+                    {pCount} plates
                   </button>
                 ))}
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* ======================================================== */}
-        {/* (5) NUMBER OF PLATES                                     */}
-        {/* ======================================================== */}
-        <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <label htmlFor="plates-input" className="font-heading font-black text-sm text-[var(--brand-900)] block">
-                Number of Plates
+            {/* ======================================================== */}
+            {/* (7) DELIVERY ADDRESS                                     */}
+            {/* ======================================================== */}
+            <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2">
+              <label htmlFor="delivery-address" className="font-heading font-black text-sm text-[var(--brand-900)] block">
+                Delivery Address
               </label>
-              <p className="text-[11px] text-[var(--text-muted)] font-medium">
-                Minimum 10 plates for catering booking
-              </p>
-            </div>
-
-            {/* Stepper controls */}
-            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-full border border-slate-200 select-none">
-              <button
-                type="button"
-                onClick={handleDecrementPlates}
-                className="w-8 h-8 rounded-full bg-white text-slate-700 flex items-center justify-center hover:bg-slate-50 shadow-xs tap-target-48 sm:tap-target-auto"
-                aria-label="Decrease plates"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-              <input
-                id="plates-input"
-                type="number"
-                min={10}
-                step={10}
-                value={plates}
-                onChange={(e) => setPlates(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-14 text-center font-heading font-black text-base bg-transparent outline-none"
+              <Textarea
+                id="delivery-address"
+                rows={2}
+                placeholder="Banquet hall, kalyana mantapa, or residential address in Mysuru..."
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="rounded-xl bg-white text-sm font-medium resize-none"
               />
-              <button
-                type="button"
-                onClick={handleIncrementPlates}
-                className="w-8 h-8 rounded-full bg-white text-slate-700 flex items-center justify-center hover:bg-slate-50 shadow-xs tap-target-48 sm:tap-target-auto"
-                aria-label="Increase plates"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
             </div>
-          </div>
 
-          {/* Quick plate selection chips */}
-          <div className="flex items-center gap-2 pt-1 overflow-x-auto no-scrollbar">
-            {[50, 100, 200, 300, 500].map((pCount) => (
-              <button
-                key={pCount}
-                type="button"
-                onClick={() => setPlates(pCount)}
-                className={`px-3 py-1 rounded-full text-xs font-bold border transition-all ${
-                  plates === pCount
-                    ? 'bg-[var(--brand)] text-[var(--on-brand)] border-[var(--brand)]'
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                {pCount} plates
-              </button>
-            ))}
-          </div>
-        </div>
+            {/* ======================================================== */}
+            {/* (8) SPECIAL INSTRUCTIONS                                 */}
+            {/* ======================================================== */}
+            <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2">
+              <label htmlFor="special-instructions" className="font-heading font-black text-sm text-[var(--brand-900)] block">
+                Special Instructions
+              </label>
+              <Textarea
+                id="special-instructions"
+                rows={2}
+                placeholder="Preparation requests (e.g. Satvik / strictly no onion-garlic, banana leaf service, hot filter coffee round)..."
+                value={instructions}
+                onChange={(e) => setInstructions(e.target.value)}
+                className="rounded-xl bg-white text-sm font-medium resize-none"
+              />
+            </div>
 
-        {/* ======================================================== */}
-        {/* (6) DELIVERY ADDRESS                                     */}
-        {/* ======================================================== */}
-        <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2">
-          <label htmlFor="delivery-address" className="font-heading font-black text-sm text-[var(--brand-900)] block">
-            Delivery Address
-          </label>
-          <Textarea
-            id="delivery-address"
-            rows={2}
-            placeholder="Banquet hall, kalyana mantapa, or residential address in Mysuru..."
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="rounded-xl bg-white text-sm font-medium resize-none"
-          />
-        </div>
-
-        {/* ======================================================== */}
-        {/* (7) SPECIAL INSTRUCTIONS                                 */}
-        {/* ======================================================== */}
-        <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2">
-          <label htmlFor="special-instructions" className="font-heading font-black text-sm text-[var(--brand-900)] block">
-            Special Instructions
-          </label>
-          <Textarea
-            id="special-instructions"
-            rows={2}
-            placeholder="Preparation requests (e.g. Satvik / strictly no onion-garlic, banana leaf service, hot filter coffee round)..."
-            value={instructions}
-            onChange={(e) => setInstructions(e.target.value)}
-            className="rounded-xl bg-white text-sm font-medium resize-none"
-          />
-        </div>
-
-        {/* ======================================================== */}
-        {/* (8) ENQUIRY NOTES (A short note about the conversation)  */}
-        {/* ======================================================== */}
-        <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2">
-          <div>
-            <label htmlFor="enquiry-notes" className="font-heading font-black text-sm text-[var(--brand-900)] block">
-              Enquiry Notes
-            </label>
-            <p className="text-[11px] text-[var(--text-muted)] font-medium">
-              Internal staff notes about the telephone or walk-in discussion
-            </p>
-          </div>
-          <Textarea
-            id="enquiry-notes"
-            rows={2}
-            placeholder="e.g. Inquired about catering for 250 guests. Sent quote; customer will discuss with family and confirm deposit by Friday."
-            value={enquiryNotes}
-            onChange={(e) => setEnquiryNotes(e.target.value)}
-            className="rounded-xl bg-white text-sm font-medium resize-none"
-          />
-        </div>
+            {/* ======================================================== */}
+            {/* (9) ENQUIRY NOTES (A short note about the conversation)  */}
+            {/* ======================================================== */}
+            <div className="content-card p-4 sm:p-5 rounded-[22px] bg-white border border-slate-200/80 shadow-xs space-y-2">
+              <div>
+                <label htmlFor="enquiry-notes" className="font-heading font-black text-sm text-[var(--brand-900)] block">
+                  Enquiry Notes
+                </label>
+                <p className="text-[11px] text-[var(--text-muted)] font-medium">
+                  Internal staff notes about the telephone or walk-in discussion
+                </p>
+              </div>
+              <Textarea
+                id="enquiry-notes"
+                rows={2}
+                placeholder="e.g. Inquired about catering for 250 guests. Sent quote; customer will discuss with family and confirm deposit by Friday."
+                value={enquiryNotes}
+                onChange={(e) => setEnquiryNotes(e.target.value)}
+                className="rounded-xl bg-white text-sm font-medium resize-none"
+              />
+            </div>
 
           </div>
 
