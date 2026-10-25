@@ -41,13 +41,15 @@ interface AdminAppShellProps {
   title: string
   subtitle?: string
   actions?: React.ReactNode
+  hideBottomNav?: boolean
 }
 
 export const AdminAppShell: React.FC<AdminAppShellProps> = ({
   children,
   title,
   subtitle,
-  actions
+  actions,
+  hideBottomNav = false
 }) => {
   const location = useLocation()
   const navigate = useNavigate()
@@ -283,107 +285,109 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
       </div>
 
       {/* 3. Mobile Bottom Tab Bar (per spec: "a glass bottom tab bar with Home, Orders, a raised round centre button 'New order', Menu, Customers") */}
-      <nav className={`lg:hidden fixed bottom-0 left-0 right-0 z-20 glass-bottom-bar flex items-center justify-around px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] border-t border-slate-200/80 transition-all duration-200 ${
-        isKeyboardOpen ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
-      }`}>
-        
-        {/* 1. Home */}
-        <Link
-          to="/admin"
-          className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
-            isNavActive('/admin')
-              ? 'text-[var(--brand)] font-bold'
-              : 'text-slate-500 font-medium hover:text-slate-800'
-          }`}
-        >
-          {isNavActive('/admin') && (
-            <motion.div
-              layoutId="admin-tab-pill"
-              transition={MOTION_SPRINGS.soft}
-              className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
-            />
-          )}
-          <LayoutDashboard className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[10px] pt-1">Home</span>
-        </Link>
-
-        {/* 2. Orders */}
-        <Link
-          to="/admin/orders"
-          className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
-            isNavActive('/admin/orders') && location.pathname !== '/admin/orders/new'
-              ? 'text-[var(--brand)] font-bold'
-              : 'text-slate-500 font-medium hover:text-slate-800'
-          }`}
-        >
-          {isNavActive('/admin/orders') && location.pathname !== '/admin/orders/new' && (
-            <motion.div
-              layoutId="admin-tab-pill"
-              transition={MOTION_SPRINGS.soft}
-              className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
-            />
-          )}
-          <ClipboardList className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[10px] pt-1">Orders</span>
-        </Link>
-
-        {/* 3. Raised Round Centre Button 'New order' */}
-        <div className="flex-1 flex justify-center -mt-7 z-20">
+      {!hideBottomNav && (
+        <nav className={`lg:hidden fixed bottom-0 left-0 right-0 z-20 glass-bottom-bar flex items-center justify-around px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] border-t border-slate-200/80 transition-all duration-200 ${
+          isKeyboardOpen ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        }`}>
+          
+          {/* 1. Home */}
           <Link
-            to="/admin/orders/new"
-            className="flex flex-col items-center group tap-target-48"
-            aria-label="Create New Order"
+            to="/admin"
+            className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
+              isNavActive('/admin')
+                ? 'text-[var(--brand)] font-bold'
+                : 'text-slate-500 font-medium hover:text-slate-800'
+            }`}
           >
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] shadow-lg shadow-red-900/30 flex items-center justify-center border-4 border-white active:scale-95 transition-transform">
-              <Plus className="w-6 h-6 stroke-[3]" />
-            </div>
-            <span className="text-[10px] font-bold text-[var(--brand-900)] mt-0.5">
-              New order
-            </span>
+            {isNavActive('/admin') && (
+              <motion.div
+                layoutId="admin-tab-pill"
+                transition={MOTION_SPRINGS.soft}
+                className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
+              />
+            )}
+            <LayoutDashboard className="w-5 h-5 stroke-[2.2]" />
+            <span className="text-[10px] pt-1">Home</span>
           </Link>
-        </div>
 
-        {/* 4. Menu */}
-        <Link
-          to="/admin/menu"
-          className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
-            isNavActive('/admin/menu')
-              ? 'text-[var(--brand)] font-bold'
-              : 'text-slate-500 font-medium hover:text-slate-800'
-          }`}
-        >
-          {isNavActive('/admin/menu') && (
-            <motion.div
-              layoutId="admin-tab-pill"
-              transition={MOTION_SPRINGS.soft}
-              className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
-            />
-          )}
-          <UtensilsCrossed className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[10px] pt-1">Menu</span>
-        </Link>
+          {/* 2. Orders */}
+          <Link
+            to="/admin/orders"
+            className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
+              isNavActive('/admin/orders') && location.pathname !== '/admin/orders/new'
+                ? 'text-[var(--brand)] font-bold'
+                : 'text-slate-500 font-medium hover:text-slate-800'
+            }`}
+          >
+            {isNavActive('/admin/orders') && location.pathname !== '/admin/orders/new' && (
+              <motion.div
+                layoutId="admin-tab-pill"
+                transition={MOTION_SPRINGS.soft}
+                className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
+              />
+            )}
+            <ClipboardList className="w-5 h-5 stroke-[2.2]" />
+            <span className="text-[10px] pt-1">Orders</span>
+          </Link>
 
-        {/* 5. Customers */}
-        <Link
-          to="/admin/customers"
-          className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
-            isNavActive('/admin/customers')
-              ? 'text-[var(--brand)] font-bold'
-              : 'text-slate-500 font-medium hover:text-slate-800'
-          }`}
-        >
-          {isNavActive('/admin/customers') && (
-            <motion.div
-              layoutId="admin-tab-pill"
-              transition={MOTION_SPRINGS.soft}
-              className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
-            />
-          )}
-          <Users className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[10px] pt-1">Customers</span>
-        </Link>
+          {/* 3. Raised Round Centre Button 'New order' */}
+          <div className="flex-1 flex justify-center -mt-7 z-20">
+            <Link
+              to="/admin/orders/new"
+              className="flex flex-col items-center group tap-target-48"
+              aria-label="Create New Order"
+            >
+              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] shadow-lg shadow-red-900/30 flex items-center justify-center border-4 border-white active:scale-95 transition-transform">
+                <Plus className="w-6 h-6 stroke-[3]" />
+              </div>
+              <span className="text-[10px] font-bold text-[var(--brand-900)] mt-0.5">
+                New order
+              </span>
+            </Link>
+          </div>
 
-      </nav>
+          {/* 4. Menu */}
+          <Link
+            to="/admin/menu"
+            className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
+              isNavActive('/admin/menu')
+                ? 'text-[var(--brand)] font-bold'
+                : 'text-slate-500 font-medium hover:text-slate-800'
+            }`}
+          >
+            {isNavActive('/admin/menu') && (
+              <motion.div
+                layoutId="admin-tab-pill"
+                transition={MOTION_SPRINGS.soft}
+                className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
+              />
+            )}
+            <UtensilsCrossed className="w-5 h-5 stroke-[2.2]" />
+            <span className="text-[10px] pt-1">Menu</span>
+          </Link>
+
+          {/* 5. Customers */}
+          <Link
+            to="/admin/customers"
+            className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
+              isNavActive('/admin/customers')
+                ? 'text-[var(--brand)] font-bold'
+                : 'text-slate-500 font-medium hover:text-slate-800'
+            }`}
+          >
+            {isNavActive('/admin/customers') && (
+              <motion.div
+                layoutId="admin-tab-pill"
+                transition={MOTION_SPRINGS.soft}
+                className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
+              />
+            )}
+            <Users className="w-5 h-5 stroke-[2.2]" />
+            <span className="text-[10px] pt-1">Customers</span>
+          </Link>
+
+        </nav>
+      )}
 
       {/* Log out confirmation dialog per specification */}
       <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>

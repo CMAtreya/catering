@@ -418,7 +418,7 @@ export const AdminOrderDetailPage: React.FC = () => {
 
   if (isLoading || !initialOrder) {
     return (
-      <AdminAppShell title="Order Management" subtitle="Loading record...">
+      <AdminAppShell title="Order Management" subtitle="Loading record..." hideBottomNav>
         <div className="max-w-3xl mx-auto space-y-4 animate-pulse p-4">
           <div className="h-10 bg-slate-200/70 rounded-xl w-48" />
           <div className="h-44 bg-slate-100 rounded-2xl" />
@@ -435,7 +435,7 @@ export const AdminOrderDetailPage: React.FC = () => {
   const isTerminalStatus = initialOrder.status === 'Completed' || initialOrder.status === 'Cancelled'
 
   return (
-    <AdminAppShell title={`Order ${initialOrder.id}`} subtitle="Manage catering booking and requirements">
+    <AdminAppShell title={`Order ${initialOrder.id}`} subtitle="Manage catering booking and requirements" hideBottomNav>
       <div className="max-w-6xl mx-auto space-y-6 pb-40">
 
         {/* ======================================================== */}
@@ -1039,6 +1039,10 @@ export const AdminOrderDetailPage: React.FC = () => {
                 className="bg-slate-50/50"
               />
             </div>
+
+            <p className="text-[11px] text-center text-slate-400 font-medium pt-2 border-t border-slate-100">
+              Payment is handled separately outside this system.
+            </p>
           </div>
         </div>
 
@@ -1088,29 +1092,29 @@ export const AdminOrderDetailPage: React.FC = () => {
     </div>
 
       {/* ======================================================== */}
-      {/* (6) ACTION BAR (glass, sticky), status-aware             */}
+      {/* (6) ACTION BAR (glass, floating, compact)                */}
       {/* ======================================================== */}
-      <div className={`fixed bottom-0 left-0 right-0 lg:left-64 z-20 glass-bottom-bar p-3 sm:p-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-slate-200/90 shadow-lg transition-all duration-200 ${
+      <div className={`fixed bottom-3 sm:bottom-5 inset-x-3 sm:inset-x-6 lg:left-72 lg:right-8 lg:max-w-4xl lg:mx-auto z-30 glass-floating-bar rounded-2xl sm:rounded-full px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-xl border border-slate-200/90 transition-all duration-200 ${
         isKeyboardOpen ? 'translate-y-full opacity-0 pointer-events-none lg:translate-y-0 lg:opacity-100 lg:pointer-events-auto' : 'translate-y-0 opacity-100'
       }`}>
-        <div className="max-w-6xl mx-auto space-y-2">
+        <div className="w-full">
 
           {/* If Dirty: show Save Bar */}
           {isDirty ? (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-amber-500/10 border border-amber-500/30 p-2.5 sm:p-3 rounded-2xl">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                <span className="text-xs font-bold text-amber-900">
+            <div className="flex items-center justify-between gap-2.5 sm:gap-4 w-full">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                <span className="text-xs font-bold text-amber-900 truncate">
                   You have unsaved changes on this order
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 self-end sm:self-auto">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={handleDiscardChanges}
                   disabled={isSaving}
-                  className="px-4 py-2 rounded-full bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 active:scale-95 transition-all"
+                  className="h-8 px-3.5 rounded-full bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 active:scale-95 transition-all"
                 >
                   Discard
                 </button>
@@ -1118,7 +1122,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   type="button"
                   onClick={handleSaveChanges}
                   disabled={isSaving || !isOnline}
-                  className="px-6 py-2 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-bold text-xs shadow-md active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-8 px-4 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-bold text-xs shadow-md active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSaving ? (
                     <span>Saving...</span>
@@ -1133,30 +1137,30 @@ export const AdminOrderDetailPage: React.FC = () => {
             </div>
           ) : (
             /* Status-aware Action Bar when clean */
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-2.5 sm:gap-4 w-full flex-wrap sm:flex-nowrap">
               {/* Left helper / status info */}
-              <div>
+              <div className="min-w-0">
                 {(initialOrder.status === 'New Request' || initialOrder.status === 'Under Discussion') ? (
                   !canConfirm ? (
-                    <p className="text-xs font-bold text-amber-700 flex items-center gap-1">
-                      <AlertCircle className="w-3.5 h-3.5" />
-                      <span>Add occasion date and number of plates to confirm</span>
+                    <p className="text-xs font-bold text-amber-700 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">Add occasion date & plates to confirm</span>
                     </p>
                   ) : (
-                    <p className="text-xs font-bold text-emerald-700 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Requirements ready to confirm banquet booking</span>
+                    <p className="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">Requirements ready to confirm banquet booking</span>
                     </p>
                   )
                 ) : (
-                  <p className="text-xs font-bold text-slate-600">
+                  <p className="text-xs font-bold text-slate-600 whitespace-nowrap">
                     Status: <span className="text-[var(--brand-900)]">{initialOrder.status}</span>
                   </p>
                 )}
               </div>
 
               {/* Action Buttons based on status */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                 {(initialOrder.status === 'New Request' || initialOrder.status === 'Under Discussion') && (
                   <>
                     {initialOrder.status === 'New Request' && (
@@ -1164,7 +1168,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                         type="button"
                         onClick={handleMarkUnderDiscussion}
                         disabled={!isOnline}
-                        className="px-4 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="h-8 sm:h-8.5 px-3.5 sm:px-4 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                       >
                         Mark Under Discussion
                       </button>
@@ -1174,9 +1178,9 @@ export const AdminOrderDetailPage: React.FC = () => {
                       type="button"
                       onClick={() => setIsConfirmDialogOpen(true)}
                       disabled={!canConfirm || !isOnline}
-                      className="px-6 py-2.5 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-heading font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center gap-1.5 tap-target-48 sm:tap-target-auto"
+                      className="h-8 sm:h-8.5 px-4 sm:px-5 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-heading font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 shrink-0"
                     >
-                      <Sparkles className="w-4 h-4 text-amber-300" />
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                       <span>Confirm order</span>
                     </button>
                   </>
@@ -1188,7 +1192,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                       type="button"
                       onClick={handleMarkCompleted}
                       disabled={!isOnline}
-                      className="px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-8 sm:h-8.5 px-3.5 sm:px-4 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                       Mark Completed
                     </button>
@@ -1196,7 +1200,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => navigate(`/admin/orders/${initialOrder.id}/invoice`)}
-                      className="px-5 py-2.5 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs"
+                      className="h-8 sm:h-8.5 px-3.5 sm:px-4.5 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs active:scale-95 transition-transform shrink-0"
                     >
                       <Printer className="w-3.5 h-3.5" />
                       <span>Generate invoice</span>
@@ -1206,7 +1210,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                       type="button"
                       onClick={() => setIsCancelDialogOpen(true)}
                       disabled={!isOnline}
-                      className="px-3.5 py-2.5 rounded-full bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs border border-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-8 sm:h-8.5 px-3 sm:px-3.5 rounded-full bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs border border-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                       Cancel order
                     </button>
@@ -1217,7 +1221,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigate(`/admin/orders/${initialOrder.id}/invoice`)}
-                    className="px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5"
+                    className="h-8 sm:h-8.5 px-4 sm:px-5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-transform shrink-0"
                   >
                     <Printer className="w-3.5 h-3.5 text-slate-600" />
                     <span>View banquet sheet</span>
@@ -1226,11 +1230,6 @@ export const AdminOrderDetailPage: React.FC = () => {
               </div>
             </div>
           )}
-
-          {/* Under the action bar: small grey text */}
-          <p className="text-[11px] text-center text-slate-400 font-medium pt-1">
-            Payment is handled separately outside this system.
-          </p>
         </div>
       </div>
 
