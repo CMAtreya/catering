@@ -323,7 +323,7 @@ export const EnquiriesPage: React.FC = () => {
               if (!open) setSelectedEnquiry(null)
             }}
           >
-            <SheetContent side="right" className="w-full sm:max-w-md p-6 bg-white overflow-y-auto z-50">
+            <SheetContent side="right" showCloseButton={false} className="w-full sm:max-w-md p-6 bg-white overflow-y-auto z-50">
               {selectedEnquiry && (
                 <>
                   <SheetHeader className="text-left pb-3 border-b border-slate-100 flex flex-row items-center justify-between">

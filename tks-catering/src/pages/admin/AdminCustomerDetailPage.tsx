@@ -210,7 +210,7 @@ export const AdminCustomerDetailPage: React.FC = () => {
             className="h-9 px-4 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-95 text-white font-heading font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 tap-target-48 sm:tap-target-auto cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Plus className="w-3.5 h-3.5 text-white" />
-            <span>+ Record enquiry</span>
+            <span>Record enquiry</span>
           </button>
         </div>
 
@@ -463,7 +463,7 @@ export const AdminCustomerDetailPage: React.FC = () => {
       {/* Updates Last contacted and Total enquiries               */}
       {/* ======================================================== */}
       <Sheet open={isRecordSheetOpen} onOpenChange={setIsRecordSheetOpen}>
-        <SheetContent side="bottom" className="max-w-lg mx-auto rounded-t-[24px] p-0 bg-white">
+        <SheetContent side="bottom" showCloseButton={false} className="max-w-lg mx-auto rounded-t-[24px] p-0 bg-white">
           <SheetHeader className="p-4 sm:p-5 border-b border-slate-100 flex flex-row items-center justify-between">
             <div>
               <SheetTitle className="font-heading font-black text-base sm:text-lg text-[var(--brand-900)]">

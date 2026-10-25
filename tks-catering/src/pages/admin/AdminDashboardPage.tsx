@@ -116,16 +116,6 @@ export const AdminDashboardPage: React.FC = () => {
               {todayFormatted}
             </p>
           </div>
-
-          <div className="flex items-center gap-2 sm:self-center">
-            <Link
-              to="/admin/orders/new"
-              className="h-10 px-4 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] font-heading font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all tap-target-48"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>Create Manual Order</span>
-            </Link>
-          </div>
         </div>
 
         {/* PWA Dismissible Glass Banner for Admin */}

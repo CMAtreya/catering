@@ -785,7 +785,7 @@ export const AdminMenuPage: React.FC = () => {
                 className="h-10 px-4 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 text-white font-heading font-bold text-xs sm:text-sm border border-white/20 shadow-xs active:scale-95 transition-all flex items-center gap-1.5 tap-target-48 sm:tap-target-auto cursor-pointer backdrop-blur-xs disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <FolderPlus className="w-4 h-4 text-amber-300" />
-                <span>+ Category</span>
+                <span>Add Category</span>
               </button>
 
               {/* + Item Button */}
@@ -796,7 +796,7 @@ export const AdminMenuPage: React.FC = () => {
                 className="h-10 px-5 rounded-xl sm:rounded-2xl bg-white text-[var(--brand-900)] hover:bg-amber-50 font-heading font-black text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center gap-1.5 tap-target-48 sm:tap-target-auto cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4 text-[var(--brand)] stroke-[3]" />
-                <span>+ Item</span>
+                <span>Add Dish</span>
               </button>
             </div>
           </div>
@@ -1480,7 +1480,7 @@ export const AdminMenuPage: React.FC = () => {
       {/* (1) CATEGORY BOTTOM SHEET (Add or Rename)                */}
       {/* ======================================================== */}
       <Sheet open={isCategorySheetOpen} onOpenChange={setIsCategorySheetOpen}>
-        <SheetContent side="bottom" className="max-w-lg mx-auto rounded-t-[24px] p-0 bg-white">
+        <SheetContent side="bottom" showCloseButton={false} className="max-w-lg mx-auto rounded-t-[24px] p-0 bg-white">
           <SheetHeader className="p-4 sm:p-5 border-b border-slate-100 flex flex-row items-center justify-between">
             <div>
               <SheetTitle className="font-heading font-black text-base sm:text-lg text-[var(--brand-900)]">
@@ -1540,7 +1540,7 @@ export const AdminMenuPage: React.FC = () => {
       {/* ======================================================== */}
       {isDesktop ? (
         <Dialog open={isItemSheetOpen} onOpenChange={setIsItemSheetOpen}>
-          <DialogContent className="max-w-xl max-h-[85vh] p-0 rounded-[24px] overflow-hidden bg-white flex flex-col">
+          <DialogContent showCloseButton={false} className="max-w-xl max-h-[85vh] p-0 rounded-[24px] overflow-hidden bg-white flex flex-col">
             <DialogHeader className="p-4 sm:p-5 border-b border-slate-100 flex flex-row items-center justify-between shrink-0">
               <div>
                 <DialogTitle className="font-heading font-black text-base sm:text-lg text-[var(--brand-900)]">
@@ -1564,7 +1564,7 @@ export const AdminMenuPage: React.FC = () => {
         </Dialog>
       ) : (
         <Sheet open={isItemSheetOpen} onOpenChange={setIsItemSheetOpen}>
-          <SheetContent side="bottom" className="max-h-[90vh] h-[90vh] max-w-xl mx-auto rounded-t-[24px] p-0 flex flex-col bg-white">
+          <SheetContent side="bottom" showCloseButton={false} className="max-h-[90vh] h-[90vh] max-w-xl mx-auto rounded-t-[24px] p-0 flex flex-col bg-white">
             <SheetHeader className="p-4 sm:p-5 border-b border-slate-100 flex flex-row items-center justify-between shrink-0">
               <div>
                 <SheetTitle className="font-heading font-black text-base sm:text-lg text-[var(--brand-900)]">
@@ -1592,7 +1592,7 @@ export const AdminMenuPage: React.FC = () => {
       {/* (3) MOVE ITEM TO CATEGORY SHEET                          */}
       {/* ======================================================== */}
       <Sheet open={isMoveSheetOpen} onOpenChange={setIsMoveSheetOpen}>
-        <SheetContent side="bottom" className="max-w-md mx-auto rounded-t-[24px] p-0 bg-white">
+        <SheetContent side="bottom" showCloseButton={false} className="max-w-md mx-auto rounded-t-[24px] p-0 bg-white">
           <SheetHeader className="p-4 sm:p-5 border-b border-slate-100 flex flex-row items-center justify-between">
             <div>
               <SheetTitle className="font-heading font-black text-base sm:text-lg text-[var(--brand-900)]">

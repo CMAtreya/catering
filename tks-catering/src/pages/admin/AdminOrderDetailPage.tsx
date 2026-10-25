@@ -1238,7 +1238,7 @@ export const AdminOrderDetailPage: React.FC = () => {
       {/* FOOD ITEMS SELECTION BOTTOM SHEET                        */}
       {/* ======================================================== */}
       <Sheet open={isFoodSheetOpen} onOpenChange={setIsFoodSheetOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] h-[85vh] rounded-t-[24px] p-0 flex flex-col bg-[var(--bg-base)]">
+        <SheetContent side="bottom" showCloseButton={false} className="max-h-[85vh] h-[85vh] rounded-t-[24px] p-0 flex flex-col bg-[var(--bg-base)]">
           <SheetHeader className="p-4 sm:p-5 border-b border-slate-200/80 bg-white sticky top-0 z-10 flex flex-row items-center justify-between shrink-0">
             <div>
               <SheetTitle className="font-heading font-black text-base sm:text-lg text-[var(--brand-900)]">

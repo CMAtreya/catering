@@ -21,7 +21,7 @@ export const IOSInstallSheet: React.FC<IOSInstallSheetProps> = ({
 }) => {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-w-md mx-auto rounded-t-[28px] p-0 bg-white border-t border-slate-200/90 shadow-2xl">
+      <SheetContent side="bottom" showCloseButton={false} className="max-w-md mx-auto rounded-t-[28px] p-0 bg-white border-t border-slate-200/90 shadow-2xl">
         {/* Header */}
         <SheetHeader className="p-5 border-b border-slate-100 flex flex-row items-center justify-between">
           <div className="flex items-center gap-3">

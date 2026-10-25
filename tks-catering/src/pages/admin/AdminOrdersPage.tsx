@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Plus, FilterX, Phone, ExternalLink, Printer, Calendar, Users, MapPin, Sparkles, Utensils } from 'lucide-react'
+import { FilterX, Phone, ExternalLink, Printer, Calendar, Users, MapPin, Sparkles, Utensils } from 'lucide-react'
 import { getOrders } from '@/api'
 import type { Order, OrderStatus, OrderSource } from '@/data/mockData'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
@@ -586,19 +586,6 @@ export const AdminOrdersPage: React.FC = () => {
             onAction={handleResetFilters}
           />
         )}
-
-        {/* ======================================================== */}
-        {/* FLOATING 'NEW ORDER' BUTTON                              */}
-        {/* ======================================================== */}
-        <Link
-          to="/admin/orders/new"
-          className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-8 lg:right-8 z-20 h-12 sm:h-13 px-4 sm:px-5 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] font-heading font-bold text-xs sm:text-sm shadow-xl shadow-red-950/25 flex items-center gap-2 border-2 border-white/50 active:scale-95 transition-all tap-target-48"
-          aria-label="Create New Order"
-        >
-          <Plus className="w-5 h-5 stroke-[2.5]" />
-          <span>New order</span>
-        </Link>
-
       </div>
     </AdminAppShell>
   )
