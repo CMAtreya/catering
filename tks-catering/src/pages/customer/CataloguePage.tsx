@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { ChevronRight, Phone, RefreshCw, AlertCircle } from 'lucide-react'
+import { ChevronRight, Phone, RefreshCw, AlertCircle, Search, X, ShoppingBag } from 'lucide-react'
 import { getCatalogue, type CatalogueResponse } from '@/api'
 import type { Category, MenuItem } from '@/data/mockData'
 import { useDraftStore } from '@/store/draftStore'
@@ -27,6 +27,9 @@ export const CataloguePage: React.FC = () => {
 
   // Scroll spy active category id
   const [activeCategoryId, setActiveCategoryId] = useState<string>('')
+  
+  // Search query for quick-commerce instant dish filtering
+  const [searchQuery, setSearchQuery] = useState<string>('')
   
   // Track if a manual tab click initiated scroll (to prevent scroll spy flicker)
   const isTabClickScrolling = useRef<boolean>(false)
@@ -87,6 +90,17 @@ export const CataloguePage: React.FC = () => {
     }
     return count
   }
+
+  // Filtered items when searching (Instamart / Zepto style instant search)
+  const filteredSearchItems = searchQuery.trim() && data
+    ? data.items.filter((item) => {
+        const q = searchQuery.toLowerCase().trim()
+        return (
+          item.name.toLowerCase().includes(q) ||
+          item.category.toLowerCase().includes(q)
+        )
+      })
+    : null
 
   // Smooth scroll to category section
   const scrollToCategory = (categoryId: string) => {
@@ -213,104 +227,177 @@ export const CataloguePage: React.FC = () => {
             {/* ==========================================================
                 MAIN CONTENT AREA
                 ========================================================== */}
-            <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-4 pb-36 space-y-8">
-              {/* 2. HERO STRIP: slim rounded banner with brand gradient,
-                  featuring the single looping 3D ceremonial brass lamp */}
-              <section aria-label="Feast selection banner" className="p-5 sm:p-6 lg:p-8 rounded-[24px] bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-lg overflow-hidden relative border border-amber-900/20">
-                <div className="flex items-center justify-between gap-6">
-                  <div className="space-y-2 z-10 max-w-xl">
-                    <span className="text-[11px] tracking-widest uppercase font-bold text-[var(--brand-2)] bg-amber-400/20 px-2.5 py-1 rounded-full border border-amber-300/30 inline-block">
-                      Royal Feast Selection
-                    </span>
-                    <h2 className="font-serif font-bold text-xl sm:text-2xl lg:text-3xl tracking-tight leading-snug">
-                      Choose your bespoke catering menu
-                    </h2>
-                    <p className="text-xs sm:text-sm lg:text-base text-white/90 font-medium leading-relaxed">
-                      Select dishes from any traditional Mysore category. Live guest pricing and quotation updates dynamically on the next step.
-                    </p>
-                  </div>
-
-                  {/* 3D Hero Object: Ceremonial Brass Lamp (Full Tier) / Poster (Lite/Reduced) */}
-                  <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 relative flex items-center justify-center">
-                    <Hero3D />
-                  </div>
+            <main className="flex-1 px-3 sm:px-5 lg:px-6 max-w-7xl mx-auto w-full pt-3 pb-36 space-y-4 sm:space-y-5">
+              {/* Quick Search Bar (Instamart / Zepto Style) */}
+              <div className="relative">
+                <div className="relative flex items-center bg-white border border-slate-200/90 hover:border-slate-300 focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/15 rounded-xl sm:rounded-2xl shadow-2xs transition-all px-3 py-2 sm:py-2.5">
+                  <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search dishes (e.g. Mysore Pak, Bisi Bele Bath, Rasam...)"
+                    className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none font-medium"
+                    aria-label="Search catering dishes"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                      aria-label="Clear search"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-              </section>
-              {data.categories.map((category) => {
-                const categoryItems = getCategoryItems(category, data.items)
-                if (categoryItems.length === 0) return null
+              </div>
 
-                return (
-                  <section
-                    key={category.id}
-                    id={`cat-section-${category.id}`}
-                    className="scroll-mt-32 space-y-4"
-                  >
-                    {/* Category Title & Count revealed with soft clip-mask */}
-                    <ScrollReveal>
-                      <div className="flex items-baseline justify-between pt-2 border-b border-slate-200/60 pb-2">
-                        <h3 className="font-serif font-bold text-lg sm:text-xl lg:text-2xl text-[var(--text-primary)] tracking-tight flex items-baseline gap-2">
-                          <span>{category.name}</span>
-                          <span className="text-xs font-bold text-[var(--text-muted)] font-sans">
-                            ({categoryItems.length} dishes)
-                          </span>
-                        </h3>
+              {/* 2. COMPACT HERO STRIP: punchy quick-commerce banner */}
+              {!searchQuery && (
+                <section aria-label="Feast selection banner" className="p-3 sm:p-4 lg:p-5 rounded-2xl bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-md overflow-hidden relative border border-amber-950/20">
+                  <div className="flex items-center justify-between gap-3 sm:gap-6">
+                    <div className="space-y-1 sm:space-y-1.5 z-10 max-w-xl">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] sm:text-[11px] tracking-wider uppercase font-extrabold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-300/30 inline-flex items-center gap-1">
+                          <span>⚡</span>
+                          <span>Mysuru Authentic Feast</span>
+                        </span>
+                        <span className="text-[10px] sm:text-[11px] font-bold text-white/80 bg-white/10 px-2 py-0.5 rounded-full hidden sm:inline-block">
+                          100% Pure Veg
+                        </span>
                       </div>
-                    </ScrollReveal>
-
-                    {/* Multi-column responsive grid of ItemCards */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
-                      {categoryItems.map((item, index) => {
-                        const variants = getItemEntranceVariants(tier, index)
-                        return (
-                          <motion.div
-                            key={item.id}
-                            initial={isReduced ? false : variants.hidden}
-                            whileInView={isReduced ? undefined : variants.visible}
-                            viewport={{ once: true, margin: '-20px' }}
-                          >
-                            <ItemCard item={item} />
-                          </motion.div>
-                        )
-                      })}
+                      <h2 className="font-heading font-black text-base sm:text-xl lg:text-2xl tracking-tight leading-tight">
+                        Build Your Royal Catering Menu
+                      </h2>
+                      <p className="text-[11px] sm:text-xs lg:text-sm text-white/90 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none">
+                        Tap dishes to add to your feast. Live per-plate quotation and guest counts calculated on the next step.
+                      </p>
                     </div>
-                  </section>
-                )
-              })}
+
+                    {/* 3D Hero Object: Ceremonial Brass Lamp */}
+                    <div className="w-16 h-16 sm:w-22 sm:h-22 lg:w-26 lg:h-26 shrink-0 relative flex items-center justify-center">
+                      <Hero3D />
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Search Results View */}
+              {filteredSearchItems !== null ? (
+                <section className="space-y-3 pt-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-heading font-black text-sm sm:text-base text-slate-800">
+                      Found {filteredSearchItems.length} {filteredSearchItems.length === 1 ? 'dish' : 'dishes'} for &ldquo;{searchQuery}&rdquo;
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="text-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+
+                  {filteredSearchItems.length === 0 ? (
+                    <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-slate-200">
+                      <p className="text-sm font-semibold text-slate-700">No matching dishes found</p>
+                      <p className="text-xs text-slate-400 mt-1">Try searching for sweets, rice, rasam, or curries</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5 lg:gap-3">
+                      {filteredSearchItems.map((item) => (
+                        <ItemCard key={item.id} item={item} />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              ) : (
+                /* Regular Category View */
+                data.categories.map((category) => {
+                  const categoryItems = getCategoryItems(category, data.items)
+                  if (categoryItems.length === 0) return null
+
+                  return (
+                    <section
+                      key={category.id}
+                      id={`cat-section-${category.id}`}
+                      className="scroll-mt-32 space-y-2.5"
+                    >
+                      {/* Category Title & Count */}
+                      <ScrollReveal>
+                        <div className="flex items-center justify-between pt-1 border-b border-slate-200/60 pb-1.5">
+                          <h3 className="font-heading font-black text-sm sm:text-base lg:text-lg text-slate-800 tracking-tight flex items-center gap-2">
+                            <span>{category.name}</span>
+                            <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-sans">
+                              {categoryItems.length} {categoryItems.length === 1 ? 'item' : 'items'}
+                            </span>
+                          </h3>
+                        </div>
+                      </ScrollReveal>
+
+                      {/* Multi-column dense responsive grid of ItemCards */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5 lg:gap-3">
+                        {categoryItems.map((item, index) => {
+                          const variants = getItemEntranceVariants(tier, index)
+                          return (
+                            <motion.div
+                              key={item.id}
+                              initial={isReduced ? false : variants.hidden}
+                              whileInView={isReduced ? undefined : variants.visible}
+                              viewport={{ once: true, margin: '-20px' }}
+                            >
+                              <ItemCard item={item} />
+                            </motion.div>
+                          )
+                        })}
+                      </div>
+                    </section>
+                  )
+                })
+              )}
             </main>
 
             {/* ==========================================================
-                4. STICKY BOTTOM BAR (glass-strong, above safe area)
-                Full width on phones; centered floating bar (max 640px) on desktop.
-                Odometer roll for selected count and gentle spring bounce on selection.
+                4. STICKY BOTTOM BAR (Instamart / Zepto Style Floating Bar)
+                Elevated floating bar with bag icon, odometer, and Proceed button.
                 ========================================================== */}
             <motion.nav
               aria-label="Order summary and checkout"
               key={bounceKey}
               animate={!isReduced && bounceKey > 0 ? { y: [0, -3, 0] } : undefined}
               transition={MOTION_SPRINGS.tap}
-              className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl lg:bottom-6 lg:rounded-2xl z-20 glass-bottom-bar border-t lg:border border-slate-200/90 shadow-2xl px-4 sm:px-6 py-3 sm:py-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:pb-3.5"
+              className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl lg:bottom-5 lg:rounded-2xl z-20 bg-white/95 backdrop-blur-md border-t lg:border border-slate-200/90 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] px-3.5 sm:px-5 py-2.5 sm:py-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] lg:pb-3"
             >
               <div className="w-full flex items-center justify-between gap-3">
-                {/* Left: 'N items selected' with Odometer */}
-                <div className="flex flex-col justify-center">
-                  <div className="font-serif font-bold text-sm sm:text-base text-[var(--text-primary)] flex items-center gap-1">
-                    <Odometer value={selectedCount} />
-                    <span>{selectedCount === 1 ? 'item' : 'items'} selected</span>
+                {/* Left: Bag icon + 'N items selected' with Odometer */}
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                    selectedCount > 0 
+                      ? 'bg-[var(--brand)] text-white shadow-xs' 
+                      : 'bg-slate-100 text-slate-400'
+                  }`}>
+                    <ShoppingBag className="w-4 h-4" />
                   </div>
-                  <span className="text-[11px] text-[var(--text-muted)] font-medium">
-                    {selectedCount === 0
-                      ? 'Pick dishes from any category'
-                      : 'Pricing calculated on next step'}
-                  </span>
+                  <div className="flex flex-col justify-center">
+                    <div className="font-heading font-black text-xs sm:text-sm text-slate-900 flex items-center gap-1 leading-tight">
+                      <Odometer value={selectedCount} />
+                      <span>{selectedCount === 1 ? 'item' : 'items'} selected</span>
+                    </div>
+                    <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight">
+                      {selectedCount === 0
+                        ? 'Select dishes to build feast'
+                        : 'Custom quotation on next step'}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Right: Large Proceed button */}
+                {/* Right: Proceed button */}
                 <div>
                   {selectedCount === 0 ? (
                     <button
                       disabled
-                      className="h-12 px-5 rounded-full bg-slate-200 text-slate-500 font-bold text-xs sm:text-sm cursor-not-allowed select-none tap-target-48 flex items-center justify-center transition-colors"
+                      className="h-10 sm:h-11 px-4 sm:px-5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs sm:text-sm cursor-not-allowed select-none tap-target-48 flex items-center justify-center transition-colors"
                     >
                       Select at least one item
                     </button>
@@ -319,7 +406,7 @@ export const CataloguePage: React.FC = () => {
                       type="button"
                       id="proceed-to-request-btn"
                       onClick={() => navigate('/request')}
-                      className="h-12 px-6 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.98] text-[var(--on-brand)] font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-lg tap-target-48 transition-colors select-none cursor-pointer"
+                      className="h-10 sm:h-11 px-5 sm:px-6 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.97] text-white font-heading font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md tap-target-48 transition-all select-none cursor-pointer"
                     >
                       <span>Proceed</span>
                       <ChevronRight className="w-4 h-4 stroke-[3]" />
