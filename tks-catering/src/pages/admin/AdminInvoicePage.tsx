@@ -50,6 +50,32 @@ export const AdminInvoicePage: React.FC = () => {
       })
   }, [id, navigate])
 
+  // Handle going back (to order details or previous page)
+  const handleGoBack = React.useCallback(() => {
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else if (order?.id) {
+      navigate(`/admin/orders/${order.id}`)
+    } else if (id) {
+      navigate(`/admin/orders/${id}`)
+    } else {
+      navigate('/admin/orders')
+    }
+  }, [navigate, order?.id, id])
+
+  // Listen for Escape key on keyboard
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        e.preventDefault()
+        handleGoBack()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleGoBack])
+
   // Calculation breakdown
   const perPlatePrice = useMemo(() => {
     if (!order) return 0
@@ -208,10 +234,19 @@ export const AdminInvoicePage: React.FC = () => {
           <div className="pt-2">
             <Link
               to={`/admin/orders/${order.id}`}
+              onClick={(e) => {
+                if (window.history.length > 1) {
+                  e.preventDefault()
+                  handleGoBack()
+                }
+              }}
               className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-heading font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Order #{order.id}</span>
+              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-white/90 bg-white/20 border border-white/30 rounded ml-1">
+                Esc
+              </kbd>
             </Link>
           </div>
         </div>
@@ -229,10 +264,19 @@ export const AdminInvoicePage: React.FC = () => {
       <div className="max-w-3xl mx-auto mb-5 flex items-center justify-between gap-3 print:hidden">
         <Link
           to={`/admin/orders/${order.id}`}
+          onClick={(e) => {
+            if (window.history.length > 1) {
+              e.preventDefault()
+              handleGoBack()
+            }
+          }}
           className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--brand)] hover:text-[var(--brand-600)] bg-red-50/50 hover:bg-red-50 px-3.5 py-2 rounded-full border border-red-100 shadow-xs transition-colors"
         >
           <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
           <span>Back to Order #{order.id}</span>
+          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-slate-500 bg-white border border-slate-200 rounded shadow-2xs ml-1">
+            Esc
+          </kbd>
         </Link>
 
         <button

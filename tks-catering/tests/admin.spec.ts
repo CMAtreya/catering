@@ -96,7 +96,7 @@ test.describe('Admin Flow & Controls QA', () => {
     const href = await telLink.getAttribute('href')
     expect(href).toMatch(/^tel:(\+91)?\d{10}$/)
 
-    // 3. Invoice Gating Check
+    // 3. Invoice Gating Check & Escape key back navigation
     // If order is unconfirmed, visiting /invoice shows gating warning
     const statusBadge = page.locator('[role="status"]').first()
     const isConfirmed = (await statusBadge.innerText()).includes('Confirmed')
@@ -107,6 +107,24 @@ test.describe('Admin Flow & Controls QA', () => {
       await page.waitForLoadState('networkidle')
       await expect(page.locator('text=Invoice Available After Confirmation')).toBeVisible()
       await page.screenshot({ path: `test-results/screenshots/12-invoice-gating.png` })
+
+      // Pressing Escape should go back to order details page
+      await page.keyboard.press('Escape')
+      await expect(page).toHaveURL(currentUrl)
+    }
+
+    // 4. Confirmed order invoice page & Escape key back navigation
+    await page.goto('/admin/orders/TKS-ORD-100')
+    await page.waitForLoadState('networkidle')
+    const invoiceBtn = page.locator('button:has-text("Invoice"), a:has-text("Invoice")').first()
+    if (await invoiceBtn.isVisible()) {
+      await invoiceBtn.click()
+      await expect(page).toHaveURL(/\/admin\/orders\/TKS-ORD-100\/invoice/)
+      await expect(page.getByRole('heading', { name: 'TKS Iyengars Catering' })).toBeVisible()
+
+      // Pressing Escape key should return to order details page
+      await page.keyboard.press('Escape')
+      await expect(page).toHaveURL(/\/admin\/orders\/TKS-ORD-100$/)
     }
   })
 
