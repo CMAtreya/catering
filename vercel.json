@@ -3,7 +3,7 @@
   "cleanUrls": false,
   "buildCommand": "npm --prefix tks-catering run build",
   "outputDirectory": "tks-catering/dist",
-  "installCommand": "npm --prefix tks-catering install",
+  "installCommand": "npm --prefix tks-catering install --legacy-peer-deps",
   "rewrites": [
     {
       "source": "/(.*)",

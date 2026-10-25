@@ -67,8 +67,6 @@
     "@types/three": "^0.186.0",
     "@vite-pwa/assets-generator": "^2.0.0",
     "@vitejs/plugin-react": "^6.1.2",
-    "eslint": "^10.13.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
     "node-vibrant": "^4.0.4",
     "oxlint": "^1.88.0",
     "prettier": "^3.9.10",
