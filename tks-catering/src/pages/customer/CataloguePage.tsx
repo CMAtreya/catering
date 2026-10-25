@@ -120,15 +120,15 @@ export const CataloguePage: React.FC = () => {
     const handleScroll = () => {
       if (isTabClickScrolling.current) return
 
-      const scrollPosition = window.scrollY + 130 // Header offset buffer
+      const headerOffset = 140 // Header offset buffer
       const categories = data.categories
 
       for (let i = categories.length - 1; i >= 0; i--) {
         const cat = categories[i]
         const element = document.getElementById(`cat-section-${cat.id}`)
         if (element) {
-          const top = element.offsetTop
-          if (scrollPosition >= top) {
+          const rect = element.getBoundingClientRect()
+          if (rect.top <= headerOffset) {
             setActiveCategoryId((prev) => (prev !== cat.id ? cat.id : prev))
             break
           }

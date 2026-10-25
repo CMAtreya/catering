@@ -14,6 +14,11 @@ export default defineConfig({
     screenshot: 'on',
     video: 'off',
   },
+  webServer: {
+    command: 'npm run preview -- --port 5173',
+    port: 5173,
+    reuseExistingServer: true,
+  },
   projects: [
     {
       name: 'Desktop Chrome',

@@ -42,13 +42,19 @@ export const CollapsingHeader: React.FC<CollapsingHeaderProps> = ({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Auto-scroll active tab into horizontal view
+  // Auto-scroll active tab horizontally inside the category tab container ONLY (avoids window vertical scroll snapping)
   useEffect(() => {
-    if (activeCategoryId && tabRefs.current[activeCategoryId]) {
-      tabRefs.current[activeCategoryId]?.scrollIntoView({
+    const container = tabsContainerRef.current
+    const tab = tabRefs.current[activeCategoryId]
+    if (container && tab) {
+      const tabLeft = tab.offsetLeft
+      const tabWidth = tab.offsetWidth
+      const containerWidth = container.clientWidth
+      const targetScrollLeft = tabLeft - (containerWidth / 2) + (tabWidth / 2)
+
+      container.scrollTo({
+        left: Math.max(0, targetScrollLeft),
         behavior: isReduced ? 'auto' : 'smooth',
-        block: 'nearest',
-        inline: 'center',
       })
     }
   }, [activeCategoryId, isReduced])
