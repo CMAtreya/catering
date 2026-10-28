@@ -33,7 +33,22 @@ function loadStoredItems(): MenuItem[] {
     const stored = localStorage.getItem('tks_catering_menu_items')
     if (stored) {
       const parsed = JSON.parse(stored)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((p: MenuItem) => {
+          const initial = INITIAL_ITEMS.find((it) => it.id === p.id)
+          return {
+            ...p,
+            image: p.image || initial?.image || '',
+            description: p.description || initial?.description || '',
+            bestseller: p.bestseller ?? initial?.bestseller,
+            mustTry: p.mustTry ?? initial?.mustTry,
+            pureGhee: p.pureGhee ?? initial?.pureGhee,
+            satvik: p.satvik ?? initial?.satvik,
+            leafZone: p.leafZone || initial?.leafZone,
+            leafContainer: p.leafContainer || initial?.leafContainer,
+          }
+        })
+      }
     }
   } catch (e) {
     console.warn('Failed to load stored menu items:', e)

@@ -8,6 +8,7 @@ export interface SelectedItem {
   pricePerPlate: number
   quantity: number
   category: string
+  image?: string
 }
 
 export interface EventRequirements {
@@ -100,7 +101,8 @@ export const useDraftStore = create<DraftState>()(
                 name: item.name,
                 pricePerPlate: item.pricePerPlate,
                 quantity: 1,
-                category: item.category
+                category: item.category,
+                image: item.image
               }
             }
           }
@@ -130,7 +132,8 @@ export const useDraftStore = create<DraftState>()(
                 name: item.name,
                 pricePerPlate: item.pricePerPlate,
                 quantity: 1,
-                category: item.category
+                category: item.category,
+                image: item.image
               }
             }
           }
@@ -196,7 +199,8 @@ export const useDraftStore = create<DraftState>()(
             name: item.name,
             pricePerPlate: item.pricePerPlate,
             quantity: 1,
-            category: item.category
+            category: item.category,
+            image: item.image
           }
         }
         set((state) => ({

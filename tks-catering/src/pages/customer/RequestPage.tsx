@@ -689,17 +689,35 @@ export const RequestPage: React.FC = () => {
                   </div>
 
                   {/* Selected items list */}
-                  <div className="space-y-2.5 pt-0.5 max-h-60 overflow-y-auto no-scrollbar">
+                  <div className="space-y-2 pt-0.5 max-h-64 overflow-y-auto no-scrollbar divide-y divide-slate-100">
                     {selectedItemsList.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center justify-between text-xs sm:text-sm py-0.5"
+                        className="flex items-center justify-between text-xs sm:text-sm py-1.5"
                       >
-                        <span className="font-medium text-[var(--text-primary)] leading-tight pr-2">
-                          {item.name}
-                        </span>
-                        <span className="font-semibold text-[var(--text-muted)] whitespace-nowrap">
-                          {formatRupees(item.pricePerPlate)} / plate
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-8 h-8 rounded-lg object-cover shrink-0 border border-slate-200"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
+                              🍲
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <span className="font-bold text-slate-800 leading-tight block truncate">
+                              {item.name}
+                            </span>
+                            <span className="text-[10px] text-emerald-700 font-medium">
+                              🌿 Pure Veg
+                            </span>
+                          </div>
+                        </div>
+                        <span className="font-heading font-black text-slate-900 whitespace-nowrap text-xs sm:text-sm">
+                          {formatRupees(item.pricePerPlate)} <span className="text-[10px] text-slate-400 font-normal">/ pl</span>
                         </span>
                       </div>
                     ))}

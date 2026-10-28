@@ -13,6 +13,13 @@ export interface MenuItem {
   gradient: string
   emoji: string
   available: boolean
+  description?: string
+  bestseller?: boolean
+  mustTry?: boolean
+  pureGhee?: boolean
+  satvik?: boolean
+  leafZone?: 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right'
+  leafContainer?: 'katori' | 'mound' | 'delicacy' | 'tumbler'
 }
 
 export type OrderStatus = 'New Request' | 'Under Discussion' | 'Confirmed' | 'Completed' | 'Cancelled'
@@ -108,50 +115,80 @@ export const INITIAL_ITEMS: MenuItem[] = [
     name: 'Bisi Bele Bath',
     pricePerPlate: 65,
     category: 'Rice & Rice Dishes',
-    image: '',
+    image: '/dishes/bisi-bele-bath.webp',
     gradient: 'from-amber-100 to-orange-200',
     emoji: '🍲',
-    available: true
+    available: true,
+    description: 'Authentic Mysore Brahmin-style spicy lentil rice simmered with garden vegetables, tamarind, and topped with crispy boondi and pure ghee.',
+    bestseller: true,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'center',
+    leafContainer: 'mound'
   },
   {
     id: 'item-2',
     name: 'Puliyogare',
     pricePerPlate: 55,
     category: 'Rice & Rice Dishes',
-    image: '',
+    image: '/dishes/puliyogare.webp',
     gradient: 'from-yellow-100 to-amber-200',
     emoji: '🍚',
-    available: true
+    available: true,
+    description: 'Traditional temple-style tangy tamarind rice spiced with freshly roasted spices, peanuts, and tempered curry leaves.',
+    bestseller: true,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'center',
+    leafContainer: 'mound'
   },
   {
     id: 'item-3',
     name: 'Lemon Rice',
     pricePerPlate: 50,
     category: 'Rice & Rice Dishes',
-    image: '',
+    image: '/dishes/lemon-rice.webp',
     gradient: 'from-yellow-50 to-lime-100',
     emoji: '🍋',
-    available: true
+    available: true,
+    description: 'Fragrant turmeric-infused rice with fresh lemon juice, crackled mustard seeds, roasted urad dal, green chillies, and ginger.',
+    bestseller: false,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'center',
+    leafContainer: 'mound'
   },
   {
     id: 'item-4',
     name: 'Curd Rice',
     pricePerPlate: 45,
     category: 'Rice & Rice Dishes',
-    image: '',
+    image: '/dishes/curd-rice.webp',
     gradient: 'from-slate-50 to-emerald-50',
     emoji: '🥣',
-    available: true
+    available: true,
+    description: 'Velvety homemade curd rice garnished with ruby pomegranate pearls, fresh grated ginger, coriander, and mild tempering.',
+    bestseller: true,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'center',
+    leafContainer: 'mound'
   },
   {
     id: 'item-5',
     name: 'Pongal',
     pricePerPlate: 60,
     category: 'Rice & Rice Dishes',
-    image: '',
+    image: '/dishes/pongal.webp',
     gradient: 'from-amber-50 to-yellow-100',
     emoji: '🥘',
-    available: true
+    available: true,
+    description: 'Comforting creamy moong dal and rice porridge generously laced with whole black pepper, cumin, crushed ginger, and golden ghee-roasted cashews.',
+    bestseller: true,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'center',
+    leafContainer: 'mound'
   },
 
   // 2. Curries & Gravies (4 items)
@@ -160,40 +197,64 @@ export const INITIAL_ITEMS: MenuItem[] = [
     name: 'Sambar',
     pricePerPlate: 35,
     category: 'Curries & Gravies',
-    image: '',
+    image: '/dishes/sambar.webp',
     gradient: 'from-orange-100 to-red-100',
     emoji: '🍲',
-    available: true
+    available: true,
+    description: 'Classic Mysore feast sambar crafted with toor dal, fresh shallots/vegetables, freshly roasted coconut spices, and aromatic coriander.',
+    bestseller: true,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'top-center',
+    leafContainer: 'katori'
   },
   {
     id: 'item-7',
     name: 'Rasam',
     pricePerPlate: 30,
     category: 'Curries & Gravies',
-    image: '',
+    image: '/dishes/rasam.webp',
     gradient: 'from-red-50 to-orange-100',
     emoji: '🍵',
-    available: true
+    available: true,
+    description: 'Legendary Mysore Menasinasaaru tomato-pepper rasam, slow-simmered with crushed peppercorns, cumin, and fresh curry leaves.',
+    bestseller: false,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'top-right',
+    leafContainer: 'katori'
   },
   {
     id: 'item-8',
     name: 'Palya',
     pricePerPlate: 35,
     category: 'Curries & Gravies',
-    image: '',
+    image: '/dishes/palya.webp',
     gradient: 'from-emerald-50 to-green-100',
     emoji: '🥗',
-    available: true
+    available: true,
+    description: 'Finely diced French beans & tender carrots tempered with mustard, mild green chillies, and tossed with fresh grated coconut.',
+    bestseller: false,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'top-left',
+    leafContainer: 'mound'
   },
   {
     id: 'item-9',
     name: 'Majjige Huli',
     pricePerPlate: 40,
     category: 'Curries & Gravies',
-    image: '',
+    image: '/dishes/majjige-huli.webp',
     gradient: 'from-lime-50 to-amber-50',
     emoji: '🥣',
-    available: true
+    available: true,
+    description: 'Tender ash gourd simmered in a fragrant coconut, green chilli, and sour buttermilk gravy, finished with cumin tempering.',
+    bestseller: false,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'top-left',
+    leafContainer: 'katori'
   },
 
   // 3. Sweets & Desserts (4 items - 1 unavailable)
@@ -202,40 +263,65 @@ export const INITIAL_ITEMS: MenuItem[] = [
     name: 'Mysore Pak',
     pricePerPlate: 45,
     category: 'Sweets & Desserts',
-    image: '',
+    image: '/dishes/mysore-pak.webp',
     gradient: 'from-amber-200 to-yellow-300',
     emoji: '🧈',
-    available: true
+    available: true,
+    description: 'Royal heritage Mysore recipe: Melt-in-the-mouth golden gram flour fudge made with 100% pure Nandini cow ghee and cardamom.',
+    bestseller: true,
+    mustTry: true,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'bottom-center',
+    leafContainer: 'delicacy'
   },
   {
     id: 'item-11',
     name: 'Kesari Bath',
     pricePerPlate: 40,
     category: 'Sweets & Desserts',
-    image: '',
+    image: '/dishes/kesari-bath.webp',
     gradient: 'from-orange-200 to-amber-300',
     emoji: '🍯',
-    available: true
+    available: true,
+    description: 'Aromatic semolina halwa infused with royal Kashmiri saffron, green cardamom, pure cow ghee, and plump raisins.',
+    bestseller: true,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'bottom-center',
+    leafContainer: 'mound'
   },
   {
     id: 'item-12',
     name: 'Payasa',
     pricePerPlate: 45,
     category: 'Sweets & Desserts',
-    image: '',
+    image: '/dishes/payasa.webp',
     gradient: 'from-rose-50 to-amber-100',
     emoji: '🍧',
-    available: true
+    available: true,
+    description: 'Festive vermicelli & sago kheer slow-cooked in rich whole milk, perfumed with saffron and studded with fried cashews & chironji.',
+    bestseller: true,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'bottom-center',
+    leafContainer: 'katori'
   },
   {
     id: 'item-13',
     name: 'Holige',
     pricePerPlate: 50,
     category: 'Sweets & Desserts',
-    image: '',
+    image: '/dishes/holige.webp',
     gradient: 'from-amber-100 to-orange-100',
     emoji: '🥞',
-    available: false // 1st unavailable item per spec
+    available: false, // 1st unavailable item per spec
+    description: 'Delicate hand-rolled festive sweet flatbread stuffed with sweet jaggery-chana dal puran, served hot with melted cow ghee.',
+    bestseller: false,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'bottom-left',
+    leafContainer: 'delicacy'
   },
 
   // 4. Tiffins & Breakfast (5 items - 1 unavailable)
@@ -244,50 +330,81 @@ export const INITIAL_ITEMS: MenuItem[] = [
     name: 'Idli',
     pricePerPlate: 40,
     category: 'Tiffins & Breakfast',
-    image: '',
+    image: '/dishes/idli.webp',
     gradient: 'from-slate-100 to-stone-200',
     emoji: '⚪',
-    available: true
+    available: true,
+    description: 'Pillow-soft, naturally fermented steamed rice & urad dal cakes, served steaming hot with coconut chutney and Mysore sambar.',
+    bestseller: true,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'bottom-left',
+    leafContainer: 'delicacy'
   },
   {
     id: 'item-15',
     name: 'Medu Vada',
     pricePerPlate: 45,
     category: 'Tiffins & Breakfast',
-    image: '',
+    image: '/dishes/medu-vada.webp',
     gradient: 'from-amber-100 to-amber-300',
     emoji: '🍩',
-    available: true
+    available: true,
+    description: 'Crunchy on the outside and airy within, spiced with crushed black pepper, fresh ginger, and curry leaves.',
+    bestseller: true,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'bottom-left',
+    leafContainer: 'delicacy'
   },
   {
     id: 'item-16',
     name: 'Khara Bath',
     pricePerPlate: 40,
     category: 'Tiffins & Breakfast',
-    image: '',
+    image: '/dishes/khara-bath.webp',
     gradient: 'from-orange-100 to-yellow-200',
     emoji: '🍛',
-    available: true
+    available: true,
+    description: 'Savory roasted rava upma enriched with seasonal vegetables, vangi bath spice blend, and a drizzle of pure cow ghee.',
+    bestseller: false,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'bottom-left',
+    leafContainer: 'mound'
   },
   {
     id: 'item-17',
     name: 'Dosa',
     pricePerPlate: 50,
     category: 'Tiffins & Breakfast',
-    image: '',
+    image: '/dishes/dosa.webp',
     gradient: 'from-amber-200 to-orange-300',
     emoji: '🌯',
-    available: true
+    available: true,
+    description: 'Crisp golden crepe made from fermented batter, roasted in pure butter/ghee, paired with freshly ground coconut chutney.',
+    bestseller: true,
+    mustTry: true,
+    pureGhee: true,
+    satvik: true,
+    leafZone: 'bottom-left',
+    leafContainer: 'delicacy'
   },
   {
     id: 'item-18',
     name: 'Akki Roti',
     pricePerPlate: 55,
     category: 'Tiffins & Breakfast',
-    image: '',
+    image: '/dishes/akki-roti.webp',
     gradient: 'from-stone-100 to-amber-100',
     emoji: '🫓',
-    available: false // 2nd unavailable item per spec
+    available: false, // 2nd unavailable item per spec
+    description: 'Traditional Karnataka rice flour flatbread kneaded with fresh dill leaves, grated carrots, and cumin, griddled with butter.',
+    bestseller: false,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'bottom-left',
+    leafContainer: 'delicacy'
   },
 
   // 5. Beverages (2 items)
@@ -296,20 +413,33 @@ export const INITIAL_ITEMS: MenuItem[] = [
     name: 'Filter Coffee',
     pricePerPlate: 25,
     category: 'Beverages',
-    image: '',
+    image: '/dishes/filter-coffee.webp',
     gradient: 'from-amber-800/20 to-stone-800/30',
     emoji: '☕',
-    available: true
+    available: true,
+    description: 'Signature South Indian degree coffee brewed from freshly roasted Chikmagalur Arabica-Peaberry beans with frothy full-cream milk.',
+    bestseller: true,
+    mustTry: true,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'bottom-right',
+    leafContainer: 'tumbler'
   },
   {
     id: 'item-20',
     name: 'Buttermilk',
     pricePerPlate: 20,
     category: 'Beverages',
-    image: '',
+    image: '/dishes/buttermilk.webp',
     gradient: 'from-emerald-50 to-teal-100',
     emoji: '🥛',
-    available: true
+    available: true,
+    description: 'Chilled spiced neer majjige blended with crushed ginger, green chillies, curry leaves, and a hint of roasted asafoetida.',
+    bestseller: false,
+    pureGhee: false,
+    satvik: true,
+    leafZone: 'bottom-right',
+    leafContainer: 'tumbler'
   }
 ]
 
