@@ -15,8 +15,10 @@ import {
   Clock,
   ShieldAlert,
   Eye,
-  EyeOff
+  EyeOff,
+  ChefHat
 } from 'lucide-react'
+import { KitchenBEOSheetModal } from '@/components/admin/KitchenBEOSheetModal'
 import { toast } from 'sonner'
 import { 
   getOrder, 
@@ -99,6 +101,7 @@ export const AdminOrderDetailPage: React.FC = () => {
   // 3) Selected food items
   const [itemsList, setItemsList] = useState<OrderItem[]>([])
   const [isFoodSheetOpen, setIsFoodSheetOpen] = useState<boolean>(false)
+  const [isBEOSheetOpen, setIsBEOSheetOpen] = useState<boolean>(false)
 
   // 4) Enquiry notes
   const [enquiryNotes, setEnquiryNotes] = useState<string>('')
@@ -1041,14 +1044,25 @@ export const AdminOrderDetailPage: React.FC = () => {
                 <span className="font-bold text-slate-900">Total Billed:</span> {formatRupees(pricingResult.finalTotal)} • {itemsList.length} dishes • {plates} plates
               </div>
 
-              <button
-                type="button"
-                onClick={() => navigate(`/admin/orders/${initialOrder.id}/invoice`)}
-                className="px-5 py-2.5 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-95 text-white font-heading font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-transform tap-target-48 sm:tap-target-auto"
-              >
-                <Printer className="w-4 h-4" />
-                <span>Generate invoice</span>
-              </button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setIsBEOSheetOpen(true)}
+                  className="px-4 py-2.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-heading font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors tap-target-48 sm:tap-target-auto cursor-pointer"
+                >
+                  <ChefHat className="w-4 h-4 text-amber-600" />
+                  <span>Kitchen BEO</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate(`/admin/orders/${initialOrder.id}/invoice`)}
+                  className="px-5 py-2.5 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-95 text-white font-heading font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-transform tap-target-48 sm:tap-target-auto cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Generate invoice</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1161,6 +1175,16 @@ export const AdminOrderDetailPage: React.FC = () => {
                       className="h-8 sm:h-8.5 px-3.5 sm:px-4 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                       Mark Completed
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsBEOSheetOpen(true)}
+                      className="h-8 sm:h-8.5 px-3 sm:px-3.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-colors shrink-0 cursor-pointer"
+                      title="View and print Kitchen BEO procurement sheet"
+                    >
+                      <ChefHat className="w-3.5 h-3.5 text-amber-400" />
+                      <span>BEO</span>
                     </button>
 
                     <button
@@ -1426,6 +1450,15 @@ export const AdminOrderDetailPage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Kitchen BEO Procurement & Dispatch Sheet Modal */}
+      {initialOrder && (
+        <KitchenBEOSheetModal
+          order={initialOrder}
+          isOpen={isBEOSheetOpen}
+          onClose={() => setIsBEOSheetOpen(false)}
+        />
+      )}
 
     </AdminAppShell>
   )

@@ -8,8 +8,10 @@ import {
   Plus, 
   Info, 
   ChevronRight, 
-  AlertCircle 
+  AlertCircle,
+  Sparkles
 } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
 import { z } from 'zod'
 import { format, parseISO, isValid } from 'date-fns'
 
@@ -100,6 +102,7 @@ export const RequestPage: React.FC = () => {
   const [guestCount, setGuestCount] = useState<number | ''>(requirements.guestCount || 100)
   const [venueAddress, setVenueAddress] = useState<string>(requirements.venueAddress || '')
   const [notes, setNotes] = useState<string>(requirements.notes || '')
+  const [includeBuffer, setIncludeBuffer] = useState<boolean>(requirements.includeBuffer || false)
 
   // Inline errors state
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -114,10 +117,14 @@ export const RequestPage: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Pricing calculations
+  // Pricing & Buffer calculations
   const perPlateTotal = getPerPlateTotal()
   const platesCount = typeof guestCount === 'number' && guestCount > 0 ? guestCount : 0
-  const estimatedFoodTotal = perPlateTotal * platesCount
+  const tierDiscount = platesCount >= 500 ? 12 : platesCount >= 250 ? 8 : platesCount >= 100 ? 5 : 0
+  const discountedPerPlate = tierDiscount > 0 ? Math.round(perPlateTotal * (1 - tierDiscount / 100)) : perPlateTotal
+  const bufferPlates = includeBuffer ? Math.max(5, Math.ceil(platesCount * 0.10)) : 0
+  const totalPlatesWithBuffer = platesCount + bufferPlates
+  const estimatedFoodTotal = discountedPerPlate * (includeBuffer ? totalPlatesWithBuffer : platesCount)
 
   // Handle number of plates change
   const handlePlatesChange = (val: number | '') => {
@@ -163,7 +170,8 @@ export const RequestPage: React.FC = () => {
       eventDate: parseResult.data.eventDate,
       guestCount: parseResult.data.guestCount,
       venueAddress: parseResult.data.venueAddress,
-      notes: parseResult.data.notes || ''
+      notes: parseResult.data.notes || '',
+      includeBuffer
     })
 
     // Proceed to Step 3: Contact Details
@@ -456,11 +464,30 @@ export const RequestPage: React.FC = () => {
             </div>
 
             {/* 3. Number of plates: numeric stepper + direct typing */}
-            <div id="field-guestCount" className="space-y-1.5">
+            <div className="space-y-1.5">
               <label className="text-xs font-bold text-[var(--text-primary)] block">
                 Number of plates <span className="text-[var(--brand)]">*</span>
               </label>
 
+              {/* Quick Preset Headcount Chips (Craft My Plate / ezCater benchmark) */}
+              <div className="flex items-center gap-1.5 flex-wrap pb-1">
+                {[50, 100, 250, 500, 1000].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => handlePlatesChange(preset)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                      guestCount === preset
+                        ? 'bg-[var(--brand)] text-white shadow-2xs'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    }`}
+                  >
+                    {preset} plates
+                  </button>
+                ))}
+              </div>
+
+              {/* Stepper + Input */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -469,13 +496,13 @@ export const RequestPage: React.FC = () => {
                     handlePlatesChange(Math.max(10, current - 10))
                   }}
                   disabled={typeof guestCount === 'number' && guestCount <= 10}
-                  className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-slate-700 transition-all select-none shrink-0"
+                  className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-slate-700 transition-all select-none shrink-0 cursor-pointer"
                   aria-label="Decrease plates by 10"
                 >
                   <Minus className="w-4 h-4 stroke-[2.5]" />
                 </button>
 
-                <div className="relative flex-1">
+                <div id="field-guestCount" className="relative flex-1">
                   <Input
                     type="number"
                     inputMode="numeric"
@@ -500,16 +527,77 @@ export const RequestPage: React.FC = () => {
                     const current = typeof guestCount === 'number' ? guestCount : 0
                     handlePlatesChange(current + 10)
                   }}
-                  className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 flex items-center justify-center text-slate-700 transition-all select-none shrink-0"
+                  className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 flex items-center justify-center text-slate-700 transition-all select-none shrink-0 cursor-pointer"
                   aria-label="Increase plates by 10"
                 >
                   <Plus className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
 
-              <p className="text-[11px] text-[var(--text-muted)] font-medium pt-0.5">
-                Approximate number of meals
-              </p>
+              {/* Tactile Range Slider */}
+              <div className="pt-2">
+                <input
+                  type="range"
+                  min={10}
+                  max={1200}
+                  step={10}
+                  value={typeof guestCount === 'number' ? guestCount : 10}
+                  onChange={(e) => handlePlatesChange(parseInt(e.target.value, 10))}
+                  className="w-full accent-[var(--brand)] cursor-pointer h-2 bg-slate-200 rounded-lg"
+                  aria-label="Headcount range slider"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 font-bold px-0.5">
+                  <span>10 (Intimate)</span>
+                  <span>250 (Muhurtham)</span>
+                  <span>500 (Grand)</span>
+                  <span>1200+ (Royal)</span>
+                </div>
+              </div>
+
+              {/* Bulk Tier Savings Alert Callout */}
+              {tierDiscount > 0 ? (
+                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center gap-2 text-xs">
+                  <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                  <p className="text-amber-900 font-semibold">
+                    <span className="font-black text-[var(--brand)]">{tierDiscount}% Bulk Banquet Discount</span> applied! (Save ₹{perPlateTotal - discountedPerPlate} per plate)
+                  </p>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-2 text-xs">
+                  <Info className="w-4 h-4 text-slate-400 shrink-0" />
+                  <p className="text-slate-600 font-medium">
+                    Select 100+ plates to unlock <span className="font-bold text-[var(--brand)]">5% bulk banquet savings</span>.
+                  </p>
+                </div>
+              )}
+
+              {/* Kitchen Safety Buffer Assistant (1-Click Toggle - Luxury Catering Standard) */}
+              <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-50/60 to-orange-50/60 border border-amber-200/80 space-y-2 mt-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🛡️</span>
+                    <div>
+                      <h4 className="font-heading font-bold text-xs sm:text-sm text-slate-900 leading-tight">
+                        Include 10% Kitchen Safety Buffer (+{bufferPlates > 0 ? bufferPlates : Math.max(5, Math.ceil(platesCount * 0.10))} plates)
+                      </h4>
+                      <p className="text-[11px] text-slate-600 font-medium pt-0.5">
+                        Traditional wedding practice: ensures unexpected guests and extra servings are seamlessly covered.
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={includeBuffer}
+                    onCheckedChange={setIncludeBuffer}
+                    className="data-[state=checked]:bg-[var(--brand)]"
+                    aria-label="Toggle 10% kitchen safety buffer"
+                  />
+                </div>
+                {includeBuffer && (
+                  <p className="text-[10px] text-emerald-800 font-bold bg-emerald-100/70 px-2.5 py-1 rounded-lg border border-emerald-300">
+                    ✓ Total preparation scaled to {totalPlatesWithBuffer} plates ({platesCount} confirmed + {bufferPlates} safety buffer)
+                  </p>
+                )}
+              </div>
 
               {errors.guestCount && (
                 <p className="text-xs text-[var(--status-cancelled-text)] font-semibold flex items-center gap-1 pt-0.5">
@@ -638,18 +726,34 @@ export const RequestPage: React.FC = () => {
 
                   <div className="space-y-2 pt-1 text-xs sm:text-sm">
                     <div className="flex items-center justify-between text-slate-600">
-                      <span className="font-medium">Price per plate</span>
+                      <span className="font-medium">Base price per plate</span>
                       <span className="font-bold text-[var(--text-primary)]">
                         {formatRupees(perPlateTotal)}
                       </span>
                     </div>
 
+                    {tierDiscount > 0 && (
+                      <div className="flex items-center justify-between text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg">
+                        <span className="font-semibold text-xs">Bulk discount ({tierDiscount}%)</span>
+                        <span className="font-black text-xs">
+                          {formatRupees(discountedPerPlate)} / plate
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between text-slate-600">
-                      <span className="font-medium">Number of plates</span>
+                      <span className="font-medium">Number of meals</span>
                       <span className="font-bold text-[var(--text-primary)]">
-                        × {platesCount}
+                        {platesCount} plates
                       </span>
                     </div>
+
+                    {includeBuffer && (
+                      <div className="flex items-center justify-between text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                        <span>10% Kitchen safety buffer</span>
+                        <span className="font-bold">+{bufferPlates} plates</span>
+                      </div>
+                    )}
 
                     {/* Dashed divider */}
                     <div className="border-t border-dashed border-slate-200 my-2.5" />
@@ -688,7 +792,7 @@ export const RequestPage: React.FC = () => {
             STICKY BOTTOM BAR (glass-strong)
             Floating centered pill on desktop, full-width on mobile
             ========================================================== */}
-        <div className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl lg:bottom-6 lg:rounded-2xl z-20 glass-bottom-bar border-t lg:border border-slate-200/80 shadow-2xl px-4 sm:px-6 py-3 sm:py-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:pb-3.5">
+        <div className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl lg:bottom-6 lg:rounded-2xl z-50 pointer-events-auto glass-bottom-bar border-t lg:border border-slate-200/80 shadow-2xl px-4 sm:px-6 py-3 sm:py-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:pb-3.5">
           <div className="w-full flex items-center justify-between gap-3">
             {/* Left: Estimated food total */}
             <div className="flex flex-col justify-center">

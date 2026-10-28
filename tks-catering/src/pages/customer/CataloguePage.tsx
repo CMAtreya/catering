@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { ChevronRight, Phone, RefreshCw, AlertCircle, Search, X, ShoppingBag } from 'lucide-react'
+import { ChevronRight, Phone, RefreshCw, AlertCircle, Search, X, ShoppingBag, Sparkles } from 'lucide-react'
 import { getCatalogue, type CatalogueResponse } from '@/api'
 import type { Category, MenuItem } from '@/data/mockData'
 import { useDraftStore } from '@/store/draftStore'
@@ -15,6 +15,11 @@ import { ScrollReveal } from '@/components/motion/ScrollReveal'
 import { Odometer } from '@/components/motion/Odometer'
 import { Hero3D } from '@/components/motion/Hero3D'
 import { getItemEntranceVariants, MOTION_SPRINGS } from '@/motion/tokens'
+import { PresetFeastBar } from '@/components/customer/PresetFeastBar'
+import { VirtualBananaLeafModal } from '@/components/customer/VirtualBananaLeafModal'
+import { PurityFilterMatrix, type PurityFilter } from '@/components/customer/PurityFilterMatrix'
+import { TastingSessionModal } from '@/components/customer/TastingSessionModal'
+import { formatRupees } from '@/lib/format'
 
 export const CataloguePage: React.FC = () => {
   const navigate = useNavigate()
@@ -24,6 +29,13 @@ export const CataloguePage: React.FC = () => {
   const [data, setData] = useState<CatalogueResponse | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Modals state
+  const [isLeafModalOpen, setIsLeafModalOpen] = useState(false)
+  const [isTastingModalOpen, setIsTastingModalOpen] = useState(false)
+
+  // Purity Filter state
+  const [purityFilter, setPurityFilter] = useState<PurityFilter>('all')
 
   // Scroll spy active category id
   const [activeCategoryId, setActiveCategoryId] = useState<string>('')
@@ -37,6 +49,7 @@ export const CataloguePage: React.FC = () => {
   // Global stores
   const selectedItems = useDraftStore((state) => state.items)
   const selectedCount = Object.keys(selectedItems).length
+  const perPlateTotal = useDraftStore((state) => state.getPerPlateTotal())
   const enquiriesCount = useEnquiryStore((state) => state.enquiries.length)
 
   // Bounce animation key for bottom bar when item selection changes
@@ -101,6 +114,29 @@ export const CataloguePage: React.FC = () => {
         )
       })
     : null
+
+  // Purity Filter matching helper
+  const matchesPurityFilter = (item: MenuItem): boolean => {
+    if (purityFilter === 'all') return true
+    if (purityFilter === 'pure-ghee') {
+      const keywords = ['bisi bele', 'mysore pak', 'pongal', 'kesari', 'sambar', 'ghee']
+      return keywords.some((k) => item.name.toLowerCase().includes(k))
+    }
+    if (purityFilter === 'satvik') {
+      const keywords = ['puliyogare', 'curd rice', 'rasam', 'palya', 'payasa', 'buttermilk', 'kesari']
+      return keywords.some((k) => item.name.toLowerCase().includes(k))
+    }
+    if (purityFilter === 'sweets') {
+      return item.category === 'Sweets & Desserts'
+    }
+    if (purityFilter === 'tiffins') {
+      return item.category === 'Tiffins & Breakfast'
+    }
+    if (purityFilter === 'beverages') {
+      return item.category === 'Beverages'
+    }
+    return true
+  }
 
   // Smooth scroll to category section
   const scrollToCategory = (categoryId: string) => {
@@ -253,34 +289,76 @@ export const CataloguePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 2. COMPACT HERO STRIP: punchy quick-commerce banner */}
+              {/* 2. FLAGSHIP HERO BANNER: Royal Mysuru Feast with 3D Object */}
               {!searchQuery && (
-                <section aria-label="Feast selection banner" className="p-3 sm:p-4 lg:p-5 rounded-2xl bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-md overflow-hidden relative border border-amber-950/20">
-                  <div className="flex items-center justify-between gap-3 sm:gap-6">
-                    <div className="space-y-1 sm:space-y-1.5 z-10 max-w-xl">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] sm:text-[11px] tracking-wider uppercase font-extrabold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-300/30 inline-flex items-center gap-1">
+                <section aria-label="Feast selection banner" className="p-3.5 sm:p-5 lg:p-6 rounded-3xl bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-lg overflow-hidden relative border border-amber-950/20">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+                    <div className="space-y-2 z-10 max-w-xl">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] sm:text-[11px] tracking-wider uppercase font-black text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-300/30 inline-flex items-center gap-1">
                           <span>⚡</span>
                           <span>Mysuru Authentic Feast</span>
                         </span>
-                        <span className="text-[10px] sm:text-[11px] font-bold text-white/80 bg-white/10 px-2 py-0.5 rounded-full hidden sm:inline-block">
-                          100% Pure Veg
+                        <span className="text-[10px] sm:text-[11px] font-bold text-white/90 bg-white/10 px-2 py-0.5 rounded-full">
+                          100% Pure Cow Ghee
+                        </span>
+                        <span className="text-[10px] sm:text-[11px] font-bold text-emerald-300 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                          Satvik Brahmin Kitchen
                         </span>
                       </div>
-                      <h2 className="font-heading font-black text-base sm:text-xl lg:text-2xl tracking-tight leading-tight">
-                        Build Your Royal Catering Menu
+
+                      <h2 className="font-heading font-black text-lg sm:text-2xl lg:text-3xl tracking-tight leading-tight">
+                        Craft Your Royal Catering Feast
                       </h2>
-                      <p className="text-[11px] sm:text-xs lg:text-sm text-white/90 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none">
-                        Tap dishes to add to your feast. Live per-plate quotation and guest counts calculated on the next step.
+                      <p className="text-[11px] sm:text-xs lg:text-sm text-white/90 font-medium leading-relaxed">
+                        Handcrafted South Indian delicacies, ceremonial Muhurtham spreads, and live per-plate quotations. Tap dishes below to build your feast.
                       </p>
+
+                      {/* Quick Interactive Actions */}
+                      <div className="pt-1 flex items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => setIsLeafModalOpen(true)}
+                          className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        >
+                          <span>🍃</span>
+                          <span>View on Banana Leaf</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsTastingModalOpen(true)}
+                          className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/15 hover:bg-white/25 text-white transition-all border border-white/30 flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                          <span>Book Tasting Box</span>
+                        </button>
+                      </div>
                     </div>
 
                     {/* 3D Hero Object: Ceremonial Brass Lamp */}
-                    <div className="w-16 h-16 sm:w-22 sm:h-22 lg:w-26 lg:h-26 shrink-0 relative flex items-center justify-center">
+                    <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 shrink-0 relative flex items-center justify-center self-end sm:self-center">
                       <Hero3D />
                     </div>
                   </div>
                 </section>
+              )}
+
+              {/* 3. CURATED PRESET FEASTS (Craft My Plate / CaterNinja 1-Tap Packages) */}
+              {!searchQuery && (
+                <PresetFeastBar
+                  availableItems={data.items}
+                  onOpenLeafVisualizer={() => setIsLeafModalOpen(true)}
+                />
+              )}
+
+              {/* 4. DIETARY & PURITY FILTER MATRIX (ezCater Multi-Filter Benchmark) */}
+              {!searchQuery && (
+                <PurityFilterMatrix
+                  activeFilter={purityFilter}
+                  onSelectFilter={setPurityFilter}
+                  totalCount={data.items.length}
+                />
               )}
 
               {/* Search Results View */}
@@ -315,7 +393,7 @@ export const CataloguePage: React.FC = () => {
               ) : (
                 /* Regular Category View */
                 data.categories.map((category) => {
-                  const categoryItems = getCategoryItems(category, data.items)
+                  const categoryItems = getCategoryItems(category, data.items).filter(matchesPurityFilter)
                   if (categoryItems.length === 0) return null
 
                   return (
@@ -367,7 +445,7 @@ export const CataloguePage: React.FC = () => {
               key={bounceKey}
               animate={!isReduced && bounceKey > 0 ? { y: [0, -3, 0] } : undefined}
               transition={MOTION_SPRINGS.tap}
-              className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl lg:bottom-5 lg:rounded-2xl z-20 bg-white/95 backdrop-blur-md border-t lg:border border-slate-200/90 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] px-3.5 sm:px-5 py-2.5 sm:py-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] lg:pb-3"
+              className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl lg:bottom-5 lg:rounded-2xl z-50 pointer-events-auto bg-white/95 backdrop-blur-md border-t lg:border border-slate-200/90 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] px-3.5 sm:px-5 py-2.5 sm:py-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] lg:pb-3"
             >
               <div className="w-full flex items-center justify-between gap-3">
                 {/* Left: Bag icon + 'N items selected' with Odometer */}
@@ -383,6 +461,11 @@ export const CataloguePage: React.FC = () => {
                     <div className="font-heading font-black text-xs sm:text-sm text-slate-900 flex items-center gap-1 leading-tight">
                       <Odometer value={selectedCount} />
                       <span>{selectedCount === 1 ? 'item' : 'items'} selected</span>
+                      {selectedCount > 0 && (
+                        <span className="text-[11px] font-bold text-[var(--brand)] ml-1">
+                          • {formatRupees(perPlateTotal)}/pl
+                        </span>
+                      )}
                     </div>
                     <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight">
                       {selectedCount === 0
@@ -392,8 +475,20 @@ export const CataloguePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Right: Proceed button */}
-                <div>
+                {/* Right: Banana Leaf button & Proceed button */}
+                <div className="flex items-center gap-2">
+                  {selectedCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsLeafModalOpen(true)}
+                      className="h-10 sm:h-11 px-3 sm:px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-1.5 border border-emerald-200 transition-colors shadow-2xs cursor-pointer shrink-0"
+                      title="View feast arranged on traditional South Indian plantain leaf"
+                    >
+                      <span>🍃</span>
+                      <span className="hidden sm:inline">Leaf View</span>
+                    </button>
+                  )}
+
                   {selectedCount === 0 ? (
                     <button
                       disabled
@@ -415,6 +510,20 @@ export const CataloguePage: React.FC = () => {
                 </div>
               </div>
             </motion.nav>
+
+            {/* Virtual Plantain Leaf Ceremonial Layout Modal */}
+            <VirtualBananaLeafModal
+              isOpen={isLeafModalOpen}
+              onClose={() => setIsLeafModalOpen(false)}
+              onProceedToRequirements={() => navigate('/request')}
+            />
+
+            {/* Tasting Box Booking Modal */}
+            <TastingSessionModal
+              isOpen={isTastingModalOpen}
+              onClose={() => setIsTastingModalOpen(false)}
+              availableItems={data.items}
+            />
           </>
         )}
 

@@ -17,6 +17,8 @@ export interface EventRequirements {
   eventType: string
   venueAddress: string
   notes: string
+  includeBuffer?: boolean // 10% Kitchen safety buffer
+  tastingRequested?: boolean // Private tasting box request
 }
 
 export interface ContactDetails {
@@ -38,6 +40,7 @@ interface DraftState {
   decrementItem: (itemId: string) => void
   setItemQuantity: (itemId: string, quantity: number) => void
   clearItems: () => void
+  loadPresetFeast: (itemsList: MenuItem[], eventTypeName?: string) => void
 
   // Requirements actions
   setRequirements: (req: Partial<EventRequirements>) => void
@@ -48,6 +51,11 @@ interface DraftState {
   getTotalItemsCount: () => number
   getPerPlateTotal: () => number
   getFoodSubtotal: () => number
+  getTierDiscountPercent: () => number
+  getDiscountedPerPlateTotal: () => number
+  getSafetyBufferPlates: () => number
+  getTotalPlatesWithBuffer: () => number
+  getFinalEstimatedTotal: () => number
 }
 
 const DEFAULT_REQUIREMENTS: EventRequirements = {
@@ -56,7 +64,9 @@ const DEFAULT_REQUIREMENTS: EventRequirements = {
   eventTime: 'Morning',
   eventType: 'Traditional Feast',
   venueAddress: '',
-  notes: ''
+  notes: '',
+  includeBuffer: false,
+  tastingRequested: false
 }
 
 const DEFAULT_CONTACT: ContactDetails = {
@@ -178,6 +188,26 @@ export const useDraftStore = create<DraftState>()(
 
       clearItems: () => set({ items: {} }),
 
+      loadPresetFeast: (itemsList: MenuItem[], eventTypeName?: string) => {
+        const newMap: Record<string, SelectedItem> = {}
+        for (const item of itemsList) {
+          newMap[item.id] = {
+            id: item.id,
+            name: item.name,
+            pricePerPlate: item.pricePerPlate,
+            quantity: 1,
+            category: item.category
+          }
+        }
+        set((state) => ({
+          items: newMap,
+          requirements: {
+            ...state.requirements,
+            ...(eventTypeName ? { eventType: eventTypeName } : {})
+          }
+        }))
+      },
+
       setRequirements: (req) =>
         set((state) => ({
           requirements: { ...state.requirements, ...req }
@@ -205,10 +235,43 @@ export const useDraftStore = create<DraftState>()(
         return items.reduce((sum, item) => sum + item.pricePerPlate * item.quantity, 0)
       },
 
+      getTierDiscountPercent: () => {
+        const guests = get().requirements.guestCount || 0
+        if (guests >= 500) return 12 // 12% bulk banquet discount
+        if (guests >= 250) return 8  // 8% wedding feast discount
+        if (guests >= 100) return 5  // 5% standard banquet discount
+        return 0
+      },
+
+      getDiscountedPerPlateTotal: () => {
+        const raw = get().getPerPlateTotal()
+        const disc = get().getTierDiscountPercent()
+        if (disc <= 0) return raw
+        return Math.round(raw * (1 - disc / 100))
+      },
+
+      getSafetyBufferPlates: () => {
+        const req = get().requirements
+        if (!req.includeBuffer) return 0
+        const guests = req.guestCount || 0
+        return Math.max(5, Math.ceil(guests * 0.10)) // 10% safety buffer (min 5 plates)
+      },
+
+      getTotalPlatesWithBuffer: () => {
+        const guests = get().requirements.guestCount || 0
+        return guests + get().getSafetyBufferPlates()
+      },
+
       getFoodSubtotal: () => {
-        const perPlate = get().getPerPlateTotal()
+        const perPlate = get().getDiscountedPerPlateTotal()
         const guests = Math.max(1, get().requirements.guestCount || 1)
         return perPlate * guests
+      },
+
+      getFinalEstimatedTotal: () => {
+        const perPlate = get().getDiscountedPerPlateTotal()
+        const totalPlates = Math.max(1, get().getTotalPlatesWithBuffer())
+        return perPlate * totalPlates
       }
     }),
     {

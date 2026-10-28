@@ -89,7 +89,7 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
       {/* port positioning of sticky bottom bars and drawers.      */}
       {/* ======================================================== */}
       <div 
-        className={`w-full ${maxWidth} flex-1 flex flex-col relative z-0 ${className}`}
+        className={`w-full ${maxWidth} flex-1 flex flex-col ${className}`}
       >
         {children}
       </div>
