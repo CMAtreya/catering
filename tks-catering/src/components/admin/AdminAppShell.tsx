@@ -7,15 +7,12 @@ import {
   Users, 
   LogOut, 
   Plus, 
-  PlusCircle, 
-  ChevronDown
+  ChevronDown,
+  ExternalLink
 } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
-import { motion } from 'motion/react'
 import { useAdminAuthStore } from '@/store/adminAuthStore'
-import { useVisualViewport } from '@/hooks/useVisualViewport'
 import { PageTransition } from '@/components/motion/PageTransition'
-import { MOTION_SPRINGS } from '@/motion/tokens'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -44,19 +41,22 @@ interface AdminAppShellProps {
   hideBottomNav?: boolean
 }
 
+/**
+ * Flagship Top-Navigation Layout for Admin Workspace
+ * Completely eliminates side navbar in favor of a full-width, 
+ * clean, responsive top navigation bar across all screen sizes.
+ */
 export const AdminAppShell: React.FC<AdminAppShellProps> = ({
   children,
   title,
   subtitle,
-  actions,
-  hideBottomNav = false
+  actions
 }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const user = useAdminAuthStore((state) => state.user)
   const logout = useAdminAuthStore((state) => state.logout)
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState<boolean>(false)
-  const { isKeyboardOpen } = useVisualViewport()
 
   const handleLogout = () => {
     logout()
@@ -81,167 +81,120 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
     : 'AM'
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)] font-sans flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-sans flex flex-col w-full selection:bg-[var(--brand)] selection:text-white">
       <Toaster position="bottom-center" richColors />
 
-      {/* 1. Desktop Left Sidebar (from 1024px per spec: "From 1024px the bottom bar becomes a left sidebar with the same items") */}
-      <aside className="hidden lg:flex lg:w-64 flex-col bg-white border-r border-slate-200/80 sticky top-0 h-screen select-none z-10 shrink-0">
+      {/* ======================================================== */}
+      {/* 1. TOP NAVIGATION BAR (NO SIDE NAVBAR AT ALL)            */}
+      {/* ======================================================== */}
+      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs select-none">
         
-        {/* Brand Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white shadow-xs p-1.5 flex items-center justify-center border border-slate-100">
-            <img src="/logo-128.webp" alt="TKS Logo" width="40" height="40" decoding="async" className="w-full h-full object-contain" />
-          </div>
-          <div>
-            <h2 className="font-heading font-black text-sm text-[var(--brand-900)] leading-tight">
-              TKS Catering
-            </h2>
-            <p className="text-[11px] text-[var(--text-muted)] font-medium">Admin Workspace</p>
-          </div>
-        </div>
-
-        {/* Navigation Items */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {/* Home */}
-          <Link
-            to="/admin"
-            className={`flex items-center gap-3 px-3.5 py-3 rounded-xl font-semibold text-xs transition-all tap-target-48 ${
-              isNavActive('/admin')
-                ? 'bg-[var(--brand)] text-[var(--on-brand)] shadow-sm'
-                : 'text-[var(--text-primary)] hover:bg-[var(--brand-soft)] hover:text-[var(--brand-900)]'
-            }`}
-          >
-            <LayoutDashboard className="w-4 h-4 shrink-0 stroke-[2.2]" />
-            <span>Home</span>
-          </Link>
-
-          {/* Orders */}
-          <Link
-            to="/admin/orders"
-            className={`flex items-center gap-3 px-3.5 py-3 rounded-xl font-semibold text-xs transition-all tap-target-48 ${
-              isNavActive('/admin/orders') && location.pathname !== '/admin/orders/new'
-                ? 'bg-[var(--brand)] text-[var(--on-brand)] shadow-sm'
-                : 'text-[var(--text-primary)] hover:bg-[var(--brand-soft)] hover:text-[var(--brand-900)]'
-            }`}
-          >
-            <ClipboardList className="w-4 h-4 shrink-0 stroke-[2.2]" />
-            <span>Orders</span>
-          </Link>
-
-          {/* New Order prominent button */}
-          <div className="py-2">
-            <Link
-              to="/admin/orders/new"
-              className={`w-full py-2.5 px-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm ${
-                location.pathname === '/admin/orders/new'
-                  ? 'bg-[var(--brand-900)] text-white'
-                  : 'bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)]'
-              }`}
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>New Order</span>
+        {/* Top Main Navigation Row */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+          
+          {/* Left: Brand Identity */}
+          <div className="flex items-center gap-3">
+            <Link to="/admin" className="flex items-center gap-2.5 group">
+              <div className="w-10 h-10 rounded-xl bg-white shadow-xs p-1 flex items-center justify-center border border-slate-200/80 group-hover:scale-105 transition-transform">
+                <img src="/logo-128.webp" alt="TKS Logo" width="40" height="40" decoding="async" className="w-full h-full object-contain" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-heading font-black text-sm sm:text-base text-[var(--brand-900)] leading-none">
+                    TKS Catering
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-[var(--brand)] text-white font-sans">
+                    Admin
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-medium leading-tight pt-0.5 hidden sm:block">
+                  Mysuru Banquet Management
+                </p>
+              </div>
             </Link>
           </div>
 
-          {/* Menu */}
-          <Link
-            to="/admin/menu"
-            className={`flex items-center gap-3 px-3.5 py-3 rounded-xl font-semibold text-xs transition-all tap-target-48 ${
-              isNavActive('/admin/menu')
-                ? 'bg-[var(--brand)] text-[var(--on-brand)] shadow-sm'
-                : 'text-[var(--text-primary)] hover:bg-[var(--brand-soft)] hover:text-[var(--brand-900)]'
-            }`}
-          >
-            <UtensilsCrossed className="w-4 h-4 shrink-0 stroke-[2.2]" />
-            <span>Menu</span>
-          </Link>
+          {/* Center: Desktop Navigation Links (Top Navbar) */}
+          <nav className="hidden md:flex items-center gap-1.5">
+            <Link
+              to="/admin"
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                isNavActive('/admin')
+                  ? 'bg-[var(--brand)] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4 stroke-[2.2]" />
+              <span>Dashboard</span>
+            </Link>
 
-          {/* Customers */}
-          <Link
-            to="/admin/customers"
-            className={`flex items-center gap-3 px-3.5 py-3 rounded-xl font-semibold text-xs transition-all tap-target-48 ${
-              isNavActive('/admin/customers')
-                ? 'bg-[var(--brand)] text-[var(--on-brand)] shadow-sm'
-                : 'text-[var(--text-primary)] hover:bg-[var(--brand-soft)] hover:text-[var(--brand-900)]'
-            }`}
-          >
-            <Users className="w-4 h-4 shrink-0 stroke-[2.2]" />
-            <span>Customers</span>
-          </Link>
-        </nav>
+            <Link
+              to="/admin/orders"
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                isNavActive('/admin/orders') && location.pathname !== '/admin/orders/new'
+                  ? 'bg-[var(--brand)] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <ClipboardList className="w-4 h-4 stroke-[2.2]" />
+              <span>Orders</span>
+            </Link>
 
-        {/* Staff Profile & Logout */}
-        <div className="p-3.5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <Avatar className="w-8 h-8 rounded-full border border-slate-200">
-              <AvatarFallback className="bg-[var(--brand-soft)] text-[var(--brand-900)] font-bold text-xs">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="overflow-hidden">
-              <p className="text-xs font-bold text-[var(--text-primary)] truncate">
-                {user?.name || 'Admin Manager'}
-              </p>
-              <p className="text-[10px] text-[var(--text-muted)] truncate">
-                {user?.role || 'Operations'}
-              </p>
-            </div>
-          </div>
+            <Link
+              to="/admin/menu"
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                isNavActive('/admin/menu')
+                  ? 'bg-[var(--brand)] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <UtensilsCrossed className="w-4 h-4 stroke-[2.2]" />
+              <span>Menu Dishes</span>
+            </Link>
 
-          <button
-            onClick={() => setIsLogoutDialogOpen(true)}
-            title="Log out"
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors tap-target-48"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
-        </div>
+            <Link
+              to="/admin/customers"
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                isNavActive('/admin/customers')
+                  ? 'bg-[var(--brand)] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <Users className="w-4 h-4 stroke-[2.2]" />
+              <span>Customers CRM</span>
+            </Link>
+          </nav>
 
-        {/* Legal & FSSAI indicator */}
-        <div className="px-3.5 py-2 border-t border-slate-100 bg-slate-50/30 text-[9.5px] text-slate-400 text-center select-none">
-          TKS Catering Services Pvt. Ltd. • FSSAI: 11223344556677
-        </div>
+          {/* Right: Actions, New Order Button, User Profile */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* '+ New Order' CTA button */}
+            <Link
+              to="/admin/orders/new"
+              className="h-9 px-3.5 rounded-xl bg-gradient-to-r from-[var(--brand)] to-[var(--brand-700)] hover:brightness-110 active:scale-95 text-white font-heading font-black text-xs flex items-center gap-1.5 shadow-xs transition-all select-none"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span className="hidden sm:inline">New Order</span>
+            </Link>
 
-      </aside>
-
-      {/* 2. Main Viewport */}
-      <div className="flex-1 flex flex-col min-w-0 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:h-screen lg:overflow-hidden">
-        
-        {/* Mobile Top Bar (per spec: "on mobile, a glass top bar (logo, 'Admin', avatar menu with Log out)") */}
-        <header className="lg:hidden sticky top-0 z-10 glass-top-bar px-4 py-2.5 flex items-center justify-between border-b border-slate-200/80">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white shadow-xs p-1 flex items-center justify-center border border-slate-100">
-              <img src="/logo-128.webp" alt="TKS Logo" width="36" height="36" decoding="async" className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <h1 className="font-heading font-black text-base text-[var(--brand-900)] leading-none">
-                Admin
-              </h1>
-              <p className="text-[11px] text-[var(--text-muted)] font-medium leading-tight pt-0.5">
-                TKS Iyengars Catering
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {actions}
-
-            {/* Avatar Menu with Log out */}
+            {/* User Profile Avatar Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex items-center gap-1.5 p-1 rounded-full hover:bg-slate-100/80 transition-colors tap-target-48 outline-none"
+                  className="flex items-center gap-2 p-1 pl-1.5 rounded-xl border border-slate-200/90 hover:bg-slate-100/80 transition-colors tap-target-48 outline-none cursor-pointer"
                   aria-label="Admin Profile Menu"
                 >
-                  <Avatar className="w-8 h-8 rounded-full border border-[var(--brand-200)] shadow-xs">
-                    <AvatarFallback className="bg-[var(--brand-soft)] text-[var(--brand-900)] font-bold text-xs">
+                  <Avatar className="w-7 h-7 rounded-lg border border-[var(--brand-200)] shadow-2xs">
+                    <AvatarFallback className="bg-[var(--brand-soft)] text-[var(--brand-900)] font-black text-[11px]">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
+                  <span className="text-xs font-bold text-slate-700 hidden lg:inline max-w-[120px] truncate">
+                    {user?.name || 'Admin'}
+                  </span>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 p-1 rounded-xl">
+              <DropdownMenuContent align="end" className="w-60 p-1.5 rounded-2xl shadow-xl border border-slate-200">
                 <DropdownMenuLabel className="p-2">
                   <p className="text-xs font-bold text-[var(--text-primary)]">
                     {user?.name || 'Admin Manager'}
@@ -251,9 +204,20 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
                   </p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/"
+                    target="_blank"
+                    className="text-xs font-medium text-slate-700 hover:text-[var(--brand)] p-2 cursor-pointer flex items-center justify-between rounded-xl"
+                  >
+                    <span>Customer Storefront</span>
+                    <ExternalLink className="w-3.5 h-3.5 opacity-60" />
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => setIsLogoutDialogOpen(true)}
-                  className="text-xs font-bold text-red-600 focus:text-red-700 focus:bg-red-50 p-2 cursor-pointer flex items-center gap-2 rounded-lg"
+                  className="text-xs font-bold text-red-600 focus:text-red-700 focus:bg-red-50 p-2 cursor-pointer flex items-center gap-2 rounded-xl"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Log out</span>
@@ -261,140 +225,97 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </header>
+        </div>
 
-        {/* Desktop Top Header (shows title and actions when on desktop) */}
-        <header className="hidden lg:flex sticky top-0 z-10 glass-top-bar px-8 py-4 items-center justify-between border-b border-slate-200/80 shrink-0">
-          <div>
-            <h1 className="font-heading font-black text-xl text-[var(--brand-900)] leading-tight">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="text-xs text-[var(--text-muted)] font-medium pt-0.5">
-                {subtitle}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            {actions}
-          </div>
-        </header>
-
-        {/* Content Container */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-[1600px] mx-auto lg:overflow-y-auto scroll-smooth">
-          <PageTransition direction="admin">
-            {children}
-          </PageTransition>
-        </main>
-
-      </div>
-
-      {/* 3. Mobile Bottom Tab Bar (per spec: "a glass bottom tab bar with Home, Orders, a raised round centre button 'New order', Menu, Customers") */}
-      {!hideBottomNav && (
-        <nav className={`lg:hidden fixed bottom-0 left-0 right-0 z-20 glass-bottom-bar flex items-center justify-around px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] border-t border-slate-200/80 transition-all duration-200 ${
-          isKeyboardOpen ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
-        }`}>
-          
-          {/* 1. Home */}
+        {/* Mobile/Tablet Horizontal Sub-nav Strip */}
+        <div className="md:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar px-3 py-1.5 border-t border-slate-100 bg-slate-50/80">
           <Link
             to="/admin"
-            className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               isNavActive('/admin')
-                ? 'text-[var(--brand)] font-bold'
-                : 'text-slate-500 font-medium hover:text-slate-800'
-            }`}
+                ? 'bg-[var(--brand)] text-white shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 bg-white border border-slate-200/60'
+          }`}
           >
-            {isNavActive('/admin') && (
-              <motion.div
-                layoutId="admin-tab-pill"
-                transition={MOTION_SPRINGS.soft}
-                className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
-              />
-            )}
-            <LayoutDashboard className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[10px] pt-1">Home</span>
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
           </Link>
 
-          {/* 2. Orders */}
           <Link
             to="/admin/orders"
-            className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               isNavActive('/admin/orders') && location.pathname !== '/admin/orders/new'
-                ? 'text-[var(--brand)] font-bold'
-                : 'text-slate-500 font-medium hover:text-slate-800'
+                ? 'bg-[var(--brand)] text-white shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 bg-white border border-slate-200/60'
             }`}
           >
-            {isNavActive('/admin/orders') && location.pathname !== '/admin/orders/new' && (
-              <motion.div
-                layoutId="admin-tab-pill"
-                transition={MOTION_SPRINGS.soft}
-                className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
-              />
-            )}
-            <ClipboardList className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[10px] pt-1">Orders</span>
+            <ClipboardList className="w-3.5 h-3.5" />
+            <span>Orders</span>
           </Link>
 
-          {/* 3. Raised Round Centre Button 'New order' */}
-          <div className="flex-1 flex justify-center -mt-7 z-20">
-            <Link
-              to="/admin/orders/new"
-              className="flex flex-col items-center group tap-target-48"
-              aria-label="Create New Order"
-            >
-              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] shadow-lg shadow-red-900/30 flex items-center justify-center border-4 border-white active:scale-95 transition-transform">
-                <Plus className="w-6 h-6 stroke-[3]" />
-              </div>
-              <span className="text-[10px] font-bold text-[var(--brand-900)] mt-0.5">
-                New order
-              </span>
-            </Link>
-          </div>
-
-          {/* 4. Menu */}
           <Link
             to="/admin/menu"
-            className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               isNavActive('/admin/menu')
-                ? 'text-[var(--brand)] font-bold'
-                : 'text-slate-500 font-medium hover:text-slate-800'
-            }`}
+                ? 'bg-[var(--brand)] text-white shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 bg-white border border-slate-200/60'
+          }`}
           >
-            {isNavActive('/admin/menu') && (
-              <motion.div
-                layoutId="admin-tab-pill"
-                transition={MOTION_SPRINGS.soft}
-                className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
-              />
-            )}
-            <UtensilsCrossed className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[10px] pt-1">Menu</span>
+            <UtensilsCrossed className="w-3.5 h-3.5" />
+            <span>Menu</span>
           </Link>
 
-          {/* 5. Customers */}
           <Link
             to="/admin/customers"
-            className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all tap-target-48 z-10 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
               isNavActive('/admin/customers')
-                ? 'text-[var(--brand)] font-bold'
-                : 'text-slate-500 font-medium hover:text-slate-800'
+                ? 'bg-[var(--brand)] text-white shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 bg-white border border-slate-200/60'
             }`}
           >
-            {isNavActive('/admin/customers') && (
-              <motion.div
-                layoutId="admin-tab-pill"
-                transition={MOTION_SPRINGS.soft}
-                className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] -z-10 shadow-xs"
-              />
-            )}
-            <Users className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[10px] pt-1">Customers</span>
+            <Users className="w-3.5 h-3.5" />
+            <span>Customers</span>
           </Link>
+        </div>
+      </header>
 
-        </nav>
+      {/* ======================================================== */}
+      {/* 2. CONTEXTUAL PAGE HEADER (Title, Subtitle & Actions)    */}
+      {/* ======================================================== */}
+      {(title || actions) && (
+        <section className="w-full bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 shrink-0 shadow-2xs">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h1 className="font-heading font-black text-lg sm:text-xl text-[var(--brand-900)] leading-tight">
+                {title}
+              </h1>
+              {subtitle && (
+                <p className="text-xs text-[var(--text-muted)] font-medium pt-0.5">
+                  {subtitle}
+                </p>
+              )}
+            </div>
+            {actions && (
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                {actions}
+              </div>
+            )}
+          </div>
+        </section>
       )}
 
-      {/* Log out confirmation dialog per specification */}
+      {/* ======================================================== */}
+      {/* 3. MAIN FULL-WIDTH CONTENT VIEWPORT                      */}
+      {/* ======================================================== */}
+      <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
+        <PageTransition direction="admin">
+          {children}
+        </PageTransition>
+      </main>
+
+      {/* ======================================================== */}
+      {/* 4. LOG OUT CONFIRMATION MODAL                            */}
+      {/* ======================================================== */}
       <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
         <AlertDialogContent className="rounded-[20px] max-w-sm">
           <AlertDialogHeader>
