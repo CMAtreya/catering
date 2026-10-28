@@ -14,8 +14,6 @@ import {
   AlertTriangle,
   RefreshCw,
   Search,
-  LayoutGrid,
-  List,
   Sparkles,
   UtensilsCrossed,
   Eye,
@@ -100,7 +98,6 @@ export const AdminMenuPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'hidden'>('all')
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
 
   // Mobile collapsed category blocks
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({})
@@ -928,36 +925,6 @@ export const AdminMenuPage: React.FC = () => {
                   <span>Hidden ({hiddenCount})</span>
                 </button>
               </div>
-
-              {/* View Toggle (Grid vs List) */}
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('grid')}
-                  aria-label="Grid view"
-                  title="Grid view"
-                  className={`p-1.5 rounded-lg transition-all ${
-                    viewMode === 'grid'
-                      ? 'bg-white text-[var(--brand)] shadow-xs'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('list')}
-                  aria-label="List view"
-                  title="List view"
-                  className={`p-1.5 rounded-lg transition-all ${
-                    viewMode === 'list'
-                      ? 'bg-white text-[var(--brand)] shadow-xs'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
             </div>
 
           </div>
@@ -1151,147 +1118,10 @@ export const AdminMenuPage: React.FC = () => {
                   {!collapsedCategories[cat.id] && (
                     <>
                       {catItems.length > 0 ? (
-                        viewMode === 'grid' ? (
-                          /* ==========================================================
-                             GRID VIEW: Dense Instamart/Zepto-style Modern Cards
-                             ========================================================== */
-                          <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
-                            <AnimatePresence initial={false}>
-                              {catItems.map((item) => {
-                                const isUnavailable = !item.available
-                                const isBeingDragged = draggedItemId === item.id
-
-                                return (
-                                  <motion.div
-                                    key={item.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    transition={MOTION_SPRINGS.soft}
-                                    draggable
-                                    onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent, item.id)}
-                                    onDragEnd={() => setDraggedItemId(null)}
-                                    className={`relative rounded-2xl p-2.5 bg-white border transition-all duration-200 flex flex-col justify-between group hover:shadow-md ${
-                                      isBeingDragged
-                                        ? 'shadow-2xl ring-2 ring-[var(--brand)]/40 scale-[1.02] z-20'
-                                        : ''
-                                    } ${
-                                      isUnavailable 
-                                        ? 'border-slate-200 bg-slate-50/70 opacity-75' 
-                                        : 'border-slate-200/90 hover:border-slate-300 shadow-2xs'
-                                    }`}
-                                  >
-                                    {/* Top Image */}
-                                    <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100/60 border border-slate-100 flex items-center justify-center">
-                                      {/* Pure Veg indicator */}
-                                      <div 
-                                        aria-hidden="true" 
-                                        className="absolute top-2 left-2 z-10 w-3.5 h-3.5 rounded-[2.5px] border border-emerald-600 bg-white/95 flex items-center justify-center shadow-xs pointer-events-none"
-                                      >
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                                      </div>
-
-                                      {item.image ? (
-                                        <img
-                                          src={item.image}
-                                          alt={item.name}
-                                          width="240"
-                                          height="180"
-                                          decoding="async"
-                                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                          loading="lazy"
-                                        />
-                                      ) : (
-                                        <span className="text-4xl select-none">
-                                          {item.emoji || '🍛'}
-                                        </span>
-                                      )}
-
-                                      {isUnavailable && (
-                                        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center z-10 pointer-events-none select-none">
-                                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-slate-700 shadow-xs">
-                                            Hidden in App
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    {/* Content Details */}
-                                    <div className="pt-2 pb-1 space-y-1">
-                                      <h4 className={`font-heading font-bold text-xs sm:text-sm leading-snug line-clamp-2 min-h-[2.2rem] ${
-                                        isUnavailable ? 'text-slate-500 line-through' : 'text-slate-900'
-                                      }`}>
-                                        {item.name}
-                                      </h4>
-                                      <div className="flex items-baseline gap-1">
-                                        <span className="font-heading font-black text-sm sm:text-base text-[var(--brand)]">
-                                          {formatRupees(item.pricePerPlate)}
-                                        </span>
-                                        <span className="text-[10px] text-slate-400 font-medium">/ plate</span>
-                                      </div>
-                                    </div>
-
-                                    {/* Action Toolbar */}
-                                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
-                                      <div 
-                                        className="flex items-center gap-1.5"
-                                        onClick={(e) => e.stopPropagation()}
-                                        onPointerDown={(e) => e.stopPropagation()}
-                                      >
-                                        <Switch
-                                          id={`switch-grid-${item.id}`}
-                                          checked={item.available}
-                                          onCheckedChange={(checked) => handleToggleItemAvailability(item, checked)}
-                                          className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-slate-300 transition-colors"
-                                          aria-label={`Toggle availability for ${item.name}`}
-                                          title={item.available ? 'Available in catalogue (Click to mark unavailable)' : 'Hidden from catalogue (Click to activate)'}
-                                        />
-                                        <label
-                                          htmlFor={`switch-grid-${item.id}`}
-                                          className={`text-[10px] font-bold cursor-pointer select-none transition-colors ${item.available ? 'text-emerald-700' : 'text-slate-400'}`}
-                                        >
-                                          {item.available ? 'Active' : 'Off'}
-                                        </label>
-                                      </div>
-
-                                      <div className="flex items-center gap-1">
-                                        <button
-                                          type="button"
-                                          onClick={() => handleOpenEditItem(item)}
-                                          className="h-7 w-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
-                                          title="Edit dish"
-                                        >
-                                          <Edit2 className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleOpenMoveItem(item)}
-                                          className="h-7 w-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
-                                          title="Move dish"
-                                        >
-                                          <FolderInput className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => setItemToDelete(item)}
-                                          className="h-7 w-7 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer"
-                                          title="Delete dish"
-                                        >
-                                          <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </motion.div>
-                                )
-                              })}
-                            </AnimatePresence>
-                          </div>
-                        ) : (
-                          /* ==========================================================
-                             LIST VIEW: Sleek Row Layout
-                             ========================================================== */
-                          <div className="divide-y divide-slate-100">
+                        /* ==========================================================
+                           LIST VIEW: Sleek Row Layout
+                           ========================================================== */
+                        <div className="divide-y divide-slate-100">
                             <AnimatePresence initial={false}>
                               {catItems.map((item) => {
                                 const isUnavailable = !item.available
@@ -1452,7 +1282,6 @@ export const AdminMenuPage: React.FC = () => {
                               })}
                             </AnimatePresence>
                           </div>
-                        )
                       ) : (
                         /* Empty Category State */
                         <div className="p-8 text-center space-y-2.5">
