@@ -63,6 +63,16 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
   const [viewDate, setViewDate] = useState<Date>(() => new Date(initYear, initMonth - 1, 1))
   const [selectedDate, setSelectedDate] = useState<string>(effectiveInitial)
 
+  // Explicitly ensure page loads on real-time Today if no initialDate override is provided
+  useEffect(() => {
+    if (!initialDate) {
+      const todayStr = getTodayDateStr()
+      const d = new Date()
+      setSelectedDate(todayStr)
+      setViewDate(new Date(d.getFullYear(), d.getMonth(), 1))
+    }
+  }, [initialDate])
+
   // Real-time live orders state (synced with parent orders prop & global event bus)
   const [liveOrders, setLiveOrders] = useState<Order[]>(orders)
   const [isLivePulse, setIsLivePulse] = useState<boolean>(false)
@@ -332,9 +342,22 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
           <button
             type="button"
             onClick={handleGoToToday}
-            className="h-7 text-[11px] font-bold text-[var(--brand)] px-2.5 rounded-full hover:bg-[var(--brand-soft)] transition-colors border border-[var(--brand-200)] tap-target-48 sm:tap-target-auto cursor-pointer"
+            className={`h-7 text-[11px] font-bold px-2.5 rounded-full transition-all border tap-target-48 sm:tap-target-auto cursor-pointer flex items-center gap-1.5 ${
+              selectedDate === currentTodayStr &&
+              viewDate.getMonth() === new Date().getMonth() &&
+              viewDate.getFullYear() === new Date().getFullYear()
+                ? 'bg-[var(--brand)] text-white border-[var(--brand)] shadow-2xs'
+                : 'text-[var(--brand)] hover:bg-[var(--brand-soft)] border-[var(--brand-200)]'
+            }`}
           >
-            Today
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              selectedDate === currentTodayStr &&
+              viewDate.getMonth() === new Date().getMonth() &&
+              viewDate.getFullYear() === new Date().getFullYear()
+                ? 'bg-amber-400'
+                : 'bg-[var(--brand)]'
+            }`} />
+            <span>Today</span>
           </button>
 
           {/* Month Stepper */}
@@ -402,15 +425,19 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
               {gridCells.map((cell) => {
                 const hasConfirmed = cell.confirmedOrders.length > 0
 
-                let buttonStyles = 'text-slate-800 hover:bg-slate-50'
+                let buttonStyles = 'text-slate-800 hover:bg-slate-50 border border-transparent'
                 if (!cell.isCurrentMonth) {
-                  buttonStyles = 'text-slate-300 hover:bg-slate-50/50'
+                  buttonStyles = 'text-slate-300 hover:bg-slate-50/50 border border-transparent'
                 }
 
                 if (cell.isSelected) {
-                  buttonStyles = 'bg-[var(--brand)] text-[var(--on-brand)] font-black shadow-sm ring-2 ring-[var(--brand-200)]'
+                  if (cell.isToday) {
+                    buttonStyles = 'bg-[var(--brand)] text-white font-black shadow-md ring-2 ring-amber-400 ring-offset-2 ring-offset-white'
+                  } else {
+                    buttonStyles = 'bg-[var(--brand)] text-[var(--on-brand)] font-black shadow-sm ring-2 ring-[var(--brand-200)]'
+                  }
                 } else if (cell.isToday) {
-                  buttonStyles = 'ring-2 ring-[var(--brand)] ring-offset-1 font-bold text-[var(--brand-900)] bg-[var(--brand-soft)]/50'
+                  buttonStyles = 'ring-2 ring-[var(--brand)] ring-offset-1 font-black text-[var(--brand-900)] bg-amber-50/90 border-amber-300/80 shadow-2xs hover:bg-amber-100/70'
                 }
 
                 return (
@@ -421,11 +448,24 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
                     onClick={() => setSelectedDate(cell.dateStr)}
                     aria-label={`${cell.dateStr}, ${hasConfirmed ? `${cell.confirmedOrders.length} confirmed event${cell.confirmedOrders.length > 1 ? 's' : ''}` : 'no confirmed events'}${cell.isToday ? ', today' : ''}${cell.isSelected ? ', selected' : ''}`}
                     aria-pressed={cell.isSelected}
-                    className={`aspect-square sm:aspect-auto sm:h-12 rounded-xl p-1 flex flex-col items-center justify-between transition-all relative tap-target-48 sm:tap-target-auto select-none cursor-pointer ${buttonStyles}`}
+                    className={`aspect-square sm:aspect-auto sm:h-12 rounded-xl p-1 sm:p-1.5 flex flex-col items-center justify-between transition-all relative tap-target-48 sm:tap-target-auto select-none cursor-pointer ${buttonStyles}`}
                   >
-                    <span className={`text-xs ${cell.isSelected ? 'text-white' : ''}`}>
-                      {cell.dayNumber}
-                    </span>
+                    <div className="w-full flex items-center justify-between px-0.5">
+                      <span className={`text-xs ${cell.isSelected ? 'text-white' : cell.isToday ? 'text-[var(--brand)] font-black' : ''}`}>
+                        {cell.dayNumber}
+                      </span>
+                      {cell.isToday && (
+                        <span
+                          className={`text-[8px] font-black uppercase px-1 py-0.2 rounded-full leading-tight tracking-tight shrink-0 shadow-2xs ${
+                            cell.isSelected
+                              ? 'bg-amber-400 text-slate-900 font-extrabold'
+                              : 'bg-[var(--brand)] text-white'
+                          }`}
+                        >
+                          Today
+                        </span>
+                      )}
+                    </div>
 
                     {/* Confirmed Orders Badge per spec */}
                     {hasConfirmed ? (
@@ -452,7 +492,7 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
           <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[var(--text-muted)] font-medium">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 rounded-full ring-2 ring-[var(--brand)] ring-offset-1 inline-block" />
+                <span className="text-[8px] font-black uppercase px-1 py-0.2 rounded-full bg-[var(--brand)] text-white leading-none">Today</span>
                 <span>Today</span>
               </span>
               <span className="flex items-center gap-1.5">
@@ -475,9 +515,16 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
           
           <div className="pb-3 border-b border-slate-200/70 flex items-center justify-between gap-2 flex-wrap">
             <div>
-              <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider block">
-                Selected Date
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider block">
+                  Selected Date
+                </span>
+                {selectedDate === currentTodayStr && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-300">
+                    Today
+                  </span>
+                )}
+              </div>
               <h4 className="font-heading font-black text-xs sm:text-sm text-[var(--brand-900)] mt-0.5">
                 {formatEventDate(selectedDate)}
               </h4>
