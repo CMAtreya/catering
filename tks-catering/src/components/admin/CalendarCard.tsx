@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   ChevronLeft, 
@@ -6,32 +6,141 @@ import {
   Calendar as CalendarIcon, 
   Users, 
   CheckCircle2, 
-  ChevronRight as ArrowRight 
+  ChevronRight as ArrowRight,
+  Bell,
+  Download
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
+import { toast } from 'sonner'
 import type { Order } from '@/data/mockData'
 import { StatusChip } from '@/components/admin/StatusChip'
 import { formatEventDate } from '@/components/admin/OrderCard'
+import { subscribeToOrders } from '@/api'
+import { 
+  pushToGoogleCalendar, 
+  downloadIcsCalendar, 
+  autoPushBrowserNotification 
+} from '@/lib/calendarExport'
 
 interface CalendarCardProps {
   orders: Order[]
   initialDate?: string // YYYY-MM-DD
 }
 
+/**
+ * Returns current real-time date formatted as YYYY-MM-DD in local time
+ */
+const getTodayDateStr = (): string => {
+  const d = new Date()
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export const CalendarCard: React.FC<CalendarCardProps> = ({
   orders,
-  initialDate = '2026-10-23'
+  initialDate
 }) => {
-  // Parse initial date
-  const [initYear, initMonth] = initialDate.split('-').map(Number)
+  // Real-time dynamic today date
+  const [currentTodayStr, setCurrentTodayStr] = useState<string>(getTodayDateStr)
+
+  // Timer to ensure real-time "Today" rollover at midnight
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const nowToday = getTodayDateStr()
+      if (nowToday !== currentTodayStr) {
+        setCurrentTodayStr(nowToday)
+      }
+    }, 15000)
+    return () => clearInterval(timer)
+  }, [currentTodayStr])
+
+  // Effective initial date defaults to actual real-time today
+  const effectiveInitial = initialDate || currentTodayStr
+  const [initYear, initMonth] = effectiveInitial.split('-').map(Number)
 
   const [viewDate, setViewDate] = useState<Date>(() => new Date(initYear, initMonth - 1, 1))
-  const [selectedDate, setSelectedDate] = useState<string>(initialDate)
+  const [selectedDate, setSelectedDate] = useState<string>(effectiveInitial)
+
+  // Real-time live orders state (synced with parent orders prop & global event bus)
+  const [liveOrders, setLiveOrders] = useState<Order[]>(orders)
+  const [isLivePulse, setIsLivePulse] = useState<boolean>(false)
+
+  // Auto Push Preference (persisted in localStorage)
+  const [autoPushEnabled, setAutoPushEnabled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const val = localStorage.getItem('tks_calendar_auto_push')
+      return val !== null ? val === 'true' : true
+    }
+    return true
+  })
+
+  // Sync when parent prop changes
+  useEffect(() => {
+    setLiveOrders(orders)
+  }, [orders])
+
+  // Real-time subscription to orders updates
+  useEffect(() => {
+    const unsubscribe = subscribeToOrders((latestOrders, detail) => {
+      setLiveOrders(latestOrders)
+      setIsLivePulse(true)
+      setTimeout(() => setIsLivePulse(false), 1500)
+
+      // Auto Push Behavior:
+      // When a catering order is confirmed or updated with an eventDate
+      if (detail?.order?.eventDate && detail.eventType === 'ORDER_CONFIRMED') {
+        const confirmedEvent = detail.order
+        const targetDate = confirmedEvent.eventDate
+        
+        // Auto push calendar view to the confirmed event date
+        setSelectedDate(targetDate)
+        const [eY, eM] = targetDate.split('-').map(Number)
+        setViewDate(new Date(eY, eM - 1, 1))
+
+        // Trigger Auto-Push notifications if enabled
+        if (autoPushEnabled) {
+          autoPushBrowserNotification(
+            `📅 Event Confirmed: ${confirmedEvent.eventType}`,
+            `${confirmedEvent.customerName} • ${confirmedEvent.guestCount} plates on ${confirmedEvent.eventDate} (${confirmedEvent.eventTime || 'Morning'})`
+          )
+          toast.success(`Calendar Auto-Push: Booking confirmed for ${confirmedEvent.eventDate}!`, {
+            description: `${confirmedEvent.customerName} • ${confirmedEvent.guestCount} plates • ₹${confirmedEvent.totalAmount.toLocaleString('en-IN')}`
+          })
+        }
+      }
+    })
+
+    return unsubscribe
+  }, [autoPushEnabled])
+
+  // Toggle Auto-Push setting
+  const handleToggleAutoPush = async () => {
+    const nextVal = !autoPushEnabled
+    setAutoPushEnabled(nextVal)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tks_calendar_auto_push', String(nextVal))
+    }
+
+    if (nextVal) {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        if (Notification.permission === 'default') {
+          await Notification.requestPermission()
+        }
+      }
+      toast.success('Auto-Push Notifications Enabled', {
+        description: 'New confirmed catering events will automatically push live alerts & schedule updates.'
+      })
+    } else {
+      toast.info('Auto-Push Notifications Paused')
+    }
+  }
 
   // Filter STRICTLY for Confirmed orders only (pending enquiries NEVER appear here per spec)
   const confirmedOrdersByDate = useMemo(() => {
     const map: Record<string, Order[]> = {}
-    for (const order of orders) {
+    for (const order of liveOrders) {
       if (order.status === 'Confirmed' && order.eventDate) {
         if (!map[order.eventDate]) {
           map[order.eventDate] = []
@@ -40,7 +149,7 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
       }
     }
     return map
-  }, [orders])
+  }, [liveOrders])
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth() // 0-indexed
@@ -58,15 +167,15 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
 
   const handleGoToToday = () => {
     const today = new Date()
+    const todayStr = getTodayDateStr()
     setMonthDirection(today > viewDate ? 'next' : 'prev')
     setViewDate(new Date(today.getFullYear(), today.getMonth(), 1))
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
     setSelectedDate(todayStr)
   }
 
   // Touch swipe gestures between months on mobile
-  const touchStartX = React.useRef<number | null>(null)
-  const touchStartY = React.useRef<number | null>(null)
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX
@@ -119,7 +228,7 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
         dayNumber: d,
         dateStr,
         isCurrentMonth: false,
-        isToday: dateStr === initialDate,
+        isToday: dateStr === currentTodayStr,
         isSelected: dateStr === selectedDate,
         confirmedOrders: confirmedOrdersByDate[dateStr] || []
       })
@@ -132,7 +241,7 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
         dayNumber: d,
         dateStr,
         isCurrentMonth: true,
-        isToday: dateStr === initialDate,
+        isToday: dateStr === currentTodayStr,
         isSelected: dateStr === selectedDate,
         confirmedOrders: confirmedOrdersByDate[dateStr] || []
       })
@@ -149,65 +258,108 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
         dayNumber: d,
         dateStr,
         isCurrentMonth: false,
-        isToday: dateStr === initialDate,
+        isToday: dateStr === currentTodayStr,
         isSelected: dateStr === selectedDate,
         confirmedOrders: confirmedOrdersByDate[dateStr] || []
       })
     }
 
     return cells
-  }, [year, month, firstDayOfWeek, daysInMonth, daysInPrevMonth, initialDate, selectedDate, confirmedOrdersByDate])
+  }, [year, month, firstDayOfWeek, daysInMonth, daysInPrevMonth, currentTodayStr, selectedDate, confirmedOrdersByDate])
 
   const selectedConfirmedOrders = confirmedOrdersByDate[selectedDate] || []
-
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
   return (
     <div className="content-card bg-white border border-slate-200/80 rounded-[24px] shadow-sm overflow-hidden">
       
       {/* Calendar Card Header */}
-      <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] text-[var(--brand-900)] flex items-center justify-center">
+      <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        
+        {/* Title, Subtitle & Real-time Live Badge */}
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[var(--brand-soft)] text-[var(--brand-900)] flex items-center justify-center shrink-0">
             <CalendarIcon className="w-4 h-4 text-[var(--brand)]" />
           </div>
           <div>
-            <h3 className="font-heading font-black text-sm sm:text-base text-[var(--brand-900)]">
-              Catering Schedule
-            </h3>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-heading font-black text-sm sm:text-base text-[var(--brand-900)]">
+                Catering Schedule
+              </h3>
+              
+              {/* Real-time Live Indicator */}
+              <div 
+                className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all ${
+                  isLivePulse 
+                    ? 'bg-emerald-100 border-emerald-400 text-emerald-900 scale-105' 
+                    : 'bg-emerald-50/80 border-emerald-200/90 text-emerald-800'
+                }`}
+                title="Calendar updates automatically in real-time when orders change"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                </span>
+                <span>Live Real-Time</span>
+              </div>
+            </div>
+
             <p className="text-[11px] text-[var(--text-muted)] font-medium">
               Confirmed banquet dates & functions
             </p>
           </div>
         </div>
 
-        {/* Month Navigation & Today button */}
-        <div className="flex items-center gap-1.5">
+        {/* Controls: Auto-Push Toggle, Today button & Month Navigation */}
+        <div className="flex items-center gap-2 flex-wrap self-end sm:self-auto">
+          
+          {/* Auto Push Notification Toggle */}
           <button
+            type="button"
+            onClick={handleToggleAutoPush}
+            title={autoPushEnabled ? "Auto-Push is ACTIVE: Click to pause live push notifications" : "Auto-Push is OFF: Click to enable live push notifications"}
+            className={`h-7 px-2.5 rounded-full text-[11px] font-bold border transition-all flex items-center gap-1 tap-target-48 sm:tap-target-auto cursor-pointer ${
+              autoPushEnabled
+                ? 'bg-amber-500/10 text-amber-900 border-amber-300 hover:bg-amber-500/20 shadow-2xs'
+                : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+            }`}
+          >
+            <Bell className={`w-3 h-3 ${autoPushEnabled ? 'text-amber-600 fill-amber-500' : 'text-slate-400'}`} />
+            <span>Auto Push: {autoPushEnabled ? 'ON' : 'OFF'}</span>
+          </button>
+
+          {/* Today Button */}
+          <button
+            type="button"
             onClick={handleGoToToday}
-            className="text-[11px] font-bold text-[var(--brand)] px-2.5 py-1 rounded-full hover:bg-[var(--brand-soft)] transition-colors border border-[var(--brand-200)] tap-target-48 sm:tap-target-auto"
+            className="h-7 text-[11px] font-bold text-[var(--brand)] px-2.5 rounded-full hover:bg-[var(--brand-soft)] transition-colors border border-[var(--brand-200)] tap-target-48 sm:tap-target-auto cursor-pointer"
           >
             Today
           </button>
+
+          {/* Month Stepper */}
           <div className="flex items-center bg-slate-100 rounded-full p-0.5">
             <button
+              type="button"
               onClick={handlePrevMonth}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-slate-600 hover:text-black hover:bg-white transition-all tap-target-48 sm:tap-target-auto"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-slate-600 hover:text-black hover:bg-white transition-all tap-target-48 sm:tap-target-auto cursor-pointer"
               aria-label="Previous month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-xs font-bold px-2 text-slate-800 min-w-[100px] text-center">
+            <span className="text-xs font-bold px-2 text-slate-800 min-w-[100px] text-center select-none">
               {monthName}
             </span>
             <button
+              type="button"
               onClick={handleNextMonth}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-slate-600 hover:text-black hover:bg-white transition-all tap-target-48 sm:tap-target-auto"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-slate-600 hover:text-black hover:bg-white transition-all tap-target-48 sm:tap-target-auto cursor-pointer"
               aria-label="Next month"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+
         </div>
       </div>
 
@@ -321,7 +473,7 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
             Mobile: Directly below the calendar with slide-in */}
         <div className="p-4 sm:p-5 lg:col-span-5 bg-slate-50/50 flex flex-col justify-start">
           
-          <div className="pb-3 border-b border-slate-200/70 flex items-center justify-between">
+          <div className="pb-3 border-b border-slate-200/70 flex items-center justify-between gap-2 flex-wrap">
             <div>
               <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-wider block">
                 Selected Date
@@ -332,10 +484,23 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
             </div>
 
             {selectedConfirmedOrders.length > 0 && (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[var(--status-confirmed-bg)] text-[var(--status-confirmed-text)] border border-[var(--status-confirmed-border)] flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-[var(--status-confirmed-text)]" />
-                <span>{selectedConfirmedOrders.length} Confirmed</span>
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[var(--status-confirmed-bg)] text-[var(--status-confirmed-text)] border border-[var(--status-confirmed-border)] flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-[var(--status-confirmed-text)]" />
+                  <span>{selectedConfirmedOrders.length} Confirmed</span>
+                </span>
+
+                {/* Auto Push Day to Calendar (.ics) */}
+                <button
+                  type="button"
+                  onClick={() => downloadIcsCalendar(selectedConfirmedOrders, `tks-events-${selectedDate}`)}
+                  className="px-2.5 py-1 rounded-full bg-white hover:bg-slate-100 text-slate-700 font-bold text-[10px] border border-slate-200 shadow-2xs flex items-center gap-1 transition-all cursor-pointer"
+                  title="Push all confirmed bookings for this date as iCal (.ics) to your device calendar"
+                >
+                  <Download className="w-3 h-3 text-[var(--brand)]" />
+                  <span>Push All</span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -351,47 +516,86 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({
                   className="space-y-2.5"
                 >
                   {selectedConfirmedOrders.map((order) => (
-                    <Link
+                    <div
                       key={order.id}
-                      to={`/admin/orders/${order.id}`}
-                      className="block p-3 rounded-xl bg-white border border-slate-200/80 hover:border-[var(--brand-300)] hover:shadow-xs transition-all group tap-target-48"
+                      className="p-3 rounded-xl bg-white border border-slate-200/80 hover:border-[var(--brand-300)] hover:shadow-xs transition-all group"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <h5 className="font-heading font-bold text-xs sm:text-sm text-[var(--brand-900)] truncate group-hover:text-[var(--brand)] transition-colors">
-                            {order.customerName}
-                          </h5>
-                          <p className="text-[11px] text-[var(--text-muted)] font-medium truncate">
-                            {order.eventType}
-                          </p>
+                      <Link
+                        to={`/admin/orders/${order.id}`}
+                        className="block tap-target-48"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <h5 className="font-heading font-bold text-xs sm:text-sm text-[var(--brand-900)] truncate group-hover:text-[var(--brand)] transition-colors">
+                              {order.customerName}
+                            </h5>
+                            <p className="text-[11px] text-[var(--text-muted)] font-medium truncate">
+                              {order.eventType} • {order.eventTime || 'Morning'}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {/* Source chip */}
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${
+                                order.source === 'Online'
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  : 'bg-slate-100 text-slate-700 border-slate-200'
+                              }`}
+                            >
+                              {order.source}
+                            </span>
+                            <StatusChip status={order.status} size="sm" />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          {/* Source chip */}
-                          <span
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${
-                              order.source === 'Online'
-                                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                : 'bg-slate-100 text-slate-700 border-slate-200'
-                            }`}
-                          >
-                            {order.source}
-                          </span>
-                          <StatusChip status={order.status} size="sm" />
-                        </div>
-                      </div>
 
-                      <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                        <span className="flex items-center gap-1 text-[var(--text-muted)] font-semibold">
+                        <div className="mt-2 text-[11px] text-[var(--text-muted)] flex items-center gap-1 font-semibold">
                           <Users className="w-3 h-3 text-[var(--brand)]" />
                           <span>{order.guestCount} plates</span>
-                        </span>
+                        </div>
+                      </Link>
 
-                        <span className="flex items-center gap-0.5 font-bold text-[var(--brand)] group-hover:translate-x-0.5 transition-transform">
+                      {/* Auto-Push actions for this order */}
+                      <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              pushToGoogleCalendar(order)
+                            }}
+                            className="px-2 py-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold border border-blue-200 flex items-center gap-1 transition-colors cursor-pointer"
+                            title="Auto Push to Google Calendar"
+                          >
+                            <CalendarIcon className="w-2.5 h-2.5 text-blue-600" />
+                            <span>Google Cal</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              downloadIcsCalendar(order, `tks-order-${order.id}`)
+                            }}
+                            className="px-2 py-1 rounded-md bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
+                            title="Auto Push to Apple / Outlook Calendar (.ics)"
+                          >
+                            <Download className="w-2.5 h-2.5 text-slate-600" />
+                            <span>iCal</span>
+                          </button>
+                        </div>
+
+                        <Link
+                          to={`/admin/orders/${order.id}`}
+                          className="flex items-center gap-0.5 font-bold text-[var(--brand)] text-[11px] group-hover:translate-x-0.5 transition-transform"
+                        >
                           <span>₹{order.totalAmount.toLocaleString('en-IN')}</span>
                           <ArrowRight className="w-3 h-3" />
-                        </span>
+                        </Link>
                       </div>
-                    </Link>
+
+                    </div>
                   ))}
                 </motion.div>
               ) : (

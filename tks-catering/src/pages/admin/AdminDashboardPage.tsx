@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { IOSInstallSheet } from '@/components/pwa/IOSInstallSheet'
-import { getOrders, confirmOrder } from '@/api'
+import { getOrders, confirmOrder, subscribeToOrders } from '@/api'
 import type { Order } from '@/data/mockData'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
 import { OrderCard } from '@/components/admin/OrderCard'
@@ -39,12 +39,12 @@ export const AdminDashboardPage: React.FC = () => {
     expiryDays: 14
   })
 
-  // Fetch orders from API
+  // Fetch orders from API with real-time subscription
   useEffect(() => {
     let isMounted = true
-    const loadData = async () => {
+    const loadData = async (showLoading = false) => {
       try {
-        setIsLoading(true)
+        if (showLoading) setIsLoading(true)
         const data = await getOrders()
         if (isMounted) {
           setOrders(data)
@@ -52,15 +52,31 @@ export const AdminDashboardPage: React.FC = () => {
       } catch (err) {
         console.error('Failed to load admin orders:', err)
       } finally {
-        if (isMounted) {
+        if (showLoading && isMounted) {
           setIsLoading(false)
         }
       }
     }
 
-    loadData()
+    loadData(true)
+
+    // Real-time listener for updates across tabs and actions
+    const unsubscribe = subscribeToOrders((latestOrders) => {
+      if (isMounted) {
+        setOrders(latestOrders)
+      }
+    })
+
+    // Auto-refresh on window focus and background polling
+    const handleFocus = () => loadData(false)
+    window.addEventListener('focus', handleFocus)
+    const pollTimer = setInterval(() => loadData(false), 5000)
+
     return () => {
       isMounted = false
+      unsubscribe()
+      window.removeEventListener('focus', handleFocus)
+      clearInterval(pollTimer)
     }
   }, [])
 

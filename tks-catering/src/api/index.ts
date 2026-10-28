@@ -12,12 +12,102 @@ import {
   INITIAL_CUSTOMERS 
 } from '@/data/mockData'
 
-// In-memory data store initialized from seed data
+// In-memory data store initialized from seed data or localStorage
+function loadStoredOrders(): Order[] {
+  if (typeof window === 'undefined') return [...INITIAL_ORDERS]
+  try {
+    const stored = localStorage.getItem('tks_catering_orders')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch (e) {
+    console.warn('Failed to load stored orders:', e)
+  }
+  return [...INITIAL_ORDERS]
+}
+
 let categoriesStore: Category[] = [...INITIAL_CATEGORIES]
 let itemsStore: MenuItem[] = [...INITIAL_ITEMS]
-let ordersStore: Order[] = [...INITIAL_ORDERS]
+let ordersStore: Order[] = loadStoredOrders()
 let customersStore: Record<string, CustomerRecord> = { ...INITIAL_CUSTOMERS }
 let businessInfoStore: BusinessInfo = { ...INITIAL_BUSINESS_INFO }
+
+/**
+ * Persist orders to localStorage and notify all real-time listeners across tabs/components
+ */
+function persistAndBroadcast(updatedOrders: Order[], eventType: string, affectedOrder?: Order) {
+  ordersStore = updatedOrders
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('tks_catering_orders', JSON.stringify(ordersStore))
+    } catch (e) {
+      console.warn('Failed to save orders to localStorage', e)
+    }
+
+    // 1. Dispatch custom event for current window
+    try {
+      window.dispatchEvent(
+        new CustomEvent('tks-orders-updated', {
+          detail: { orders: [...ordersStore], eventType, order: affectedOrder }
+        })
+      )
+    } catch {}
+
+    // 2. BroadcastChannel for other open tabs
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('tks_catering_channel')
+        bc.postMessage({ type: 'ORDERS_UPDATED', eventType, order: affectedOrder })
+        bc.close()
+      }
+    } catch {}
+  }
+}
+
+/**
+ * Real-time subscription to orders updates
+ */
+export function subscribeToOrders(
+  callback: (orders: Order[], event?: { eventType: string; order?: Order }) => void
+): () => void {
+  if (typeof window === 'undefined') return () => {}
+
+  const handleCustom = (e: Event) => {
+    const ce = e as CustomEvent
+    callback([...ordersStore], ce.detail)
+  }
+  window.addEventListener('tks-orders-updated', handleCustom)
+
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === 'tks_catering_orders' && e.newValue) {
+      try {
+        ordersStore = JSON.parse(e.newValue)
+        callback([...ordersStore], { eventType: 'STORAGE_SYNC' })
+      } catch {}
+    }
+  }
+  window.addEventListener('storage', handleStorage)
+
+  let bc: BroadcastChannel | null = null
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      bc = new BroadcastChannel('tks_catering_channel')
+      bc.onmessage = (msg) => {
+        if (msg.data?.type === 'ORDERS_UPDATED') {
+          ordersStore = loadStoredOrders()
+          callback([...ordersStore], msg.data)
+        }
+      }
+    }
+  } catch {}
+
+  return () => {
+    window.removeEventListener('tks-orders-updated', handleCustom)
+    window.removeEventListener('storage', handleStorage)
+    if (bc) bc.close()
+  }
+}
 
 // Artificial network latency helper
 const delay = (ms: number = 220) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -94,6 +184,7 @@ export async function submitEnquiry(data: {
   }
 
   ordersStore.unshift(newOrder)
+  persistAndBroadcast(ordersStore, 'ENQUIRY_CREATED', newOrder)
 
   // Record customer interaction in CRM
   await recordEnquiry({
@@ -198,7 +289,9 @@ export async function saveOrder(orderData: Partial<Order> & { customerPhone: str
         ...orderData,
         updatedAt: nowIso
       } as Order
-      return { ...ordersStore[idx] }
+      const updated = { ...ordersStore[idx] }
+      persistAndBroadcast(ordersStore, 'ORDER_UPDATED', updated)
+      return updated
     }
   }
 
@@ -229,6 +322,7 @@ export async function saveOrder(orderData: Partial<Order> & { customerPhone: str
   }
 
   ordersStore.unshift(newOrder)
+  persistAndBroadcast(ordersStore, 'ORDER_CREATED', newOrder)
 
   await recordEnquiry({
     name: newOrder.customerName,
@@ -256,6 +350,7 @@ export async function confirmOrder(id: string): Promise<Order> {
     customersStore[order.customerPhone].lastContacted = order.eventDate
   }
 
+  persistAndBroadcast(ordersStore, 'ORDER_CONFIRMED', { ...order })
   return { ...order }
 }
 
@@ -269,6 +364,7 @@ export async function setStatus(id: string, status: OrderStatus): Promise<Order>
 
   order.status = status
   order.updatedAt = new Date().toISOString()
+  persistAndBroadcast(ordersStore, 'ORDER_STATUS_CHANGED', { ...order })
   return { ...order }
 }
 
