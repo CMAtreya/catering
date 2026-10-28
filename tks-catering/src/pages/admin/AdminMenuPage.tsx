@@ -710,18 +710,19 @@ export const AdminMenuPage: React.FC = () => {
       {/* Availability switch */}
       <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
         <div>
-          <p className="text-xs font-bold text-slate-800">
+          <label htmlFor="item-form-availability-switch" className="text-xs font-bold text-slate-800 cursor-pointer block">
             Available in Catalogue
-          </p>
+          </label>
           <p className="text-[11px] text-slate-500">
             When enabled, customers can view and select this dish
           </p>
         </div>
         <Switch
+          id="item-form-availability-switch"
           checked={itemAvailable}
           onCheckedChange={setItemAvailable}
           disabled={!isOnline}
-          className="data-checked:bg-emerald-600"
+          className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-slate-300"
         />
       </div>
 
@@ -1233,18 +1234,25 @@ export const AdminMenuPage: React.FC = () => {
 
                                     {/* Action Toolbar */}
                                     <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
-                                      <div className="flex items-center gap-1.5">
+                                      <div 
+                                        className="flex items-center gap-1.5"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onPointerDown={(e) => e.stopPropagation()}
+                                      >
                                         <Switch
                                           id={`switch-grid-${item.id}`}
                                           checked={item.available}
                                           onCheckedChange={(checked) => handleToggleItemAvailability(item, checked)}
-                                          className="data-checked:bg-emerald-600 transition-colors"
+                                          className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-slate-300 transition-colors"
                                           aria-label={`Toggle availability for ${item.name}`}
-                                          title={item.available ? 'Available in catalogue' : 'Hidden from catalogue'}
+                                          title={item.available ? 'Available in catalogue (Click to mark unavailable)' : 'Hidden from catalogue (Click to activate)'}
                                         />
-                                        <span className={`text-[10px] font-bold ${item.available ? 'text-emerald-700' : 'text-slate-400'}`}>
+                                        <label
+                                          htmlFor={`switch-grid-${item.id}`}
+                                          className={`text-[10px] font-bold cursor-pointer select-none transition-colors ${item.available ? 'text-emerald-700' : 'text-slate-400'}`}
+                                        >
                                           {item.available ? 'Active' : 'Off'}
-                                        </span>
+                                        </label>
                                       </div>
 
                                       <div className="flex items-center gap-1">
@@ -1349,10 +1357,14 @@ export const AdminMenuPage: React.FC = () => {
 
                                     {/* Right: Available switch and actions */}
                                     <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                                      <div className="flex items-center gap-2">
+                                      <div 
+                                        className="flex items-center gap-2"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onPointerDown={(e) => e.stopPropagation()}
+                                      >
                                         <label 
                                           htmlFor={`switch-list-${item.id}`}
-                                          className="hidden md:inline-block text-[11px] font-bold text-slate-500 cursor-pointer"
+                                          className={`hidden md:inline-block text-[11px] font-bold cursor-pointer select-none transition-colors ${item.available ? 'text-emerald-700' : 'text-slate-400'}`}
                                         >
                                           {item.available ? 'Available' : 'Hidden'}
                                         </label>
@@ -1360,9 +1372,9 @@ export const AdminMenuPage: React.FC = () => {
                                           id={`switch-list-${item.id}`}
                                           checked={item.available}
                                           onCheckedChange={(checked) => handleToggleItemAvailability(item, checked)}
-                                          className="data-checked:bg-emerald-600 transition-colors"
+                                          className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-slate-300 transition-colors"
                                           aria-label={`Toggle availability for ${item.name}`}
-                                          title={item.available ? 'Available in catalogue' : 'Hidden from catalogue'}
+                                          title={item.available ? 'Available in catalogue (Click to mark unavailable)' : 'Hidden from catalogue (Click to activate)'}
                                         />
                                       </div>
 

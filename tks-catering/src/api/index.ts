@@ -27,8 +27,49 @@ function loadStoredOrders(): Order[] {
   return [...INITIAL_ORDERS]
 }
 
+function loadStoredItems(): MenuItem[] {
+  if (typeof window === 'undefined') return [...INITIAL_ITEMS]
+  try {
+    const stored = localStorage.getItem('tks_catering_menu_items')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch (e) {
+    console.warn('Failed to load stored menu items:', e)
+  }
+  return [...INITIAL_ITEMS]
+}
+
+function persistMenuItems(updatedItems: MenuItem[] = itemsStore) {
+  itemsStore = updatedItems
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('tks_catering_menu_items', JSON.stringify(itemsStore))
+    } catch (e) {
+      console.warn('Failed to save menu items to localStorage', e)
+    }
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent('tks-menu-updated', {
+          detail: { items: [...itemsStore] }
+        })
+      )
+    } catch {}
+
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('tks_catering_menu_channel')
+        bc.postMessage({ type: 'MENU_UPDATED' })
+        bc.close()
+      }
+    } catch {}
+  }
+}
+
 let categoriesStore: Category[] = [...INITIAL_CATEGORIES]
-let itemsStore: MenuItem[] = [...INITIAL_ITEMS]
+let itemsStore: MenuItem[] = loadStoredItems()
 let ordersStore: Order[] = loadStoredOrders()
 let customersStore: Record<string, CustomerRecord> = { ...INITIAL_CUSTOMERS }
 let businessInfoStore: BusinessInfo = { ...INITIAL_BUSINESS_INFO }
@@ -523,6 +564,7 @@ export async function saveItem(
         name: itemData.name.trim(),
         pricePerPlate: Number(itemData.pricePerPlate)
       } as MenuItem
+      persistMenuItems()
       return [...itemsStore]
     }
   }
@@ -539,6 +581,7 @@ export async function saveItem(
   }
 
   itemsStore.push(newItem)
+  persistMenuItems()
   return [...itemsStore]
 }
 
@@ -546,10 +589,11 @@ export async function saveItem(
  * 16. Toggle Item Availability
  */
 export async function toggleItemAvailability(id: string, available: boolean): Promise<MenuItem> {
-  await delay(100)
+  await delay(60)
   const item = itemsStore.find((i) => i.id === id)
   if (!item) throw new Error(`Item ${id} not found`)
   item.available = available
+  persistMenuItems()
   return { ...item }
 }
 
@@ -561,6 +605,7 @@ export async function moveItem(itemId: string, targetCategory: string): Promise<
   const item = itemsStore.find((i) => i.id === itemId)
   if (item) {
     item.category = targetCategory
+    persistMenuItems()
   }
   return [...itemsStore]
 }
@@ -571,6 +616,7 @@ export async function moveItem(itemId: string, targetCategory: string): Promise<
 export async function deleteItem(id: string): Promise<MenuItem[]> {
   await delay(180)
   itemsStore = itemsStore.filter((i) => i.id !== id)
+  persistMenuItems()
   return [...itemsStore]
 }
 
