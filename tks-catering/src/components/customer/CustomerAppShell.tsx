@@ -30,27 +30,27 @@ export const CustomerAppShell: React.FC<CustomerAppShellProps> = ({
         aria-hidden="true" 
         className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFFDF8] via-[#FAF6EE] to-[#F4ECE1]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF] via-[#FFFDF9] to-[#FAF7F2]" />
         <div 
-          className="absolute inset-0 bg-repeat opacity-80 mix-blend-multiply"
+          className="absolute inset-0 bg-repeat opacity-45 mix-blend-multiply"
           style={{ 
             backgroundImage: "url('/heritage-texture.svg')",
             backgroundSize: '120px 120px'
           }}
         />
         <div 
-          className="absolute inset-0 bg-repeat opacity-40 mix-blend-overlay"
+          className="absolute inset-0 bg-repeat opacity-20 mix-blend-overlay"
           style={{ 
             backgroundImage: "url('/paper-grain.svg')",
             backgroundSize: '200px 200px'
           }}
         />
         <div 
-          className="absolute -top-28 -left-28 w-[400px] h-[400px] rounded-full opacity-[0.14] filter blur-[80px]"
+          className="absolute -top-28 -left-28 w-[400px] h-[400px] rounded-full opacity-[0.06] filter blur-[90px]"
           style={{ background: 'radial-gradient(circle, var(--brand) 0%, transparent 70%)' }}
         />
         <div 
-          className="absolute top-1/3 -right-28 w-[380px] h-[380px] rounded-full opacity-[0.18] filter blur-[80px]"
+          className="absolute top-1/3 -right-28 w-[380px] h-[380px] rounded-full opacity-[0.08] filter blur-[90px]"
           style={{ background: 'radial-gradient(circle, #f59e0b 0%, #ffd861 40%, transparent 70%)' }}
         />
       </div>
