@@ -1,6 +1,5 @@
 import React from 'react'
 import { Sparkles, Check, ChevronRight } from 'lucide-react'
-import confetti from 'canvas-confetti'
 import { toast } from 'sonner'
 import type { MenuItem } from '@/data/mockData'
 import { useDraftStore } from '@/store/draftStore'
@@ -123,16 +122,6 @@ export const PresetFeastBar: React.FC<PresetFeastBarProps> = ({
     }
 
     loadPresetFeast(matchedItems, preset.name)
-
-    // Joyful celebration confetti
-    try {
-      confetti({
-        particleCount: 40,
-        spread: 60,
-        origin: { y: 0.8 },
-        colors: ['#b60a06', '#ffd861', '#10b981', '#ffffff']
-      })
-    } catch {}
 
     const totalRate = matchedItems.reduce((acc, curr) => acc + curr.pricePerPlate, 0)
     toast.success(`Loaded "${preset.name}"`, {
