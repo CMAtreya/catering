@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { 
   Plus, 
@@ -8,7 +8,9 @@ import {
   Inbox, 
   CheckCircle2,
   Download,
-  X
+  X,
+  Zap,
+  Layers
 } from 'lucide-react'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { IOSInstallSheet } from '@/components/pwa/IOSInstallSheet'
@@ -100,6 +102,53 @@ export const AdminDashboardPage: React.FC = () => {
 
   const newRequestsCount = newRequests.length
   const activeOrdersCount = activeOrders.length
+
+  // Tab state to separate New Requests and Active Orders: 'new' | 'active' | 'split'
+  const [activeQueueTab, setActiveQueueTab] = useState<'new' | 'active' | 'split'>('new')
+
+  // Ref and height measurement to ensure the Order Queue card ends at the EXACT same bottom as the Calendar card
+  const calendarContainerRef = useRef<HTMLDivElement>(null)
+  const [calendarHeight, setCalendarHeight] = useState<number | undefined>(undefined)
+  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 1024 : true
+  )
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    if (!calendarContainerRef.current) return
+
+    const updateHeight = () => {
+      if (calendarContainerRef.current) {
+        const rect = calendarContainerRef.current.getBoundingClientRect()
+        if (rect.height > 0) {
+          setCalendarHeight(Math.round(rect.height))
+        }
+      }
+    }
+
+    updateHeight()
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === calendarContainerRef.current) {
+          const h = Math.round(entry.target.getBoundingClientRect().height)
+          if (h > 0) {
+            setCalendarHeight(h)
+          }
+        }
+      }
+    })
+
+    observer.observe(calendarContainerRef.current)
+    return () => observer.disconnect()
+  }, [orders, isLoading])
 
   const handleConfirmOrder = async (orderId: string) => {
     try {
@@ -295,12 +344,13 @@ export const AdminDashboardPage: React.FC = () => {
         {/* ======================================================== */}
         {/* 3, 4 & 5. DASHBOARD LAYOUT: TWO COLUMNS FROM 1024px       */}
         {/* Left (7 cols): Calendar Card + Selected Date Panel       */}
-        {/* Right (5 cols): New Requests & Active Orders             */}
+        {/* Right (5 cols): Separated & Scrollable Order Queues Card  */}
+        {/* Both columns strictly end at the exact same baseline!     */}
         {/* ======================================================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
           
           {/* Column 1 (Left, 7 cols on 1024px+): Calendar Card */}
-          <div className="col-span-12 lg:col-span-7 min-w-0">
+          <div ref={calendarContainerRef} className="col-span-12 lg:col-span-7 min-w-0">
             {isLoading ? (
               <CalendarSkeleton />
             ) : (
@@ -308,111 +358,293 @@ export const AdminDashboardPage: React.FC = () => {
             )}
           </div>
 
-          {/* Column 2 (Right, 5 cols on 1024px+): New Requests & Active Orders */}
-          <div className="col-span-12 lg:col-span-5 space-y-6 sm:space-y-8 min-w-0">
-            
-            {/* 4. NEW REQUESTS BLOCK */}
-            <section className="space-y-3.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-heading font-black text-base sm:text-lg text-[var(--brand-900)]">
-                    New Requests
-                  </h3>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                    {newRequestsCount}
-                  </span>
+          {/* Column 2 (Right, 5 cols on 1024px+): Separated Orders with Scroll */}
+          <div 
+            className="col-span-12 lg:col-span-5 min-w-0 flex flex-col"
+            style={{
+              height: isDesktop && calendarHeight ? `${calendarHeight}px` : undefined,
+              maxHeight: isDesktop && calendarHeight ? `${calendarHeight}px` : undefined
+            }}
+          >
+            <div className="content-card bg-white border border-slate-200/80 rounded-[24px] shadow-sm overflow-hidden flex flex-col h-full min-h-0 max-lg:max-h-[580px]">
+              
+              {/* Header: Segmented Tabs & CRM Link */}
+              <div className="p-3 sm:p-4 border-b border-slate-100 flex items-center justify-between gap-2 shrink-0 bg-white">
+                <div 
+                  role="tablist" 
+                  aria-label="Order queues navigation"
+                  className="flex items-center p-1 bg-slate-100/90 rounded-xl border border-slate-200/60"
+                >
+                  {/* Tab 1: New Requests */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="tab-new-requests"
+                    aria-selected={activeQueueTab === 'new'}
+                    aria-controls="panel-new-requests"
+                    onClick={() => setActiveQueueTab('new')}
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      activeQueueTab === 'new'
+                        ? 'bg-white text-[var(--brand-900)] shadow-xs'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    <Zap className={`w-3.5 h-3.5 ${activeQueueTab === 'new' ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
+                    <span>New Requests</span>
+                    {newRequestsCount > 0 && (
+                      <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        activeQueueTab === 'new'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {newRequestsCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Tab 2: Active Orders */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="tab-active-orders"
+                    aria-selected={activeQueueTab === 'active'}
+                    aria-controls="panel-active-orders"
+                    onClick={() => setActiveQueueTab('active')}
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      activeQueueTab === 'active'
+                        ? 'bg-white text-[var(--brand-900)] shadow-xs'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${activeQueueTab === 'active' ? 'text-[var(--brand)]' : 'text-slate-400'}`} />
+                    <span>Active Orders</span>
+                    {activeOrdersCount > 0 && (
+                      <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        activeQueueTab === 'active'
+                          ? 'bg-[var(--brand)] text-white'
+                          : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {activeOrdersCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Tab 3: Split / Both View */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="tab-split-view"
+                    aria-selected={activeQueueTab === 'split'}
+                    aria-controls="panel-split-view"
+                    onClick={() => setActiveQueueTab('split')}
+                    className={`hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      activeQueueTab === 'split'
+                        ? 'bg-white text-[var(--brand-900)] shadow-xs'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                    title="View both queues stacked"
+                  >
+                    <Layers className="w-3 h-3 text-slate-400" />
+                    <span>Both</span>
+                  </button>
                 </div>
 
+                {/* View all link */}
                 <Link
-                  to="/admin/orders?status=new"
-                  className="text-xs font-bold text-[var(--brand)] hover:underline flex items-center gap-0.5 tap-target-48 sm:tap-target-auto"
+                  to={
+                    activeQueueTab === 'new'
+                      ? '/admin/orders?status=new'
+                      : activeQueueTab === 'active'
+                      ? '/admin/orders?tab=active'
+                      : '/admin/orders'
+                  }
+                  className="text-xs font-bold text-[var(--brand)] hover:underline flex items-center gap-0.5 shrink-0 tap-target-48 sm:tap-target-auto"
                 >
                   <span>View all</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
 
-              {isLoading ? (
-                <div className="space-y-3">
-                  <Shimmer className="h-32 rounded-[20px]" />
-                  <Shimmer className="h-32 rounded-[20px]" />
-                </div>
-              ) : newRequests.length > 0 ? (
-                <div className="space-y-3">
-                  {newRequests.slice(0, 4).map((order) => (
-                    <OrderCard
-                      key={order.id}
-                      order={order}
-                      showTimeReceived={true}
-                      onConfirm={handleConfirmOrder}
-                    />
-                  ))}
-                </div>
-              ) : (
-                /* Empty state for New Requests */
-                <div className="content-card bg-white border border-slate-200/80 rounded-[20px] p-6 text-center space-y-2">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
-                    <Inbox className="w-5 h-5 stroke-[1.5]" />
+              {/* Scrollable Body: Internal scroll ending at Calendar baseline */}
+              <div 
+                id={
+                  activeQueueTab === 'new' 
+                    ? 'panel-new-requests' 
+                    : activeQueueTab === 'active' 
+                    ? 'panel-active-orders' 
+                    : 'panel-split-view'
+                }
+                role="tabpanel"
+                tabIndex={0}
+                className="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-4.5 space-y-3.5 custom-scrollbar focus:outline-none"
+              >
+                {isLoading ? (
+                  <div className="space-y-3">
+                    <Shimmer className="h-32 rounded-[20px]" />
+                    <Shimmer className="h-32 rounded-[20px]" />
+                    <Shimmer className="h-32 rounded-[20px]" />
                   </div>
-                  <h4 className="font-heading font-bold text-sm text-[var(--brand-900)]">
-                    No pending online enquiries
-                  </h4>
-                  <p className="text-xs text-[var(--text-muted)] max-w-xs mx-auto">
-                    All incoming customer catering requests have been reviewed and processed.
-                  </p>
-                </div>
-              )}
-            </section>
+                ) : activeQueueTab === 'new' ? (
+                  /* TAB 1: NEW REQUESTS ONLY */
+                  newRequests.length > 0 ? (
+                    <div className="space-y-3">
+                      {newRequests.map((order) => (
+                        <OrderCard
+                          key={order.id}
+                          order={order}
+                          showTimeReceived={true}
+                          onConfirm={handleConfirmOrder}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-6 space-y-2">
+                      <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <Inbox className="w-5 h-5 stroke-[1.5]" />
+                      </div>
+                      <h4 className="font-heading font-black text-sm text-[var(--brand-900)]">
+                        No pending online enquiries
+                      </h4>
+                      <p className="text-xs text-[var(--text-muted)] max-w-xs mx-auto">
+                        All incoming customer catering requests have been reviewed and processed.
+                      </p>
+                      {activeOrdersCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveQueueTab('active')}
+                          className="mt-2 text-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
+                        >
+                          View {activeOrdersCount} Active Banquets →
+                        </button>
+                      )}
+                    </div>
+                  )
+                ) : activeQueueTab === 'active' ? (
+                  /* TAB 2: ACTIVE ORDERS ONLY */
+                  activeOrders.length > 0 ? (
+                    <div className="space-y-3">
+                      {activeOrders.map((order) => (
+                        <OrderCard
+                          key={order.id}
+                          order={order}
+                          showTimeReceived={false}
+                          onConfirm={handleConfirmOrder}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-6 space-y-2">
+                      <div className="w-11 h-11 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 stroke-[1.5]" />
+                      </div>
+                      <h4 className="font-heading font-bold text-sm text-[var(--brand-900)]">
+                        No active orders
+                      </h4>
+                      <p className="text-xs text-[var(--text-muted)] max-w-xs mx-auto">
+                        There are currently no orders under discussion or confirmed in the system.
+                      </p>
+                    </div>
+                  )
+                ) : (
+                  /* TAB 3: SPLIT / BOTH QUEUES */
+                  <div className="space-y-6">
+                    {/* Section 1: New Requests */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                          <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--brand-900)]">
+                            New Requests
+                          </h4>
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-red-100 text-red-700">
+                            {newRequestsCount}
+                          </span>
+                        </div>
+                        <Link to="/admin/orders?status=new" className="text-[11px] font-bold text-[var(--brand)] hover:underline">
+                          View all →
+                        </Link>
+                      </div>
 
-            {/* 5. ACTIVE ORDERS BLOCK (Under Discussion or Confirmed) */}
-            <section className="space-y-3.5">
-              <div className="flex items-center justify-between">
+                      {newRequests.length > 0 ? (
+                        <div className="space-y-3">
+                          {newRequests.map((order) => (
+                            <OrderCard
+                              key={order.id}
+                              order={order}
+                              showTimeReceived={true}
+                              onConfirm={handleConfirmOrder}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400 py-3 text-center bg-slate-50 rounded-xl">
+                          No pending requests
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Section 2: Active Orders */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-[var(--brand)]" />
+                          <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--brand-900)]">
+                            Active Orders
+                          </h4>
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[var(--brand-soft)] text-[var(--brand-900)]">
+                            {activeOrdersCount}
+                          </span>
+                        </div>
+                        <Link to="/admin/orders?tab=active" className="text-[11px] font-bold text-[var(--brand)] hover:underline">
+                          View all →
+                        </Link>
+                      </div>
+
+                      {activeOrders.length > 0 ? (
+                        <div className="space-y-3">
+                          {activeOrders.map((order) => (
+                            <OrderCard
+                              key={order.id}
+                              order={order}
+                              showTimeReceived={false}
+                              onConfirm={handleConfirmOrder}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400 py-3 text-center bg-slate-50 rounded-xl">
+                          No active orders
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Card Footer: Summary & CRM Link */}
+              <div className="px-4 py-2.5 bg-slate-50/90 border-t border-slate-100 shrink-0 flex items-center justify-between text-xs text-[var(--text-muted)]">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-heading font-black text-base sm:text-lg text-[var(--brand-900)]">
-                    Active Orders
-                  </h3>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--brand-soft)] text-[var(--brand-900)] border border-[var(--brand-200)]">
-                    {activeOrdersCount}
+                  <span className="font-bold text-[var(--brand-900)]">
+                    {activeQueueTab === 'new' 
+                      ? `${newRequestsCount} New Enquiries` 
+                      : activeQueueTab === 'active' 
+                      ? `${activeOrdersCount} Active Banquets` 
+                      : `${newRequestsCount + activeOrdersCount} Total In Queue`}
                   </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-[11px] text-slate-500">Scrollable Queue</span>
                 </div>
 
                 <Link
-                  to="/admin/orders?tab=active"
-                  className="text-xs font-bold text-[var(--brand)] hover:underline flex items-center gap-0.5 tap-target-48 sm:tap-target-auto"
+                  to="/admin/orders"
+                  className="font-bold text-[var(--brand)] hover:underline flex items-center gap-0.5 text-xs tap-target-48 sm:tap-target-auto"
                 >
-                  <span>View all</span>
+                  <span>Orders CRM</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
 
-              {isLoading ? (
-                <div className="space-y-3">
-                  <Shimmer className="h-32 rounded-[20px]" />
-                  <Shimmer className="h-32 rounded-[20px]" />
-                  <Shimmer className="h-32 rounded-[20px]" />
-                </div>
-              ) : activeOrders.length > 0 ? (
-                <div className="space-y-3">
-                  {activeOrders.slice(0, 4).map((order) => (
-                    <OrderCard key={order.id} order={order} showTimeReceived={false} />
-                  ))}
-                </div>
-              ) : (
-                /* Empty state for Active Orders */
-                <div className="content-card bg-white border border-slate-200/80 rounded-[20px] p-6 text-center space-y-2">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 stroke-[1.5]" />
-                  </div>
-                  <h4 className="font-heading font-bold text-sm text-[var(--brand-900)]">
-                    No active orders
-                  </h4>
-                  <p className="text-xs text-[var(--text-muted)] max-w-xs mx-auto">
-                    There are currently no orders under discussion or confirmed in the system.
-                  </p>
-                </div>
-              )}
-            </section>
-
+            </div>
           </div>
 
         </div>
