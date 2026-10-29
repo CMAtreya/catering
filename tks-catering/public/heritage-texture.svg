@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+    <!-- Brand colors: Crimson #b60a06, Gold #d97706, Marigold #ffd861 -->
+    <style>
+      .gold-hairline { stroke: #d97706; stroke-width: 0.75; stroke-opacity: 0.16; fill: none; }
+      .gold-accent { stroke: #b45309; stroke-width: 0.5; stroke-opacity: 0.22; fill: none; }
+      .crimson-accent { stroke: #b60a06; stroke-width: 0.65; stroke-opacity: 0.14; fill: none; }
+      .gold-dot { fill: #f59e0b; fill-opacity: 0.22; }
+      .crimson-dot { fill: #b60a06; fill-opacity: 0.18; }
+      .gold-tint { fill: #ffd861; fill-opacity: 0.04; }
+      .crimson-tint { fill: #b60a06; fill-opacity: 0.025; }
+    </style>
+  </defs>
+
+  <!-- Diagonal Silk Weave Grid -->
+  <line x1="0" y1="0" x2="120" y2="120" class="gold-hairline"/>
+  <line x1="120" y1="0" x2="0" y2="120" class="gold-hairline"/>
+  <line x1="0" y1="60" x2="60" y2="0" class="gold-hairline"/>
+  <line x1="60" y1="120" x2="120" y2="60" class="gold-hairline"/>
+  <line x1="0" y1="60" x2="60" y2="120" class="gold-hairline"/>
+  <line x1="60" y1="0" x2="120" y2="60" class="gold-hairline"/>
+
+  <!-- Center Diamond Floral Kolam Emblem -->
+  <polygon points="60,32 88,60 60,88 32,60" class="crimson-accent"/>
+  <polygon points="60,38 82,60 60,82 38,60" class="gold-hairline"/>
+  <circle cx="60" cy="60" r="14" class="gold-tint"/>
+  <circle cx="60" cy="60" r="14" class="gold-accent"/>
+  <circle cx="60" cy="60" r="8" class="crimson-tint"/>
+  <circle cx="60" cy="60" r="4" class="crimson-dot"/>
+
+  <!-- 8-Point Kolam Petal Curves around Center -->
+  <path d="M 60 46 C 64 52, 64 56, 60 60 C 56 56, 56 52, 60 46 Z" class="gold-accent"/>
+  <path d="M 60 74 C 64 68, 64 64, 60 60 C 56 64, 56 68, 60 74 Z" class="gold-accent"/>
+  <path d="M 46 60 C 52 64, 56 64, 60 60 C 56 56, 52 56, 46 60 Z" class="gold-accent"/>
+  <path d="M 74 60 C 68 64, 64 64, 60 60 C 64 56, 68 56, 74 60 Z" class="gold-accent"/>
+
+  <!-- Diamond Corner Accents (Seamless Repeat) -->
+  <circle cx="60" cy="32" r="1.8" class="gold-dot"/>
+  <circle cx="60" cy="88" r="1.8" class="gold-dot"/>
+  <circle cx="32" cy="60" r="1.8" class="gold-dot"/>
+  <circle cx="88" cy="60" r="1.8" class="gold-dot"/>
+
+  <!-- Corner Four Quadrants (Joining adjacent tiles) -->
+  <!-- Top-Left (0, 0) -->
+  <polygon points="0,28 28,0 0,0" class="crimson-tint"/>
+  <polygon points="0,28 28,0 0,0" class="gold-hairline"/>
+  <circle cx="0" cy="0" r="14" class="gold-accent"/>
+  <circle cx="0" cy="0" r="4" class="crimson-dot"/>
+
+  <!-- Top-Right (120, 0) -->
+  <polygon points="120,28 92,0 120,0" class="crimson-tint"/>
+  <polygon points="120,28 92,0 120,0" class="gold-hairline"/>
+  <circle cx="120" cy="0" r="14" class="gold-accent"/>
+  <circle cx="120" cy="0" r="4" class="crimson-dot"/>
+
+  <!-- Bottom-Left (0, 120) -->
+  <polygon points="0,92 28,120 0,120" class="crimson-tint"/>
+  <polygon points="0,92 28,120 0,120" class="gold-hairline"/>
+  <circle cx="0" cy="120" r="14" class="gold-accent"/>
+  <circle cx="0" cy="120" r="4" class="crimson-dot"/>
+
+  <!-- Bottom-Right (120, 120) -->
+  <polygon points="120,92 92,120 120,120" class="crimson-tint"/>
+  <polygon points="120,92 92,120 120,120" class="gold-hairline"/>
+  <circle cx="120" cy="120" r="14" class="gold-accent"/>
+  <circle cx="120" cy="120" r="4" class="crimson-dot"/>
+
+  <!-- Mid-Edge Kolam Flourishes (Seamless Repeat) -->
+  <circle cx="60" cy="0" r="3" class="crimson-dot"/>
+  <circle cx="60" cy="120" r="3" class="crimson-dot"/>
+  <circle cx="0" cy="60" r="3" class="crimson-dot"/>
+  <circle cx="120" cy="60" r="3" class="crimson-dot"/>
+</svg>
