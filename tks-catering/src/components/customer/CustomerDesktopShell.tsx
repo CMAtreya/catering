@@ -16,7 +16,7 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
   showFooter = true
 }) => {
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-sans relative overflow-x-hidden flex flex-col w-full selection:bg-[var(--brand)] selection:text-white">
+    <div className="min-h-screen text-[var(--text-primary)] font-sans relative overflow-x-hidden flex flex-col w-full selection:bg-[var(--brand)] selection:text-white">
       
       {/* ======================================================== */}
       {/* 1. ATMOSPHERIC AMBIENT GLOW & TEXTURED HERITAGE BACKGROUND */}
@@ -24,14 +24,14 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
       {/* ======================================================== */}
       <div 
         aria-hidden="true" 
-        className="fixed inset-0 pointer-events-none overflow-hidden select-none -z-10"
+        className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
       >
         {/* Layer 1: Warm Ivory & Sand Royal Heritage Base Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFFDF8] via-[#FAF6EE] to-[#F5EFE4]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFFDF8] via-[#FAF6EE] to-[#F4ECE1]" />
 
         {/* Layer 2: Repeating Royal Mysore Kolam & Silk Weave Texture (Logo Theme) */}
         <div 
-          className="absolute inset-0 bg-repeat opacity-[0.85] mix-blend-multiply"
+          className="absolute inset-0 bg-repeat opacity-80 mix-blend-multiply"
           style={{ 
             backgroundImage: "url('/heritage-texture.svg')",
             backgroundSize: '120px 120px'
@@ -40,7 +40,7 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
 
         {/* Layer 3: Tactile Handmade Cotton Paper / Parchment Grain */}
         <div 
-          className="absolute inset-0 bg-repeat opacity-[0.50] mix-blend-overlay"
+          className="absolute inset-0 bg-repeat opacity-40 mix-blend-overlay"
           style={{ 
             backgroundImage: "url('/paper-grain.svg')",
             backgroundSize: '200px 200px'
@@ -49,19 +49,19 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
 
         {/* Layer 4: Soft Ceremonial Crimson Ambient Orb on Left (Logo Primary) */}
         <div 
-          className="absolute -top-28 -left-28 w-[640px] h-[640px] rounded-full opacity-[0.11] filter blur-[100px]"
+          className="absolute -top-28 -left-28 w-[640px] h-[640px] rounded-full opacity-[0.14] filter blur-[100px]"
           style={{ background: 'radial-gradient(circle, var(--brand) 0%, transparent 70%)' }}
         />
 
         {/* Layer 5: Warm Marigold Gold Ambient Orb on Right (Logo Secondary) */}
         <div 
-          className="absolute top-1/4 -right-28 w-[560px] h-[560px] rounded-full opacity-[0.13] filter blur-[100px]"
+          className="absolute top-1/4 -right-28 w-[560px] h-[560px] rounded-full opacity-[0.18] filter blur-[100px]"
           style={{ background: 'radial-gradient(circle, #f59e0b 0%, #ffd861 40%, transparent 70%)' }}
         />
 
         {/* Layer 6: Subtle Ceremonial Crimson Base Orb at Bottom */}
         <div 
-          className="absolute -bottom-36 left-1/3 w-[640px] h-[640px] rounded-full opacity-[0.09] filter blur-[110px]"
+          className="absolute -bottom-36 left-1/3 w-[640px] h-[640px] rounded-full opacity-[0.12] filter blur-[110px]"
           style={{ background: 'radial-gradient(circle, var(--brand-700) 0%, transparent 70%)' }}
         />
 
@@ -69,7 +69,7 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
-            boxShadow: 'inset 0 0 120px rgba(180, 83, 9, 0.035)'
+            boxShadow: 'inset 0 0 120px rgba(180, 83, 9, 0.04)'
           }}
         />
       </div>

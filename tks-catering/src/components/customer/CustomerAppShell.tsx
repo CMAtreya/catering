@@ -24,33 +24,33 @@ export const CustomerAppShell: React.FC<CustomerAppShellProps> = ({
   const isHome = location.pathname === '/'
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-sans flex flex-col items-center relative overflow-x-hidden">
+    <div className="min-h-screen text-[var(--text-primary)] font-sans flex flex-col items-center relative overflow-x-hidden">
       {/* Decorative Heritage Textured Background */}
       <div 
         aria-hidden="true" 
-        className="fixed inset-0 pointer-events-none overflow-hidden select-none -z-10"
+        className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFFDF8] via-[#FAF6EE] to-[#F5EFE4]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFFDF8] via-[#FAF6EE] to-[#F4ECE1]" />
         <div 
-          className="absolute inset-0 bg-repeat opacity-[0.85] mix-blend-multiply"
+          className="absolute inset-0 bg-repeat opacity-80 mix-blend-multiply"
           style={{ 
             backgroundImage: "url('/heritage-texture.svg')",
             backgroundSize: '120px 120px'
           }}
         />
         <div 
-          className="absolute inset-0 bg-repeat opacity-[0.50] mix-blend-overlay"
+          className="absolute inset-0 bg-repeat opacity-40 mix-blend-overlay"
           style={{ 
             backgroundImage: "url('/paper-grain.svg')",
             backgroundSize: '200px 200px'
           }}
         />
         <div 
-          className="absolute -top-28 -left-28 w-[400px] h-[400px] rounded-full opacity-[0.11] filter blur-[80px]"
+          className="absolute -top-28 -left-28 w-[400px] h-[400px] rounded-full opacity-[0.14] filter blur-[80px]"
           style={{ background: 'radial-gradient(circle, var(--brand) 0%, transparent 70%)' }}
         />
         <div 
-          className="absolute top-1/3 -right-28 w-[380px] h-[380px] rounded-full opacity-[0.13] filter blur-[80px]"
+          className="absolute top-1/3 -right-28 w-[380px] h-[380px] rounded-full opacity-[0.18] filter blur-[80px]"
           style={{ background: 'radial-gradient(circle, #f59e0b 0%, #ffd861 40%, transparent 70%)' }}
         />
       </div>
