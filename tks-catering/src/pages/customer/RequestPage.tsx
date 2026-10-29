@@ -194,8 +194,8 @@ export const RequestPage: React.FC = () => {
             TOP BAR (glass)
             Back arrow, title 'Your catering details', small 'Step 2 of 3'
             ========================================================== */}
-        <header className="sticky top-0 z-10 glass-top-bar px-4 sm:px-6 lg:px-8 py-3 transition-all border-b border-slate-200/80">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+        <header className="sticky top-0 z-10 glass-top-bar px-4 sm:px-6 lg:px-8 xl:px-12 py-3 transition-all border-b border-slate-200/80">
+          <div className="w-full flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/')}
@@ -238,7 +238,7 @@ export const RequestPage: React.FC = () => {
             Right (lg:col-span-5): Booking Ticket, Selected Items, Bill
             ========================================================== */}
         <PageTransition direction="forward">
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-6 pb-36">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-6 pb-36">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
               
               {/* ========================================================

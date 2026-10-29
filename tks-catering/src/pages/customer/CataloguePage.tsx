@@ -32,6 +32,7 @@ import { PlantainLeafCanvas } from '@/components/customer/PlantainLeafCanvas'
 import { EventPlanningBar } from '@/components/customer/EventPlanningBar'
 import { PurityFilterMatrix, type PurityFilter } from '@/components/customer/PurityFilterMatrix'
 import { TastingSessionModal } from '@/components/customer/TastingSessionModal'
+import { FloatingMenuNav } from '@/components/customer/FloatingMenuNav'
 import { formatRupees } from '@/lib/format'
 
 type ViewMode = 'grid' | 'leaf' | 'split'
@@ -224,7 +225,7 @@ export const CataloguePage: React.FC = () => {
 
         {/* Loading state with skeleton */}
         {loading && (
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pb-32">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pb-32">
             <div className="mt-3 mb-2 h-20 rounded-[20px] animate-pulse bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200" />
             <CatalogueSkeleton count={8} />
           </main>
@@ -232,7 +233,7 @@ export const CataloguePage: React.FC = () => {
 
         {/* Error state with retry */}
         {!loading && error && (
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full p-6 flex flex-col items-center justify-center text-center my-auto pb-32">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full p-6 flex flex-col items-center justify-center text-center my-auto pb-32">
             <div className="w-16 h-16 rounded-2xl bg-[var(--status-cancelled-bg)] text-[var(--status-cancelled-text)] flex items-center justify-center mb-4 border border-[var(--status-cancelled-border)] shadow-sm">
               <AlertCircle className="w-8 h-8" />
             </div>
@@ -254,7 +255,7 @@ export const CataloguePage: React.FC = () => {
 
         {/* Empty state: No items available */}
         {!loading && !error && data && data.items.length === 0 && (
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full p-6 flex flex-col items-center justify-center text-center my-auto pb-32">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full p-6 flex flex-col items-center justify-center text-center my-auto pb-32">
             <div className="text-5xl mb-3">🍲</div>
             <h2 className="font-serif font-bold text-xl text-[var(--brand-900)]">
               Menu is being updated. Please call us.
@@ -278,7 +279,7 @@ export const CataloguePage: React.FC = () => {
             {/* ==========================================================
                 MAIN CONTENT AREA
                 ========================================================== */}
-            <main className="flex-1 px-3 sm:px-5 lg:px-6 max-w-7xl mx-auto w-full pt-3 pb-36 space-y-4 sm:space-y-5">
+            <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-3 pb-36 space-y-4 sm:space-y-5">
               
               {/* 1. EZCATER / ZEROCATER EVENT PLANNING STRIP */}
               <EventPlanningBar />
@@ -358,7 +359,7 @@ export const CataloguePage: React.FC = () => {
               {viewMode !== 'leaf' && !searchQuery && (
                 <section aria-label="Feast selection banner" className="p-4 sm:p-5 lg:p-6 rounded-3xl bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-lg overflow-hidden relative border border-amber-950/20">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
-                    <div className="space-y-2 z-10 max-w-xl">
+                    <div className="space-y-2 z-10 max-w-2xl lg:max-w-3xl">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] sm:text-[11px] tracking-wider uppercase font-black text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-300/30 inline-flex items-center gap-1">
                           <span>⚡</span>
@@ -585,7 +586,7 @@ export const CataloguePage: React.FC = () => {
                           <p className="text-xs text-slate-400 mt-1">Try searching for sweets, rice, rasam, or curries</p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5 lg:gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-2 sm:gap-2.5 lg:gap-3">
                           {filteredSearchItems.map((item) => (
                             <ItemCard key={item.id} item={item} />
                           ))}
@@ -617,7 +618,7 @@ export const CataloguePage: React.FC = () => {
                           </ScrollReveal>
 
                           {/* Multi-column dense responsive grid of ItemCards */}
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5 lg:gap-3">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-2 sm:gap-2.5 lg:gap-3">
                             {categoryItems.map((item, index) => {
                               const variants = getItemEntranceVariants(tier, index)
                               return (
@@ -642,16 +643,32 @@ export const CataloguePage: React.FC = () => {
             </main>
 
             {/* ==========================================================
-                4. STICKY BOTTOM BAR (Instamart / Zepto Style Floating Bar)
+                4. FLOATING MENU CATEGORIES BUTTON (BOTTOM-LEFT, LOGO ONLY)
+                ========================================================== */}
+            {data && data.categories && data.categories.length > 0 && (
+              <FloatingMenuNav
+                categories={data.categories}
+                activeCategoryId={activeCategoryId}
+                onSelectCategory={scrollToCategory}
+                getCategorySelectedCount={getCategorySelectedCount}
+                categoryItemCounts={data.categories.reduce((acc, cat) => {
+                  acc[cat.id] = getCategoryItems(cat, data.items).length
+                  return acc
+                }, {} as Record<string, number>)}
+              />
+            )}
+
+            {/* ==========================================================
+                5. STICKY BOTTOM BAR (Instamart / Zepto Style Floating Bar)
                 Elevated floating bar with bag icon, odometer, and Proceed button.
-                Consistent floating island layout across all mobile and desktop screens.
+                Sits alongside the bottom-left menu button without collision.
                 ========================================================== */}
             <motion.nav
               aria-label="Order summary and checkout"
               key={bounceKey}
               animate={!isReduced && bounceKey > 0 ? { y: [0, -3, 0] } : undefined}
               transition={MOTION_SPRINGS.tap}
-              className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-4 md:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl z-50 pointer-events-auto rounded-2xl sm:rounded-[22px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.06)] px-3.5 sm:px-5 py-2.5 sm:py-3"
+              className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-4 md:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl z-40 pointer-events-auto rounded-2xl sm:rounded-[22px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.06)] px-3.5 sm:px-5 py-2.5 sm:py-3"
             >
               <div className="w-full flex items-center justify-between gap-2.5 sm:gap-4">
                 {/* Left: Bag icon + 'N items selected' with Odometer */}

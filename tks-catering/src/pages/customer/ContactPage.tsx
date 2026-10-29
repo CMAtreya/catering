@@ -190,8 +190,8 @@ export const ContactPage: React.FC = () => {
             TOP BAR (glass)
             Back arrow, 'Your contact details', 'Step 3 of 3'
             ========================================================== */}
-        <header className="sticky top-0 z-10 glass-top-bar px-4 sm:px-6 lg:px-8 py-3 transition-all border-b border-slate-200/80">
-          <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+        <header className="sticky top-0 z-10 glass-top-bar px-4 sm:px-6 lg:px-8 xl:px-12 py-3 transition-all border-b border-slate-200/80">
+          <div className="w-full flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/request')}
@@ -235,7 +235,7 @@ export const ContactPage: React.FC = () => {
             - Read-only Accordion 'Request summary'
             ========================================================== */}
         <PageTransition direction="forward">
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full pt-6 pb-36 space-y-6">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-6 pb-36 space-y-6">
             
             {/* Desktop Section Header */}
             <div className="hidden lg:block pb-2 border-b border-slate-200/60">
@@ -277,222 +277,249 @@ export const ContactPage: React.FC = () => {
             </motion.div>
           )}
 
-          {/* ==========================================================
-              SOLID CARD: Exactly two fields
-              1. Customer name (required)
-              2. Mobile number (required; +91 prefix chip, numeric keypad,
-                 10 digits starting 6 to 9, inline validation)
-              ========================================================== */}
-          <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', damping: 26, stiffness: 280 }}
-            className="content-card p-4 sm:p-5 rounded-[20px] bg-white border border-slate-200/80 shadow-sm space-y-4"
-          >
-            <div>
-              <h2 className="font-heading font-black text-base text-[var(--text-primary)]">
-                Contact information
-              </h2>
-              <p className="text-xs text-[var(--text-muted)] pt-0.5">
-                Our catering manager will contact you directly on this number to confirm details.
-              </p>
-            </div>
-
-            {/* Field 1: Customer name */}
-            <div className="space-y-1.5">
-              <label htmlFor="customer-name" className="text-xs font-bold text-[var(--text-primary)] block">
-                Customer name <span className="text-[var(--brand)]">*</span>
-              </label>
-              <Input
-                id="customer-name"
-                type="text"
-                autoComplete="name"
-                value={customerName}
-                onChange={handleNameChange}
-                placeholder="Enter your full name"
-                className={`h-11 rounded-xl bg-white text-sm ${
-                  nameError ? 'border-[var(--status-cancelled-text)] ring-1 ring-[var(--status-cancelled-text)]' : ''
-                }`}
-              />
-              {nameError && (
-                <p className="text-xs text-[var(--status-cancelled-text)] font-semibold flex items-center gap-1 pt-0.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>{nameError}</span>
-                </p>
-              )}
-            </div>
-
-            {/* Field 2: Mobile number with +91 prefix chip */}
-            <div className="space-y-1.5">
-              <label htmlFor="customer-phone" className="text-xs font-bold text-[var(--text-primary)] block">
-                Mobile number <span className="text-[var(--brand)]">*</span>
-              </label>
-
-              <div className="flex items-center">
-                {/* Fixed +91 prefix chip */}
-                <div className="h-11 px-3.5 bg-slate-100 border border-r-0 border-slate-200 rounded-l-xl flex items-center justify-center text-xs font-bold text-slate-700 shrink-0 select-none">
-                  🇮🇳 +91
-                </div>
-
-                {/* Numeric keypad input */}
-                <Input
-                  id="customer-phone"
-                  type="tel"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={10}
-                  autoComplete="tel-national"
-                  value={customerPhone}
-                  onChange={handlePhoneChange}
-                  placeholder="10-digit number (e.g. 9845012345)"
-                  className={`h-11 rounded-r-xl rounded-l-none bg-white text-sm font-medium tracking-wide ${
-                    phoneError ? 'border-[var(--status-cancelled-text)] ring-1 ring-[var(--status-cancelled-text)]' : ''
-                  }`}
-                />
-              </div>
-
-              {phoneError ? (
-                <p className="text-xs text-[var(--status-cancelled-text)] font-semibold flex items-center gap-1 pt-0.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>{phoneError}</span>
-                </p>
-              ) : (
-                <p className="text-[11px] text-[var(--text-muted)] font-medium pt-0.5">
-                  10 digits starting with 6, 7, 8, or 9
-                </p>
-              )}
-            </div>
-          </motion.div>
-
-          {/* ==========================================================
-              COLLAPSED, READ-ONLY ACCORDION: 'Request summary'
-              Shows what will be submitted (items, occasion, date, plates,
-              address, instructions, estimate).
-              Only displays data already captured; adds no inputs.
-              ========================================================== */}
-          <div className="content-card rounded-[20px] bg-white border border-slate-200/80 shadow-sm overflow-hidden transition-all">
-            {/* Accordion Header / Toggle */}
-            <button
-              type="button"
-              onClick={() => setIsSummaryOpen((prev) => !prev)}
-              className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50/70 active:bg-slate-100/70 transition-colors tap-target-48"
-              aria-expanded={isSummaryOpen}
-            >
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-heading font-black text-sm sm:text-base text-[var(--text-primary)]">
-                    Request summary
-                  </h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                    Read-only
-                  </span>
-                </div>
-                <p className="text-xs text-[var(--text-muted)] font-medium">
-                  {selectedCount} {selectedCount === 1 ? 'dish' : 'dishes'} • {guestCount} plates • {formatRupees(estimatedTotal)}
-                </p>
-              </div>
-
-              <div
-                className={`w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 transition-transform duration-200 ${
-                  isSummaryOpen ? 'rotate-180 bg-[var(--brand-soft)] text-[var(--brand)]' : ''
-                }`}
+          {/* Responsive 2-column layout on desktop, stacked on mobile */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            
+            {/* Left Column (lg:col-span-6): Contact information */}
+            <div className="lg:col-span-6 space-y-4">
+              {/* SOLID CARD: Exactly two fields */}
+              <motion.div
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', damping: 26, stiffness: 280 }}
+                className="content-card p-4 sm:p-5 rounded-[20px] bg-white border border-slate-200/80 shadow-sm space-y-4"
               >
-                <ChevronDown className="w-4 h-4 stroke-[2.5]" />
+                <div>
+                  <h2 className="font-heading font-black text-base text-[var(--text-primary)]">
+                    Contact information
+                  </h2>
+                  <p className="text-xs text-[var(--text-muted)] pt-0.5">
+                    Our catering manager will contact you directly on this number to confirm details.
+                  </p>
+                </div>
+
+                {/* Field 1: Customer name */}
+                <div className="space-y-1.5">
+                  <label htmlFor="customer-name" className="text-xs font-bold text-[var(--text-primary)] block">
+                    Customer name <span className="text-[var(--brand)]">*</span>
+                  </label>
+                  <Input
+                    id="customer-name"
+                    type="text"
+                    autoComplete="name"
+                    value={customerName}
+                    onChange={handleNameChange}
+                    placeholder="Enter your full name"
+                    className={`h-11 rounded-xl bg-white text-sm ${
+                      nameError ? 'border-[var(--status-cancelled-text)] ring-1 ring-[var(--status-cancelled-text)]' : ''
+                    }`}
+                  />
+                  {nameError && (
+                    <p className="text-xs text-[var(--status-cancelled-text)] font-semibold flex items-center gap-1 pt-0.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{nameError}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Field 2: Mobile number with +91 prefix chip */}
+                <div className="space-y-1.5">
+                  <label htmlFor="customer-phone" className="text-xs font-bold text-[var(--text-primary)] block">
+                    Mobile number <span className="text-[var(--brand)]">*</span>
+                  </label>
+
+                  <div className="flex items-center">
+                    {/* Fixed +91 prefix chip */}
+                    <div className="h-11 px-3.5 bg-slate-100 border border-r-0 border-slate-200 rounded-l-xl flex items-center justify-center text-xs font-bold text-slate-700 shrink-0 select-none">
+                      🇮🇳 +91
+                    </div>
+
+                    {/* Numeric keypad input */}
+                    <Input
+                      id="customer-phone"
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
+                      autoComplete="tel-national"
+                      value={customerPhone}
+                      onChange={handlePhoneChange}
+                      placeholder="10-digit number (e.g. 9845012345)"
+                      className={`h-11 rounded-r-xl rounded-l-none bg-white text-sm font-medium tracking-wide ${
+                        phoneError ? 'border-[var(--status-cancelled-text)] ring-1 ring-[var(--status-cancelled-text)]' : ''
+                      }`}
+                    />
+                  </div>
+
+                  {phoneError ? (
+                    <p className="text-xs text-[var(--status-cancelled-text)] font-semibold flex items-center gap-1 pt-0.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{phoneError}</span>
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-[var(--text-muted)] font-medium pt-0.5">
+                      10 digits starting with 6, 7, 8, or 9
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Next Steps Guidance Card */}
+              <div className="p-4 rounded-[20px] bg-white border border-slate-200/80 shadow-2xs space-y-2 text-xs text-slate-600">
+                <h4 className="font-heading font-black text-xs text-[var(--brand-900)] uppercase tracking-wider">
+                  Next Steps After Submission
+                </h4>
+                <ul className="space-y-1.5 text-slate-600">
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
+                    <span>Our catering manager reviews dish availability & timings.</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
+                    <span>You will receive a call within 24 hours to confirm.</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
+                    <span>Your enquiry is permanently saved in &quot;My Enquiries&quot; on this browser.</span>
+                  </li>
+                </ul>
               </div>
-            </button>
+            </div>
 
-            {/* Accordion Expandable Content */}
-            <AnimatePresence>
-              {isSummaryOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25, ease: 'easeInOut' }}
-                  className="border-t border-slate-100 px-4 pb-4 pt-3 space-y-4 overflow-hidden text-xs sm:text-sm"
+            {/* Right Column (lg:col-span-6): Request summary */}
+            <div className="lg:col-span-6 space-y-4">
+              {/* ==========================================================
+                  COLLAPSED, READ-ONLY ACCORDION: 'Request summary'
+                  Shows what will be submitted (items, occasion, date, plates,
+                  address, instructions, estimate).
+                  Only displays data already captured; adds no inputs.
+                  ========================================================== */}
+              <div className="content-card rounded-[20px] bg-white border border-slate-200/80 shadow-sm overflow-hidden transition-all">
+                {/* Accordion Header / Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setIsSummaryOpen((prev) => !prev)}
+                  className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50/70 active:bg-slate-100/70 transition-colors tap-target-48"
+                  aria-expanded={isSummaryOpen}
                 >
-                  {/* 1. Selected Dishes */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                      <UtensilsCrossed className="w-3.5 h-3.5 text-[var(--brand)]" />
-                      <span>Selected Items ({selectedCount})</span>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 p-3 space-y-1.5 border border-slate-100">
-                      {selectedItemsList.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between py-0.5">
-                          <span className="font-medium text-slate-800">{item.name}</span>
-                          <span className="text-slate-500 font-semibold">{formatRupees(item.pricePerPlate)} / plate</span>
-                        </div>
-                      ))}
-                      <div className="border-t border-slate-200/80 pt-2 flex items-center justify-between font-bold">
-                        <span>Price per plate</span>
-                        <span className="text-[var(--brand-900)] font-black">{formatRupees(perPlateTotal)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 2. Occasion & Date */}
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
-                      <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                        <Sparkles className="w-3 h-3 text-[var(--brand)]" />
-                        Occasion
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-heading font-black text-sm sm:text-base text-[var(--text-primary)]">
+                        Request summary
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                        Read-only
                       </span>
-                      <p className="font-bold text-slate-800">{requirements.eventType}</p>
                     </div>
-
-                    <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
-                      <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3 text-[var(--brand)]" />
-                        Occasion Date
-                      </span>
-                      <p className="font-bold text-slate-800">{formatEventDate(requirements.eventDate)}</p>
-                    </div>
-                  </div>
-
-                  {/* 3. Number of Plates */}
-                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 flex items-center justify-between">
-                    <span className="font-semibold text-slate-600">Number of plates</span>
-                    <span className="font-bold text-slate-900">{guestCount} plates (approx. {guestCount} meals)</span>
-                  </div>
-
-                  {/* 4. Delivery Address */}
-                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
-                    <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[var(--brand)]" />
-                      Delivery Address
-                    </span>
-                    <p className="font-medium text-slate-800 whitespace-pre-wrap">{requirements.venueAddress}</p>
-                  </div>
-
-                  {/* 5. Special Instructions */}
-                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
-                    <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                      <FileText className="w-3 h-3 text-[var(--brand)]" />
-                      Special Instructions
-                    </span>
-                    <p className="font-medium text-slate-800 italic">
-                      {requirements.notes && requirements.notes.trim() ? requirements.notes : 'None provided'}
+                    <p className="text-xs text-[var(--text-muted)] font-medium">
+                      {selectedCount} {selectedCount === 1 ? 'dish' : 'dishes'} • {guestCount} plates • {formatRupees(estimatedTotal)}
                     </p>
                   </div>
 
-                  {/* 6. Calculated Estimate */}
-                  <div className="rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] p-3.5 flex items-center justify-between">
-                    <div>
-                      <span className="text-[11px] font-bold text-[var(--brand-900)] block">
-                        Estimated Food Total
-                      </span>
-                      <span className="text-[11px] text-[var(--text-muted)]">
-                        {formatRupees(perPlateTotal)} × {guestCount} plates
-                      </span>
-                    </div>
-                    <span className="font-heading font-black text-lg sm:text-xl text-[var(--brand-900)]">
-                      {formatRupees(estimatedTotal)}
-                    </span>
+                  <div
+                    className={`w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 transition-transform duration-200 ${
+                      isSummaryOpen ? 'rotate-180 bg-[var(--brand-soft)] text-[var(--brand)]' : ''
+                    }`}
+                  >
+                    <ChevronDown className="w-4 h-4 stroke-[2.5]" />
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </button>
+
+                {/* Accordion Expandable Content */}
+                <AnimatePresence>
+                  {isSummaryOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className="border-t border-slate-100 px-4 pb-4 pt-3 space-y-4 overflow-hidden text-xs sm:text-sm"
+                    >
+                      {/* 1. Selected Dishes */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                          <UtensilsCrossed className="w-3.5 h-3.5 text-[var(--brand)]" />
+                          <span>Selected Items ({selectedCount})</span>
+                        </div>
+                        <div className="rounded-xl bg-slate-50 p-3 space-y-1.5 border border-slate-100">
+                          {selectedItemsList.map((item) => (
+                            <div key={item.id} className="flex items-center justify-between py-0.5">
+                              <span className="font-medium text-slate-800">{item.name}</span>
+                              <span className="text-slate-500 font-semibold">{formatRupees(item.pricePerPlate)} / plate</span>
+                            </div>
+                          ))}
+                          <div className="border-t border-slate-200/80 pt-2 flex items-center justify-between font-bold">
+                            <span>Price per plate</span>
+                            <span className="text-[var(--brand-900)] font-black">{formatRupees(perPlateTotal)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 2. Occasion & Date */}
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
+                          <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-[var(--brand)]" />
+                            Occasion
+                          </span>
+                          <p className="font-bold text-slate-800">{requirements.eventType}</p>
+                        </div>
+
+                        <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
+                          <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-[var(--brand)]" />
+                            Occasion Date
+                          </span>
+                          <p className="font-bold text-slate-800">{formatEventDate(requirements.eventDate)}</p>
+                        </div>
+                      </div>
+
+                      {/* 3. Number of Plates */}
+                      <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 flex items-center justify-between">
+                        <span className="font-semibold text-slate-600">Number of plates</span>
+                        <span className="font-bold text-slate-900">{guestCount} plates (approx. {guestCount} meals)</span>
+                      </div>
+
+                      {/* 4. Delivery Address */}
+                      <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
+                        <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-[var(--brand)]" />
+                          Delivery Address
+                        </span>
+                        <p className="font-medium text-slate-800 whitespace-pre-wrap">{requirements.venueAddress}</p>
+                      </div>
+
+                      {/* 5. Special Instructions */}
+                      <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
+                        <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                          <FileText className="w-3 h-3 text-[var(--brand)]" />
+                          Special Instructions
+                        </span>
+                        <p className="font-medium text-slate-800 italic">
+                          {requirements.notes && requirements.notes.trim() ? requirements.notes : 'None provided'}
+                        </p>
+                      </div>
+
+                      {/* 6. Calculated Estimate */}
+                      <div className="rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] p-3.5 flex items-center justify-between">
+                        <div>
+                          <span className="text-[11px] font-bold text-[var(--brand-900)] block">
+                            Estimated Food Total
+                          </span>
+                          <span className="text-[11px] text-[var(--text-muted)]">
+                            {formatRupees(perPlateTotal)} × {guestCount} plates
+                          </span>
+                        </div>
+                        <span className="font-heading font-black text-lg sm:text-xl text-[var(--brand-900)]">
+                          {formatRupees(estimatedTotal)}
+                        </span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
           </div>
 
         </main>

@@ -30,9 +30,9 @@ export const AppFooter: React.FC = () => {
     <footer 
       role="contentinfo" 
       aria-label="TKS Catering corporate and legal footer"
-      className="w-full bg-white border-t border-slate-200/80 pt-10 sm:pt-12 pb-36 lg:pb-16 px-4 sm:px-6 lg:px-8 mt-auto relative z-0 selection:bg-[var(--brand)] selection:text-white"
+      className="w-full bg-white border-t border-slate-200/80 pt-10 sm:pt-12 pb-36 lg:pb-16 px-4 sm:px-6 lg:px-8 xl:px-12 mt-auto relative z-0 selection:bg-[var(--brand)] selection:text-white"
     >
-      <div className="max-w-7xl mx-auto space-y-10">
+      <div className="w-full space-y-10">
 
         {/* ========================================================== */}
         {/* TOP ROW: BRAND IDENTITY & FSSAI CERTIFICATION BADGE        */}

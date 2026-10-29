@@ -1,30 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'motion/react'
 import { Receipt } from 'lucide-react'
 import type { Category } from '@/data/mockData'
-import { useMotionTier } from '@/motion/MotionProvider'
-import { MOTION_SPRINGS } from '@/motion/tokens'
 
 interface CollapsingHeaderProps {
-  categories: Category[]
-  activeCategoryId: string
-  onSelectCategory: (categoryId: string) => void
-  getCategorySelectedCount: (category: Category) => number
-  enquiriesCount: number
+  categories?: Category[]
+  activeCategoryId?: string
+  onSelectCategory?: (categoryId: string) => void
+  getCategorySelectedCount?: (category: Category) => number
+  enquiriesCount?: number
 }
 
 export const CollapsingHeader: React.FC<CollapsingHeaderProps> = ({
-  categories,
-  activeCategoryId,
-  onSelectCategory,
-  getCategorySelectedCount,
-  enquiriesCount,
+  enquiriesCount = 0,
 }) => {
-  const { isReduced } = useMotionTier()
   const [scrollY, setScrollY] = useState(0)
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
-  const tabsContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     let ticking = false
@@ -42,28 +32,11 @@ export const CollapsingHeader: React.FC<CollapsingHeaderProps> = ({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Auto-scroll active tab horizontally inside the category tab container ONLY (avoids window vertical scroll snapping)
-  useEffect(() => {
-    const container = tabsContainerRef.current
-    const tab = tabRefs.current[activeCategoryId]
-    if (container && tab) {
-      const tabLeft = tab.offsetLeft
-      const tabWidth = tab.offsetWidth
-      const containerWidth = container.clientWidth
-      const targetScrollLeft = tabLeft - (containerWidth / 2) + (tabWidth / 2)
-
-      container.scrollTo({
-        left: Math.max(0, targetScrollLeft),
-        behavior: isReduced ? 'auto' : 'smooth',
-      })
-    }
-  }, [activeCategoryId, isReduced])
-
   // Scroll collapse progress between 0 and 100px scroll
   const collapseProgress = Math.min(Math.max(scrollY / 100, 0), 1)
 
   return (
-    <header className="sticky top-0 z-10 w-full transition-all">
+    <header className="sticky top-0 z-30 w-full transition-all">
       {/* 
         Layer 1: Pre-blurred glass background layer.
         Rule: never animate blur radius per frame (fade a pre-blurred layer instead)
@@ -81,7 +54,7 @@ export const CollapsingHeader: React.FC<CollapsingHeaderProps> = ({
       />
 
       {/* Main Top Bar */}
-      <div className="relative px-4 sm:px-6 lg:px-8 py-2.5 max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div className="relative px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 w-full flex items-center justify-between gap-3">
         {/* Left: Brand Identity */}
         <div className="flex items-center gap-2.5">
           <Link to="/" className="flex items-center gap-2.5 group">
@@ -128,64 +101,6 @@ export const CollapsingHeader: React.FC<CollapsingHeaderProps> = ({
               />
             )}
           </Link>
-        </div>
-      </div>
-
-      {/* 
-        Category Tabs: sticky with shared layoutId sliding underline that follows scroll-spy
-      */}
-      <div className="relative border-t border-slate-100/80 px-4 sm:px-6 lg:px-8 py-2">
-        <div
-          ref={tabsContainerRef}
-          role="tablist"
-          aria-label="Catering menu categories"
-          className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-0.5 max-w-7xl mx-auto"
-        >
-          {categories.map((category) => {
-            const isActive = activeCategoryId === category.id
-            const catSelectedCount = getCategorySelectedCount(category)
-
-            return (
-              <button
-                key={category.id}
-                ref={(el) => {
-                  tabRefs.current[category.id] = el
-                }}
-                onClick={() => onSelectCategory(category.id)}
-                role="tab"
-                aria-selected={isActive}
-                aria-label={`${category.name} category${catSelectedCount > 0 ? `, ${catSelectedCount} dishes selected` : ''}`}
-                className={`relative px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 shrink-0 tap-target-48 select-none ${
-                  isActive
-                    ? 'text-[var(--brand-900)]'
-                    : 'text-slate-600 hover:text-slate-900 active:scale-95'
-                }`}
-              >
-                {/* Shared layoutId background pill/sliding underline */}
-                {isActive && (
-                  <motion.div
-                    layoutId="category-underline"
-                    transition={MOTION_SPRINGS.soft}
-                    className="absolute inset-0 rounded-full bg-white border border-[var(--brand-200)] shadow-xs z-0"
-                  />
-                )}
-
-                <span className="relative z-10">{category.name}</span>
-
-                {catSelectedCount > 0 && (
-                  <span
-                    className={`relative z-10 min-w-4 h-4 px-1 rounded-full text-[10px] font-black flex items-center justify-center transition-colors ${
-                      isActive
-                        ? 'bg-[var(--brand)] text-[var(--on-brand)]'
-                        : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {catSelectedCount}
-                  </span>
-                )}
-              </button>
-            )
-          })}
         </div>
       </div>
     </header>

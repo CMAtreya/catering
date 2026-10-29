@@ -25,41 +25,32 @@ export const CustomerAppShell: React.FC<CustomerAppShellProps> = ({
 
   return (
     <div className="min-h-screen text-[var(--text-primary)] font-sans flex flex-col items-center relative overflow-x-hidden">
-      {/* Decorative Heritage Textured Background */}
+      {/* Minimal Modern Studio Background */}
       <div 
         aria-hidden="true" 
         className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF] via-[#FFFDF9] to-[#FAF7F2]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAFAFA] via-[#F8F9FA] to-[#F1F3F5]" />
         <div 
-          className="absolute inset-0 bg-repeat opacity-45 mix-blend-multiply"
+          className="absolute inset-0 opacity-35"
           style={{ 
-            backgroundImage: "url('/heritage-texture.svg')",
-            backgroundSize: '120px 120px'
+            backgroundImage: 'radial-gradient(#94A3B8 0.75px, transparent 0.75px)',
+            backgroundSize: '24px 24px'
           }}
         />
         <div 
-          className="absolute inset-0 bg-repeat opacity-20 mix-blend-overlay"
+          className="absolute -top-32 left-1/2 -translate-x-1/2 w-[1200px] h-[500px] rounded-full opacity-70"
           style={{ 
-            backgroundImage: "url('/paper-grain.svg')",
-            backgroundSize: '200px 200px'
+            background: 'radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0) 70%)'
           }}
-        />
-        <div 
-          className="absolute -top-28 -left-28 w-[400px] h-[400px] rounded-full opacity-[0.06] filter blur-[90px]"
-          style={{ background: 'radial-gradient(circle, var(--brand) 0%, transparent 70%)' }}
-        />
-        <div 
-          className="absolute top-1/3 -right-28 w-[380px] h-[380px] rounded-full opacity-[0.08] filter blur-[90px]"
-          style={{ background: 'radial-gradient(circle, #f59e0b 0%, #ffd861 40%, transparent 70%)' }}
         />
       </div>
 
       {/* Bottom Toast notifications per spec */}
       <Toaster position="bottom-center" richColors />
 
-      {/* Responsive Container: Max 480px on mobile, centered 960px on desktop */}
-      <div className="w-full max-w-[480px] md:max-w-[960px] min-h-screen flex flex-col bg-transparent relative">
+      {/* Full-width Responsive Container */}
+      <div className="w-full min-h-screen flex flex-col bg-transparent relative px-4 sm:px-6 lg:px-8 xl:px-12">
         
         {/* Compact Frosted Top Bar */}
         <header className="sticky top-0 z-40 glass-top-bar px-4 py-2.5 transition-all">

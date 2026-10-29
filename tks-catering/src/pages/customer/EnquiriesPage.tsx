@@ -125,8 +125,8 @@ export const EnquiriesPage: React.FC = () => {
             1. TOP BAR (glass)
             Back arrow, 'My enquiries', and 'Clear history' text button
             ========================================================== */}
-        <header className="sticky top-0 z-10 glass-top-bar px-4 sm:px-6 lg:px-8 py-3 transition-all border-b border-slate-200/80">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+        <header className="sticky top-0 z-10 glass-top-bar px-4 sm:px-6 lg:px-8 xl:px-12 py-3 transition-all border-b border-slate-200/80">
+          <div className="w-full flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/')}
@@ -162,7 +162,7 @@ export const EnquiriesPage: React.FC = () => {
             MAIN CONTENT
             ========================================================== */}
         <PageTransition direction="forward">
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-6 pb-24 space-y-6">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-6 pb-24 space-y-6">
           
           {/* ==========================================================
               2. INFO BANNER (small, glass)
@@ -244,7 +244,7 @@ export const EnquiriesPage: React.FC = () => {
                 - chevron opens bottom sheet
                 - SHOW NO STATUS (admin's record is separate)
                 ========================================================== */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {sortedEnquiries.map((enquiry, index) => {
                 const variants = getItemEntranceVariants(tier, index)
                 return (

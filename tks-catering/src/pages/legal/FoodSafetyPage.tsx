@@ -11,8 +11,8 @@ export const FoodSafetyPage: React.FC = () => {
       <div className="w-full min-h-screen bg-transparent pb-16">
         
         {/* Top Header Navigation */}
-        <header className="sticky top-0 z-20 glass-top-bar px-4 sm:px-6 lg:px-8 py-3.5 border-b border-slate-200/80">
-          <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+        <header className="sticky top-0 z-20 glass-top-bar px-4 sm:px-6 lg:px-8 xl:px-12 py-3.5 border-b border-slate-200/80">
+          <div className="w-full flex items-center justify-between gap-3">
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[var(--brand-900)] hover:text-[var(--brand-600)] transition-colors tap-target-48 -ml-1 cursor-pointer"

@@ -19,57 +19,30 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
     <div className="min-h-screen text-[var(--text-primary)] font-sans relative overflow-x-hidden flex flex-col w-full selection:bg-[var(--brand)] selection:text-white">
       
       {/* ======================================================== */}
-      {/* 1. ATMOSPHERIC AMBIENT GLOW & TEXTURED HERITAGE BACKGROUND */}
-      {/* Same theme as TKS logo: Ceremonial Crimson & Marigold Gold */}
+      {/* 1. MINIMAL MODERN CANVAS BACKGROUND                       */}
+      {/* Clean, serene, minimal studio off-white with micro-dot grid */}
       {/* ======================================================== */}
       <div 
         aria-hidden="true" 
         className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
       >
-        {/* Layer 1: Warm Light Ivory Royal Base Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF] via-[#FFFDF9] to-[#FAF7F2]" />
+        {/* Layer 1: Clean Minimal Studio Base Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAFAFA] via-[#F8F9FA] to-[#F1F3F5]" />
 
-        {/* Layer 2: Repeating Royal Mysore Kolam & Silk Weave Texture (Low-intensity watermark) */}
+        {/* Layer 2: Ultra-subtle Minimal Architectural Micro-Dot Matrix */}
         <div 
-          className="absolute inset-0 bg-repeat opacity-45 mix-blend-multiply"
+          className="absolute inset-0 opacity-35"
           style={{ 
-            backgroundImage: "url('/heritage-texture.svg')",
-            backgroundSize: '120px 120px'
+            backgroundImage: 'radial-gradient(#94A3B8 0.75px, transparent 0.75px)',
+            backgroundSize: '24px 24px'
           }}
         />
 
-        {/* Layer 3: Tactile Handmade Cotton Paper / Parchment Grain */}
+        {/* Layer 3: Soft Clean Radial Light Bloom from Top Center */}
         <div 
-          className="absolute inset-0 bg-repeat opacity-20 mix-blend-overlay"
+          className="absolute -top-32 left-1/2 -translate-x-1/2 w-[1400px] h-[600px] rounded-full opacity-70"
           style={{ 
-            backgroundImage: "url('/paper-grain.svg')",
-            backgroundSize: '200px 200px'
-          }}
-        />
-
-        {/* Layer 4: Soft Ceremonial Crimson Ambient Orb on Left (Logo Primary) */}
-        <div 
-          className="absolute -top-28 -left-28 w-[640px] h-[640px] rounded-full opacity-[0.06] filter blur-[120px]"
-          style={{ background: 'radial-gradient(circle, var(--brand) 0%, transparent 70%)' }}
-        />
-
-        {/* Layer 5: Warm Marigold Gold Ambient Orb on Right (Logo Secondary) */}
-        <div 
-          className="absolute top-1/4 -right-28 w-[560px] h-[560px] rounded-full opacity-[0.08] filter blur-[120px]"
-          style={{ background: 'radial-gradient(circle, #f59e0b 0%, #ffd861 40%, transparent 70%)' }}
-        />
-
-        {/* Layer 6: Subtle Ceremonial Crimson Base Orb at Bottom */}
-        <div 
-          className="absolute -bottom-36 left-1/3 w-[640px] h-[640px] rounded-full opacity-[0.05] filter blur-[130px]"
-          style={{ background: 'radial-gradient(circle, var(--brand-700) 0%, transparent 70%)' }}
-        />
-
-        {/* Layer 7: Subtle Perimeter Vignette Accent */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            boxShadow: 'inset 0 0 140px rgba(180, 83, 9, 0.018)'
+            background: 'radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0) 70%)'
           }}
         />
       </div>
@@ -79,9 +52,9 @@ export const CustomerDesktopShell: React.FC<CustomerDesktopShellProps> = ({
       {/* ======================================================== */}
       <aside 
         aria-label="Heritage catering assurance"
-        className="hidden lg:flex w-full bg-[var(--brand-900)] text-[var(--on-brand)] text-xs py-2 px-6 border-b border-amber-950/40 z-20"
+        className="hidden lg:flex w-full bg-[var(--brand-900)] text-[var(--on-brand)] text-xs py-2 px-4 sm:px-6 lg:px-8 xl:px-12 border-b border-amber-950/40 z-20"
       >
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-4 font-medium">
+        <div className="w-full flex items-center justify-between gap-4 font-medium">
           {/* Left: Heritage & Tradition */}
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-amber-300 font-bold uppercase tracking-wider text-[11px]">
