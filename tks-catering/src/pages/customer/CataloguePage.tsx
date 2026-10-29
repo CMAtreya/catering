@@ -277,9 +277,9 @@ export const CataloguePage: React.FC = () => {
         {!loading && !error && data && data.items.length > 0 && (
           <>
             {/* ==========================================================
-                MAIN CONTENT AREA
+                MAIN CONTENT AREA (FULL SCREEN EDGE-TO-EDGE)
                 ========================================================== */}
-            <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-3 pb-36 space-y-4 sm:space-y-5">
+            <main className="flex-1 px-3 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 w-full pt-3 pb-36 space-y-4 sm:space-y-5">
               
               {/* 1. EZCATER / ZEROCATER EVENT PLANNING STRIP */}
               <EventPlanningBar />
@@ -359,7 +359,7 @@ export const CataloguePage: React.FC = () => {
               {viewMode !== 'leaf' && !searchQuery && (
                 <section aria-label="Feast selection banner" className="p-4 sm:p-5 lg:p-6 rounded-3xl bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-lg overflow-hidden relative border border-amber-950/20">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
-                    <div className="space-y-2 z-10 max-w-2xl lg:max-w-3xl">
+                    <div className="space-y-2 z-10 max-w-3xl 2xl:max-w-5xl">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] sm:text-[11px] tracking-wider uppercase font-black text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-300/30 inline-flex items-center gap-1">
                           <span>⚡</span>
@@ -528,7 +528,7 @@ export const CataloguePage: React.FC = () => {
                           <h4 className="font-heading font-black text-sm text-slate-800 border-b pb-1">
                             {category.name} ({categoryItems.length})
                           </h4>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 sm:gap-2.5">
                             {categoryItems.map((item) => (
                               <ItemCard key={item.id} item={item} />
                             ))}
