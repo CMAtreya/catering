@@ -29,7 +29,6 @@ import { getItemEntranceVariants, MOTION_SPRINGS } from '@/motion/tokens'
 import { PresetFeastBar } from '@/components/customer/PresetFeastBar'
 import { VirtualBananaLeafModal } from '@/components/customer/VirtualBananaLeafModal'
 import { PlantainLeafCanvas } from '@/components/customer/PlantainLeafCanvas'
-import { EventPlanningBar } from '@/components/customer/EventPlanningBar'
 import { PurityFilterMatrix, type PurityFilter } from '@/components/customer/PurityFilterMatrix'
 import { TastingSessionModal } from '@/components/customer/TastingSessionModal'
 import { FloatingMenuNav } from '@/components/customer/FloatingMenuNav'
@@ -281,10 +280,7 @@ export const CataloguePage: React.FC = () => {
                 ========================================================== */}
             <main className="flex-1 px-3 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 w-full pt-3 pb-36 space-y-4 sm:space-y-5">
               
-              {/* 1. EZCATER / ZEROCATER EVENT PLANNING STRIP */}
-              <EventPlanningBar />
-
-              {/* 2. INSTANT SEARCH BAR & VIEW MODE SWITCHER */}
+              {/* 1. INSTANT SEARCH BAR & VIEW MODE SWITCHER */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
                 {/* Search Bar */}
                 <div className="relative flex-1">
