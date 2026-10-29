@@ -75,12 +75,12 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           toggleItem(item)
         }
       }}
-      className={`relative rounded-xl sm:rounded-2xl p-1.5 sm:p-2 transition-all duration-200 flex flex-col justify-between select-none cursor-pointer group focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:outline-none ${
+      className={`relative rounded-[13px] sm:rounded-[21px] p-[8px] sm:p-[13px] transition-all duration-300 flex flex-col justify-between select-none cursor-pointer group focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:outline-none ${
         !isAvailable
           ? 'bg-slate-50 border border-slate-200/80 opacity-60 cursor-not-allowed'
           : isSelected
-          ? 'bg-amber-50/50 border-2 border-[var(--brand)] shadow-xs ring-1 ring-[var(--brand)]/20'
-          : 'bg-white border border-slate-200/70 hover:border-slate-300 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-sm'
+          ? 'bg-amber-50/50 border-2 border-[var(--brand)] shadow-sm ring-2 ring-[var(--brand)]/20'
+          : 'bg-white border border-slate-200/80 hover:border-slate-300 shadow-[0_2px_13px_-3px_rgba(0,0,0,0.04)] hover:shadow-md'
       }`}
     >
       {/* Top-Right Selected Check Badge or Bestseller Tag */}
@@ -91,30 +91,30 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0, transition: { duration: MOTION_DURATIONS.quick } }}
             transition={MOTION_SPRINGS.tap}
-            className="absolute top-1.5 right-1.5 z-20 w-5 h-5 rounded-full bg-[var(--brand)] text-white flex items-center justify-center shadow-md ring-2 ring-white"
+            className="absolute top-[8px] right-[8px] z-20 w-[21px] h-[21px] rounded-full bg-[var(--brand)] text-white flex items-center justify-center shadow-md ring-2 ring-white"
           >
             <Check className="w-3 h-3 stroke-[3]" />
           </motion.div>
         ) : item.bestseller ? (
-          <div className="absolute top-1.5 right-1.5 z-10 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-sans font-black text-[8px] tracking-wide shadow-xs border border-amber-200/60 pointer-events-none">
+          <div className="absolute top-[8px] right-[8px] z-10 px-[8px] py-[3px] rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-sans font-black text-[8px] tracking-wide shadow-xs border border-amber-200/60 pointer-events-none">
             ★ BESTSELLER
           </div>
         ) : item.mustTry ? (
-          <div className="absolute top-1.5 right-1.5 z-10 px-1.5 py-0.5 rounded-full bg-[var(--brand)] text-white font-sans font-black text-[8px] tracking-wide shadow-xs border border-red-300/40 pointer-events-none">
+          <div className="absolute top-[8px] right-[8px] z-10 px-[8px] py-[3px] rounded-full bg-[var(--brand)] text-white font-sans font-black text-[8px] tracking-wide shadow-xs border border-red-300/40 pointer-events-none">
             CHEF'S SPECIAL
           </div>
         ) : null}
       </AnimatePresence>
 
-      {/* Food Image Container */}
-      <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200/80 shadow-inner group-hover:shadow-sm transition-shadow">
+      {/* Food Image Container: Major Section (Square 1:1 against details 0.618, card height 1.618) */}
+      <div className="relative w-full aspect-square rounded-[8px] sm:rounded-[13px] overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200/70 group-hover:shadow-xs transition-shadow">
         
-        {/* Pure Vegetarian Green Indicator Symbol (Quick-Commerce Standard) */}
+        {/* Pure Vegetarian Green Indicator Symbol */}
         <div 
           aria-hidden="true" 
-          className="absolute top-1.5 left-1.5 z-10 w-3.5 h-3.5 rounded-[3px] border border-emerald-600 bg-white/95 flex items-center justify-center shadow-xs pointer-events-none"
+          className="absolute top-[8px] left-[8px] z-10 w-[13px] h-[13px] rounded-[3px] border border-emerald-600 bg-white/95 flex items-center justify-center shadow-xs pointer-events-none"
         >
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+          <div className="w-[5px] h-[5px] rounded-full bg-emerald-600" />
         </div>
 
         {/* Shimmer loading placeholder while image loads */}
@@ -161,55 +161,55 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           </div>
         )}
 
-        {/* Instamart / Zepto / Swiggy Style ADD button pill overlapping image */}
+        {/* Golden ADD button pill overlapping image */}
         {isAvailable && (
-          <div className="absolute bottom-1.5 right-1.5 z-10">
+          <div className="absolute bottom-[8px] right-[8px] z-10">
             {isSelected ? (
               <motion.div
                 initial={{ scale: 0.88 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0.88 }}
                 transition={MOTION_SPRINGS.tap}
-                className="h-6 sm:h-7 px-2.5 rounded-lg bg-[var(--brand)] text-white font-heading font-black text-[10px] sm:text-[11px] flex items-center gap-1 shadow-md ring-1 ring-white/40"
+                className="h-[26px] sm:h-[34px] px-[10px] sm:px-[13px] rounded-[8px] bg-[var(--brand)] text-white font-heading font-black text-golden-xs sm:text-golden-sm flex items-center gap-[5px] shadow-md ring-1 ring-white/50"
               >
-                <Check className="w-3 h-3 stroke-[3]" />
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>ADDED</span>
               </motion.div>
             ) : (
               <motion.div
                 whileTap={isReduced ? undefined : { scale: 0.94 }}
                 transition={MOTION_SPRINGS.tap}
-                className="h-6 sm:h-7 px-2.5 sm:px-3 rounded-lg bg-white/95 backdrop-blur-xs text-[var(--brand)] border-2 border-[var(--brand)]/80 hover:bg-[var(--brand)] hover:text-white font-heading font-black text-[10px] sm:text-[11px] flex items-center gap-1 shadow-sm transition-colors"
+                className="h-[26px] sm:h-[34px] px-[10px] sm:px-[13px] rounded-[8px] bg-white/95 backdrop-blur-xs text-[var(--brand)] border-2 border-[var(--brand)]/80 hover:bg-[var(--brand)] hover:text-white font-heading font-black text-golden-xs sm:text-golden-sm flex items-center gap-[5px] shadow-sm transition-colors"
               >
                 <span>ADD</span>
-                <Plus className="w-3 h-3 stroke-[3]" />
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
               </motion.div>
             )}
           </div>
         )}
       </div>
 
-      {/* Item Details: Title (2 lines) & Price & Description */}
-      <div className="pt-2 pb-0.5 flex flex-col justify-between flex-1">
+      {/* Item Details: Minor Section (0.618 ratio to image height, Fibonacci spacing) */}
+      <div className="pt-[8px] sm:pt-[13px] pb-[3px] flex flex-col justify-between flex-1 min-h-[55px]">
         <div>
-          <h4 className="font-heading font-bold text-xs sm:text-[13px] text-slate-900 leading-snug line-clamp-1 group-hover:text-[var(--brand)] transition-colors">
+          <h4 className="font-heading font-bold text-golden-sm sm:text-golden-base text-slate-900 leading-snug line-clamp-1 group-hover:text-[var(--brand)] transition-colors">
             {item.name}
           </h4>
           {item.description && (
-            <p className="text-[10px] sm:text-[11px] text-slate-500 font-normal line-clamp-1 mt-0.5 leading-tight">
+            <p className="text-golden-xs text-slate-500 font-normal line-clamp-1 mt-[3px] leading-tight">
               {item.description}
             </p>
           )}
         </div>
-        <div className="pt-1.5 flex items-baseline gap-1">
-          <span className="font-heading font-black text-xs sm:text-sm text-[var(--brand-900)]">
+        <div className="pt-[5px] sm:pt-[8px] flex items-baseline gap-[5px]">
+          <span className="font-heading font-black text-golden-sm sm:text-golden-base text-[var(--brand-900)]">
             {formatRupees(item.pricePerPlate)}
           </span>
-          <span className="text-[10px] font-medium text-slate-400 select-none">
+          <span className="text-golden-xs font-medium text-slate-400 select-none">
             / plate
           </span>
           {item.pureGhee && (
-            <span className="ml-auto text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-1.5 py-0.2 rounded">
+            <span className="ml-auto text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-[5px] py-[2px] rounded-[5px]">
               Pure Ghee
             </span>
           )}

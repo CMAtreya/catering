@@ -45,8 +45,8 @@ export const CataloguePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
-  // View mode switcher: Swiggy/Blinkit grid vs Live Plantain Leaf vs Split builder
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  // View mode switcher: Golden Split (61.8% / 38.2%) vs Full Menu Grid vs Full Plantain Leaf
+  const [viewMode, setViewMode] = useState<ViewMode>('split')
 
   // Modals state
   const [isLeafModalOpen, setIsLeafModalOpen] = useState(false)
@@ -67,6 +67,7 @@ export const CataloguePage: React.FC = () => {
   // Global stores
   const selectedItems = useDraftStore((state) => state.items)
   const toggleItem = useDraftStore((state) => state.toggleItem)
+  const clearItems = useDraftStore((state) => state.clearItems)
   const selectedCount = Object.keys(selectedItems).length
   const perPlateTotal = useDraftStore((state) => state.getPerPlateTotal())
   const enquiriesCount = useEnquiryStore((state) => state.enquiries.length)
@@ -276,22 +277,22 @@ export const CataloguePage: React.FC = () => {
         {!loading && !error && data && data.items.length > 0 && (
           <>
             {/* ==========================================================
-                MAIN CONTENT AREA (FULL SCREEN EDGE-TO-EDGE)
+                MAIN CONTENT AREA (GOLDEN RATIO Φ = 1.618 EDGE-TO-EDGE)
                 ========================================================== */}
-            <main className="flex-1 px-3 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 w-full pt-3 pb-36 space-y-4 sm:space-y-5">
+            <main className="flex-1 px-[13px] sm:px-[21px] md:px-[34px] lg:px-[55px] w-full pt-[13px] pb-[144px] space-y-[21px] sm:space-y-[34px]">
               
-              {/* 1. INSTANT SEARCH BAR & VIEW MODE SWITCHER */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+              {/* 1. INSTANT SEARCH BAR & GOLDEN VIEW SWITCHER */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-[13px]">
                 {/* Search Bar */}
                 <div className="relative flex-1">
-                  <div className="relative flex items-center bg-white border border-slate-200/90 hover:border-slate-300 focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/15 rounded-xl sm:rounded-2xl shadow-2xs transition-all px-3 py-2 sm:py-2.5">
-                    <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
+                  <div className="relative flex items-center bg-white border border-slate-200/90 hover:border-slate-300 focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/15 rounded-[13px] sm:rounded-[21px] shadow-2xs transition-all px-[21px] py-[10px] sm:py-[13px]">
+                    <Search className="w-4 h-4 text-slate-400 shrink-0 mr-[13px]" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search dishes (e.g. Mysore Pak, Bisi Bele Bath, Rasam, Pongal...)"
-                      className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none font-medium"
+                      className="w-full bg-transparent text-golden-xs sm:text-golden-sm text-slate-800 placeholder-slate-400 focus:outline-none font-medium"
                       aria-label="Search catering dishes"
                     />
                     {searchQuery && (
@@ -307,12 +308,26 @@ export const CataloguePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* View Switcher: Swiggy Grid vs Live Plantain Leaf View */}
-                <div className="flex items-center rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 p-1 shadow-2xs shrink-0 self-start sm:self-auto">
+                {/* Golden View Switcher: Golden Split (61.8% / 38.2%) vs Full Grid vs Live Plantain Leaf */}
+                <div className="flex items-center rounded-[13px] sm:rounded-[21px] bg-white border border-slate-200/90 p-[3px] shadow-2xs shrink-0 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('split')}
+                    className={`px-[13px] py-[8px] rounded-[10px] text-golden-xs sm:text-golden-sm font-bold transition-all flex items-center gap-[5px] cursor-pointer select-none ${
+                      viewMode === 'split'
+                        ? 'bg-[var(--brand)] text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                    title="Golden Ratio Split: 61.8% Menu + 38.2% Live Banana Leaf"
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Golden Split (Φ)</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setViewMode('grid')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none ${
+                    className={`px-[13px] py-[8px] rounded-[10px] text-golden-xs sm:text-golden-sm font-bold transition-all flex items-center gap-[5px] cursor-pointer select-none ${
                       viewMode === 'grid'
                         ? 'bg-[var(--brand)] text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
@@ -325,7 +340,7 @@ export const CataloguePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setViewMode('leaf')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none ${
+                    className={`px-[13px] py-[8px] rounded-[10px] text-golden-xs sm:text-golden-sm font-bold transition-all flex items-center gap-[5px] cursor-pointer select-none ${
                       viewMode === 'leaf'
                         ? 'bg-emerald-700 text-white shadow-xs'
                         : 'text-slate-600 hover:text-emerald-700'
@@ -334,54 +349,41 @@ export const CataloguePage: React.FC = () => {
                     <span>🍃</span>
                     <span>Live Leaf ({selectedCount})</span>
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('split')}
-                    className={`hidden lg:flex px-3 py-1.5 rounded-lg text-xs font-bold transition-all items-center gap-1.5 cursor-pointer select-none ${
-                      viewMode === 'split'
-                        ? 'bg-amber-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-amber-800'
-                    }`}
-                    title="Split screen: Menu on left, Live Banana Leaf on right"
-                  >
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>Split Builder</span>
-                  </button>
                 </div>
               </div>
 
-              {/* 3. FLAGSHIP HERO BANNER (Only on Grid/Split view without active search) */}
+              {/* 2. GOLDEN HERO BANNER (61.8% Narrative vs 38.2% Visual Stage) */}
               {viewMode !== 'leaf' && !searchQuery && (
-                <section aria-label="Feast selection banner" className="p-4 sm:p-5 lg:p-6 rounded-3xl bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-lg overflow-hidden relative border border-amber-950/20">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
-                    <div className="space-y-2 z-10 max-w-3xl 2xl:max-w-5xl">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] sm:text-[11px] tracking-wider uppercase font-black text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-300/30 inline-flex items-center gap-1">
+                <section aria-label="Feast selection banner" className="p-[21px] sm:p-[34px] rounded-[21px] sm:rounded-[34px] bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-lg overflow-hidden relative border border-amber-950/20">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[21px] sm:gap-[34px]">
+                    {/* Major Golden Section (61.8% Width) */}
+                    <div className="space-y-[13px] z-10 max-w-full sm:max-w-[61.8%]">
+                      <div className="flex items-center gap-[8px] flex-wrap">
+                        <span className="text-[10px] tracking-wider uppercase font-black text-amber-300 bg-amber-400/20 px-[10px] py-[3px] rounded-full border border-amber-300/30 inline-flex items-center gap-[5px]">
                           <span>⚡</span>
                           <span>Mysuru Authentic Feast</span>
                         </span>
-                        <span className="text-[10px] sm:text-[11px] font-bold text-white/90 bg-white/10 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-white/90 bg-white/10 px-[10px] py-[3px] rounded-full">
                           100% Pure Cow Ghee
                         </span>
-                        <span className="text-[10px] sm:text-[11px] font-bold text-emerald-300 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                        <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/40 px-[10px] py-[3px] rounded-full border border-emerald-400/30">
                           Satvik Brahmin Kitchen
                         </span>
                       </div>
 
-                      <h2 className="font-heading font-black text-lg sm:text-2xl lg:text-3xl tracking-tight leading-tight">
+                      <h2 className="font-heading font-black text-golden-xl sm:text-golden-2xl tracking-tight leading-tight">
                         Craft Your Royal Catering Feast
                       </h2>
-                      <p className="text-[11px] sm:text-xs lg:text-sm text-white/90 font-medium leading-relaxed">
+                      <p className="text-golden-xs sm:text-golden-sm text-white/90 font-medium leading-relaxed">
                         Handcrafted South Indian delicacies, ceremonial Muhurtham spreads, and live per-plate quotations. Tap dishes below or arrange on the traditional plantain leaf.
                       </p>
 
                       {/* Quick Interactive Actions */}
-                      <div className="pt-1 flex items-center gap-2 flex-wrap">
+                      <div className="pt-[5px] flex items-center gap-[8px] flex-wrap">
                         <button
                           type="button"
                           onClick={() => setViewMode('leaf')}
-                          className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
+                          className="px-[21px] py-[10px] rounded-full text-golden-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all shadow-xs flex items-center gap-[5px] cursor-pointer active:scale-95"
                         >
                           <span>🍃</span>
                           <span>Open Plantain Leaf</span>
@@ -390,7 +392,7 @@ export const CataloguePage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setIsTastingModalOpen(true)}
-                          className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/15 hover:bg-white/25 text-white transition-all border border-white/30 flex items-center gap-1.5 cursor-pointer"
+                          className="px-[21px] py-[10px] rounded-full text-golden-xs font-bold bg-white/15 hover:bg-white/25 text-white transition-all border border-white/30 flex items-center gap-[5px] cursor-pointer"
                         >
                           <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                           <span>Book Tasting Box</span>
@@ -398,15 +400,15 @@ export const CataloguePage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* 3D Hero Object: Ceremonial Brass Lamp */}
-                    <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 shrink-0 relative flex items-center justify-center self-end sm:self-center">
+                    {/* Minor Golden Section (38.2% Visual Stage): Ceremonial Brass Lamp */}
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 shrink-0 relative flex items-center justify-center self-end sm:self-center">
                       <Hero3D />
                     </div>
                   </div>
                 </section>
               )}
 
-              {/* 4. CURATED PRESET FEASTS (Craft My Plate / CaterNinja 1-Tap Packages) */}
+              {/* 3. CURATED PRESET FEASTS (Golden Rectangles 1.618 : 1) */}
               {viewMode !== 'leaf' && !searchQuery && (
                 <PresetFeastBar
                   availableItems={data.items}
@@ -414,7 +416,7 @@ export const CataloguePage: React.FC = () => {
                 />
               )}
 
-              {/* 5. DIETARY & PURITY FILTER MATRIX (ezCater Multi-Filter Benchmark) */}
+              {/* 4. DIETARY & PURITY FILTER MATRIX */}
               {viewMode !== 'leaf' && !searchQuery && (
                 <PurityFilterMatrix
                   activeFilter={purityFilter}
@@ -427,26 +429,26 @@ export const CataloguePage: React.FC = () => {
                   VIEW MODE A: FULL LIVE PLANTAIN LEAF CANVAS
                   ========================================================== */}
               {viewMode === 'leaf' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
+                <div className="space-y-[21px]">
+                  <div className="flex items-center justify-between bg-white p-[21px] rounded-[21px] border border-slate-200/90 shadow-2xs">
                     <div>
-                      <h3 className="font-heading font-black text-sm sm:text-base text-slate-900 flex items-center gap-2">
+                      <h3 className="font-heading font-black text-golden-base sm:text-golden-md text-slate-900 flex items-center gap-[8px]">
                         <span>🍃 Ceremonial South Indian Plantain Leaf</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        <span className="text-golden-xs font-bold px-[8px] py-[2px] rounded-full bg-emerald-100 text-emerald-800">
                           {selectedCount} dishes placed
                         </span>
                       </h3>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-golden-xs text-slate-500 mt-[5px]">
                         Dishes are placed in traditional Brahmin order. Click any (+) slot to add, or tap a placed dish to remove.
                       </p>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => setViewMode('grid')}
-                      className="px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                      onClick={() => setViewMode('split')}
+                      className="px-[21px] py-[10px] rounded-[13px] border border-slate-200 hover:bg-slate-100 text-slate-700 text-golden-xs font-bold transition-colors cursor-pointer"
                     >
-                      Back to Menu Grid
+                      Back to Menu
                     </button>
                   </div>
 
@@ -459,17 +461,17 @@ export const CataloguePage: React.FC = () => {
                   />
 
                   {/* Quick-add category carousel below the leaf */}
-                  <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm space-y-3">
+                  <div className="bg-white rounded-[21px] p-[21px] border border-slate-200/90 shadow-sm space-y-[13px]">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-heading font-bold text-xs sm:text-sm text-slate-900">
+                      <h4 className="font-heading font-bold text-golden-sm sm:text-golden-base text-slate-900">
                         Quick Add Dishes to Leaf
                       </h4>
-                      <span className="text-xs text-slate-400">
+                      <span className="text-golden-xs text-slate-400">
                         Tap any dish to place it on the banana leaf
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-[8px] sm:gap-[13px]">
                       {data.items.map((item) => {
                         const isSelected = Boolean(selectedItems[item.id])
                         return (
@@ -477,7 +479,7 @@ export const CataloguePage: React.FC = () => {
                             key={item.id}
                             type="button"
                             onClick={() => toggleItem(item)}
-                            className={`p-2 rounded-xl text-left border transition-all flex items-center gap-2 cursor-pointer ${
+                            className={`p-[10px] rounded-[13px] text-left border transition-all flex items-center gap-[8px] cursor-pointer ${
                               isSelected
                                 ? 'bg-emerald-50 border-emerald-400 shadow-2xs ring-1 ring-emerald-400/20'
                                 : 'bg-slate-50 hover:bg-white border-slate-200/80 hover:shadow-2xs'
@@ -486,13 +488,13 @@ export const CataloguePage: React.FC = () => {
                             <img
                               src={item.image || '/default-dish.svg'}
                               alt={item.name}
-                              className="w-9 h-9 rounded-lg object-cover shrink-0"
+                              className="w-9 h-9 rounded-[8px] object-cover shrink-0"
                               onError={(e) => {
                                 ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
                               }}
                             />
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs font-bold text-slate-800 truncate">{item.name}</p>
+                              <p className="text-golden-xs font-bold text-slate-800 truncate">{item.name}</p>
                               <p className="text-[10px] font-semibold text-[var(--brand)]">{formatRupees(item.pricePerPlate)}</p>
                             </div>
                             <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs ${
@@ -509,80 +511,210 @@ export const CataloguePage: React.FC = () => {
               )}
 
               {/* ==========================================================
-                  VIEW MODE B: SPLIT BUILDER (ZeroCater / ezCater Desktop Mode)
+                  VIEW MODE B: GOLDEN RATIO DUAL SPLIT (61.8% / 38.2%)
                   ========================================================== */}
               {viewMode === 'split' && (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-                  {/* Left 7 Columns: Menu Items List */}
-                  <div className="lg:col-span-7 space-y-4">
-                    {data.categories.map((category) => {
-                      const categoryItems = getCategoryItems(category, data.items).filter(matchesPurityFilter)
-                      if (categoryItems.length === 0) return null
+                <div className="grid grid-cols-1 lg:grid-cols-[1.618fr_1fr] gap-[21px] lg:gap-[34px] items-start w-full">
+                  {/* Major Golden Section (61.8%): Menu Items */}
+                  <div className="w-full min-w-0 space-y-[21px] sm:space-y-[34px]">
+                    {/* Search Results View */}
+                    {filteredSearchItems !== null ? (
+                      <section className="space-y-[13px]">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-heading font-black text-golden-sm sm:text-golden-base text-slate-800">
+                            Found {filteredSearchItems.length} {filteredSearchItems.length === 1 ? 'dish' : 'dishes'} for &ldquo;{searchQuery}&rdquo;
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => setSearchQuery('')}
+                            className="text-golden-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
+                          >
+                            Clear search
+                          </button>
+                        </div>
 
-                      return (
-                        <div key={category.id} className="space-y-2">
-                          <h4 className="font-heading font-black text-sm text-slate-800 border-b pb-1">
-                            {category.name} ({categoryItems.length})
-                          </h4>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 sm:gap-2.5">
-                            {categoryItems.map((item) => (
+                        {filteredSearchItems.length === 0 ? (
+                          <div className="p-[34px] text-center bg-white rounded-[21px] border border-dashed border-slate-200">
+                            <p className="text-golden-sm font-semibold text-slate-700">No matching dishes found</p>
+                            <p className="text-golden-xs text-slate-400 mt-1">Try searching for sweets, rice, rasam, or curries</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-[8px] sm:gap-[13px]">
+                            {filteredSearchItems.map((item) => (
                               <ItemCard key={item.id} item={item} />
                             ))}
                           </div>
-                        </div>
-                      )
-                    })}
+                        )}
+                      </section>
+                    ) : (
+                      /* Regular Category View */
+                      data.categories.map((category) => {
+                        const categoryItems = getCategoryItems(category, data.items).filter(matchesPurityFilter)
+                        if (categoryItems.length === 0) return null
+
+                        return (
+                          <section
+                            key={category.id}
+                            id={`cat-section-${category.id}`}
+                            className="scroll-mt-32 space-y-[13px]"
+                          >
+                            <ScrollReveal>
+                              <div className="flex items-center justify-between pt-[5px] border-b border-slate-200/60 pb-[8px]">
+                                <h3 className="font-heading font-black text-golden-base sm:text-golden-md text-slate-800 tracking-tight flex items-center gap-[8px]">
+                                  <span>{category.name}</span>
+                                  <span className="text-golden-xs font-bold text-slate-500 bg-slate-100 px-[8px] py-[2px] rounded-full font-sans">
+                                    {categoryItems.length} {categoryItems.length === 1 ? 'item' : 'items'}
+                                  </span>
+                                </h3>
+                              </div>
+                            </ScrollReveal>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-[8px] sm:gap-[13px]">
+                              {categoryItems.map((item, index) => {
+                                const variants = getItemEntranceVariants(tier, index)
+                                return (
+                                  <motion.div
+                                    key={item.id}
+                                    initial={isReduced ? false : variants.hidden}
+                                    whileInView={isReduced ? undefined : variants.visible}
+                                    viewport={{ once: true, margin: '-20px' }}
+                                  >
+                                    <ItemCard item={item} />
+                                  </motion.div>
+                                )
+                              })}
+                            </div>
+                          </section>
+                        )
+                      })
+                    )}
                   </div>
 
-                  {/* Right 5 Columns: Sticky Plantain Leaf Live Visualizer */}
-                  <div className="lg:col-span-5 sticky top-24 space-y-3">
-                    <div className="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs flex items-center justify-between">
-                      <span className="font-heading font-black text-xs text-slate-900">
-                        Live Banana Leaf Arrangement
-                      </span>
-                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        {selectedCount} placed
-                      </span>
+                  {/* Minor Golden Section (38.2%): Sticky Live Banana Leaf Cockpit */}
+                  <div className="hidden lg:block w-full sticky top-[21px] space-y-[13px] min-w-0">
+                    {/* Platter Card */}
+                    <div className="bg-white rounded-[21px] border border-slate-200/90 shadow-sm p-[13px] space-y-[8px]">
+                      <div className="flex items-center justify-between pb-[5px]">
+                        <span className="font-heading font-black text-golden-sm text-slate-900 flex items-center gap-[5px]">
+                          <span>🍃 Plantain Leaf Platter</span>
+                        </span>
+                        <span className="text-golden-xs font-bold text-emerald-800 bg-emerald-100 px-[8px] py-[2px] rounded-full">
+                          {selectedCount} placed
+                        </span>
+                      </div>
+
+                      <PlantainLeafCanvas
+                        availableItems={data.items}
+                        selectedItemsMap={selectedItems}
+                        onToggleItem={toggleItem}
+                        showGhosts={true}
+                        className="rounded-[13px]"
+                      />
                     </div>
 
-                    <PlantainLeafCanvas
-                      availableItems={data.items}
-                      selectedItemsMap={selectedItems}
-                      onToggleItem={toggleItem}
-                      showGhosts={true}
-                    />
+                    {/* Auspicious Feast Ledger Card */}
+                    <div className="bg-white rounded-[21px] border border-slate-200/90 shadow-sm p-[16px] space-y-[13px]">
+                      <div className="flex items-center justify-between pb-[8px] border-b border-slate-100">
+                        <div>
+                          <span className="text-golden-xs text-slate-400 uppercase tracking-wider font-bold block">
+                            Base Rate Per Plate
+                          </span>
+                          <div className="flex items-baseline gap-[5px]">
+                            <span className="font-heading font-black text-golden-lg text-[var(--brand)]">
+                              {formatRupees(perPlateTotal)}
+                            </span>
+                            <span className="text-golden-xs text-slate-400 font-medium">/ plate</span>
+                          </div>
+                        </div>
+
+                        {selectedCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => clearItems()}
+                            className="text-golden-xs font-bold text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
+                          >
+                            Clear all
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Selected Items horizontal chips */}
+                      {selectedCount > 0 ? (
+                        <div className="space-y-[8px]">
+                          <div className="flex items-center justify-between text-golden-xs text-slate-500">
+                            <span>Placed on leaf ({selectedCount}):</span>
+                            <span className="font-bold text-slate-700">100 plates ≈ {formatRupees(perPlateTotal * 100)}</span>
+                          </div>
+                          <div className="flex gap-[5px] overflow-x-auto no-scrollbar py-1">
+                            {Object.values(selectedItems).map((it) => (
+                              <span
+                                key={it.id}
+                                className="px-[8px] py-[3px] rounded-full text-[10px] font-bold bg-amber-50 border border-amber-200 text-amber-900 whitespace-nowrap shrink-0 flex items-center gap-1"
+                              >
+                                <span>✓</span>
+                                <span>{it.name}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-golden-xs text-slate-400 text-center py-[8px]">
+                          Tap any dish on the left to serve it onto the fresh leaf
+                        </p>
+                      )}
+
+                      {/* Action buttons */}
+                      <div className="grid grid-cols-2 gap-[8px] pt-[5px]">
+                        <button
+                          type="button"
+                          onClick={() => setIsLeafModalOpen(true)}
+                          className="h-[38px] rounded-[10px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-golden-xs font-bold border border-emerald-200 transition-colors flex items-center justify-center gap-[5px] cursor-pointer"
+                        >
+                          <span>🍃 Expand Leaf</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsTastingModalOpen(true)}
+                          className="h-[38px] rounded-[10px] bg-amber-50 hover:bg-amber-100 text-amber-900 text-golden-xs font-bold border border-amber-200 transition-colors flex items-center justify-center gap-[5px] cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                          <span>Tasting Box</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* ==========================================================
-                  VIEW MODE C: SWIGGY / BLINKIT CATEGORY GRID VIEW
+                  VIEW MODE C: FULL MENU GRID (100% Full Width)
                   ========================================================== */}
               {viewMode === 'grid' && (
-                <>
+                <div className="w-full space-y-[21px] sm:space-y-[34px]">
                   {/* Search Results View */}
                   {filteredSearchItems !== null ? (
-                    <section className="space-y-3 pt-1">
+                    <section className="space-y-[13px]">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-heading font-black text-sm sm:text-base text-slate-800">
+                        <h3 className="font-heading font-black text-golden-sm sm:text-golden-base text-slate-800">
                           Found {filteredSearchItems.length} {filteredSearchItems.length === 1 ? 'dish' : 'dishes'} for &ldquo;{searchQuery}&rdquo;
                         </h3>
                         <button
                           type="button"
                           onClick={() => setSearchQuery('')}
-                          className="text-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
+                          className="text-golden-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
                         >
                           Clear search
                         </button>
                       </div>
 
                       {filteredSearchItems.length === 0 ? (
-                        <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-slate-200">
-                          <p className="text-sm font-semibold text-slate-700">No matching dishes found</p>
-                          <p className="text-xs text-slate-400 mt-1">Try searching for sweets, rice, rasam, or curries</p>
+                        <div className="p-[34px] text-center bg-white rounded-[21px] border border-dashed border-slate-200">
+                          <p className="text-golden-sm font-semibold text-slate-700">No matching dishes found</p>
+                          <p className="text-golden-xs text-slate-400 mt-1">Try searching for sweets, rice, rasam, or curries</p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-2 sm:gap-2.5 lg:gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-[8px] sm:gap-[13px]">
                           {filteredSearchItems.map((item) => (
                             <ItemCard key={item.id} item={item} />
                           ))}
@@ -599,22 +731,20 @@ export const CataloguePage: React.FC = () => {
                         <section
                           key={category.id}
                           id={`cat-section-${category.id}`}
-                          className="scroll-mt-32 space-y-2.5"
+                          className="scroll-mt-32 space-y-[13px]"
                         >
-                          {/* Category Title & Count */}
                           <ScrollReveal>
-                            <div className="flex items-center justify-between pt-1 border-b border-slate-200/60 pb-1.5">
-                              <h3 className="font-heading font-black text-sm sm:text-base lg:text-lg text-slate-800 tracking-tight flex items-center gap-2">
+                            <div className="flex items-center justify-between pt-[5px] border-b border-slate-200/60 pb-[8px]">
+                              <h3 className="font-heading font-black text-golden-base sm:text-golden-md lg:text-golden-lg text-slate-800 tracking-tight flex items-center gap-[8px]">
                                 <span>{category.name}</span>
-                                <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-sans">
+                                <span className="text-golden-xs font-bold text-slate-500 bg-slate-100 px-[8px] py-[2px] rounded-full font-sans">
                                   {categoryItems.length} {categoryItems.length === 1 ? 'item' : 'items'}
                                 </span>
                               </h3>
                             </div>
                           </ScrollReveal>
 
-                          {/* Multi-column dense responsive grid of ItemCards */}
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-2 sm:gap-2.5 lg:gap-3">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-[8px] sm:gap-[13px]">
                             {categoryItems.map((item, index) => {
                               const variants = getItemEntranceVariants(tier, index)
                               return (
@@ -633,7 +763,7 @@ export const CataloguePage: React.FC = () => {
                       )
                     })
                   )}
-                </>
+                </div>
               )}
 
             </main>
@@ -655,38 +785,36 @@ export const CataloguePage: React.FC = () => {
             )}
 
             {/* ==========================================================
-                5. STICKY BOTTOM BAR (Instamart / Zepto Style Floating Bar)
-                Elevated floating bar with bag icon, odometer, and Proceed button.
-                Sits alongside the bottom-left menu button without collision.
+                5. GOLDEN FLOATING BOTTOM BAR (61.8% / 38.2% SECTION)
                 ========================================================== */}
             <motion.nav
               aria-label="Order summary and checkout"
               key={bounceKey}
               animate={!isReduced && bounceKey > 0 ? { y: [0, -3, 0] } : undefined}
               transition={MOTION_SPRINGS.tap}
-              className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-4 md:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl z-40 pointer-events-auto rounded-2xl sm:rounded-[22px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.06)] px-3.5 sm:px-5 py-2.5 sm:py-3"
+              className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-[13px] sm:inset-x-[21px] lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-3xl z-40 pointer-events-auto rounded-[21px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_13px_34px_-5px_rgba(0,0,0,0.15),0_3px_13px_rgba(0,0,0,0.06)] p-[8px] sm:p-[13px]"
             >
-              <div className="w-full flex items-center justify-between gap-2.5 sm:gap-4">
-                {/* Left: Bag icon + 'N items selected' with Odometer */}
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+              <div className="w-full flex items-center justify-between gap-[13px] sm:gap-[21px]">
+                {/* Major Golden Section (61.8%): Bag icon + 'N items selected' with Odometer */}
+                <div className="flex items-center gap-[10px] sm:gap-[13px] min-w-0 flex-[1.618]">
+                  <div className={`w-[38px] h-[38px] sm:w-[44px] sm:h-[44px] rounded-[13px] flex items-center justify-center shrink-0 transition-colors ${
                     selectedCount > 0 
                       ? 'bg-[var(--brand)] text-white shadow-xs' 
                       : 'bg-slate-100 text-slate-400'
                   }`}>
-                    <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                    <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <div className="flex flex-col justify-center min-w-0">
-                    <div className="font-heading font-black text-xs sm:text-sm text-slate-900 flex items-center gap-1 leading-tight truncate">
+                    <div className="font-heading font-black text-golden-xs sm:text-golden-sm text-slate-900 flex items-center gap-1 leading-tight truncate">
                       <Odometer value={selectedCount} />
                       <span className="truncate">{selectedCount === 1 ? 'item' : 'items'} selected</span>
                       {selectedCount > 0 && (
-                        <span className="text-[11px] sm:text-xs font-bold text-[var(--brand)] shrink-0 ml-0.5">
+                        <span className="text-golden-xs font-bold text-[var(--brand)] shrink-0 ml-0.5">
                           • {formatRupees(perPlateTotal)}/pl
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight truncate mt-0.5">
+                    <span className="text-[10px] sm:text-golden-xs text-slate-500 font-medium leading-tight truncate mt-[2px]">
                       {selectedCount === 0
                         ? 'Select dishes to build feast'
                         : 'Custom quotation on next step'}
@@ -694,13 +822,13 @@ export const CataloguePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Right: Banana Leaf button & Proceed button */}
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                {/* Minor Golden Section (38.2%): Leaf button & Proceed button */}
+                <div className="flex items-center gap-[8px] shrink-0">
                   {selectedCount > 0 && (
                     <button
                       type="button"
                       onClick={() => setIsLeafModalOpen(true)}
-                      className="h-10 sm:h-11 px-2.5 sm:px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 active:scale-[0.97] text-emerald-800 font-bold text-xs flex items-center justify-center gap-1 sm:gap-1.5 border border-emerald-200 transition-colors shadow-2xs cursor-pointer shrink-0"
+                      className="h-[38px] sm:h-[44px] px-[10px] sm:px-[16px] rounded-[13px] bg-emerald-50 hover:bg-emerald-100 active:scale-[0.97] text-emerald-800 font-bold text-golden-xs flex items-center justify-center gap-[5px] border border-emerald-200 transition-colors shadow-2xs cursor-pointer shrink-0"
                       title="View feast arranged on traditional South Indian plantain leaf"
                     >
                       <span className="text-sm">🍃</span>
@@ -711,7 +839,7 @@ export const CataloguePage: React.FC = () => {
                   {selectedCount === 0 ? (
                     <button
                       disabled
-                      className="h-10 sm:h-11 px-3.5 sm:px-5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs sm:text-sm cursor-not-allowed select-none tap-target-48 flex items-center justify-center transition-colors text-center shrink-0 whitespace-nowrap"
+                      className="h-[38px] sm:h-[44px] px-[13px] sm:px-[21px] rounded-[13px] bg-slate-100 text-slate-400 font-bold text-golden-xs sm:text-golden-sm cursor-not-allowed select-none tap-target-48 flex items-center justify-center transition-colors text-center shrink-0 whitespace-nowrap"
                     >
                       Select at least one item
                     </button>
@@ -720,7 +848,7 @@ export const CataloguePage: React.FC = () => {
                       type="button"
                       id="proceed-to-request-btn"
                       onClick={() => navigate('/request')}
-                      className="h-10 sm:h-11 px-4 sm:px-6 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.97] text-white font-heading font-black text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-1.5 shadow-md tap-target-48 transition-all select-none cursor-pointer shrink-0 whitespace-nowrap"
+                      className="h-[38px] sm:h-[44px] px-[16px] sm:px-[26px] rounded-[13px] bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.97] text-white font-heading font-black text-golden-xs sm:text-golden-sm flex items-center justify-center gap-[5px] shadow-md tap-target-48 transition-all select-none cursor-pointer shrink-0 whitespace-nowrap"
                     >
                       <span>Proceed</span>
                       <ChevronRight className="w-4 h-4 stroke-[3]" />

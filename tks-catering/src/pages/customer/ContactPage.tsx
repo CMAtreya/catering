@@ -229,13 +229,10 @@ export const ContactPage: React.FC = () => {
         </div>
 
         {/* ==========================================================
-            MAIN CONTENT AREA
-            - Red error banner if submission failed (gentle shake on retry)
-            - Solid Card with exactly 2 fields: Name & Mobile
-            - Read-only Accordion 'Request summary'
+            MAIN CONTENT AREA: GOLDEN RATIO (61.8% / 38.2%) LAYOUT
             ========================================================== */}
         <PageTransition direction="forward">
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-6 pb-36 space-y-6">
+          <main className="flex-1 px-[13px] sm:px-[21px] md:px-[34px] lg:px-[55px] w-full pt-[21px] pb-[144px] space-y-[21px]">
             
             {/* Desktop Section Header */}
             <div className="hidden lg:block pb-2 border-b border-slate-200/60">
@@ -277,11 +274,11 @@ export const ContactPage: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Responsive 2-column layout on desktop, stacked on mobile */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          {/* Golden Section 2-column layout on desktop: 61.8% / 38.2% */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1.618fr_1fr] gap-[21px] lg:gap-[34px] items-start">
             
-            {/* Left Column (lg:col-span-6): Contact information */}
-            <div className="lg:col-span-6 space-y-4">
+            {/* Major Golden Section (61.8%): Contact information */}
+            <div className="w-full space-y-[21px] min-w-0">
               {/* SOLID CARD: Exactly two fields */}
               <motion.div
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
@@ -386,8 +383,8 @@ export const ContactPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Column (lg:col-span-6): Request summary */}
-            <div className="lg:col-span-6 space-y-4">
+            {/* Minor Golden Section (38.2%): Request summary */}
+            <div className="w-full space-y-[21px] min-w-0 lg:sticky lg:top-[21px]">
               {/* ==========================================================
                   COLLAPSED, READ-ONLY ACCORDION: 'Request summary'
                   Shows what will be submitted (items, occasion, date, plates,

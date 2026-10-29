@@ -1,5 +1,6 @@
 @import "./styles/theme.css";
 @import "./styles/glass.css";
+@import "./styles/goldenRatio.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 

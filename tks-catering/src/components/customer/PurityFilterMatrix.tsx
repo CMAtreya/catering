@@ -23,9 +23,9 @@ export const PurityFilterMatrix: React.FC<PurityFilterMatrixProps> = ({
   ]
 
   return (
-    <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-1 -mx-3 px-3 sm:mx-0 sm:px-0 select-none">
-      <div className="hidden lg:flex items-center gap-1 pr-2 border-r border-slate-200/80 text-[11px] font-bold text-slate-500 shrink-0">
-        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+    <div className="flex items-center gap-[8px] sm:gap-[13px] overflow-x-auto no-scrollbar py-[5px] -mx-3 px-3 sm:mx-0 sm:px-0 select-none">
+      <div className="hidden lg:flex items-center gap-[5px] pr-[13px] border-r border-slate-200/80 text-golden-xs font-bold text-slate-500 shrink-0">
+        <ShieldCheck className="w-4 h-4 text-emerald-600" />
         <span>Purity Matrix:</span>
       </div>
 
@@ -36,7 +36,7 @@ export const PurityFilterMatrix: React.FC<PurityFilterMatrixProps> = ({
             key={f.id}
             type="button"
             onClick={() => onSelectFilter(f.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer tap-target-48 sm:tap-target-auto ${
+            className={`px-[13px] py-[8px] rounded-full text-golden-xs sm:text-golden-sm font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-[5px] cursor-pointer tap-target-48 sm:tap-target-auto ${
               isActive
                 ? 'bg-[var(--brand)] text-white shadow-xs ring-2 ring-[var(--brand)]/20'
                 : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80'
@@ -45,7 +45,7 @@ export const PurityFilterMatrix: React.FC<PurityFilterMatrixProps> = ({
             <span>{f.icon}</span>
             <span>{f.label}</span>
             {f.countDesc && (
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              <span className={`text-[10px] px-[8px] py-[2px] rounded-full font-bold ${
                 isActive ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
               }`}>
                 {f.countDesc}

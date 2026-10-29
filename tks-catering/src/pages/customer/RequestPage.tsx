@@ -233,18 +233,18 @@ export const RequestPage: React.FC = () => {
         </div>
 
         {/* ==========================================================
-            MAIN CONTENT AREA: 2-COLUMN RESPONSIVE LAYOUT ON DESKTOP
-            Left (lg:col-span-7): Event Details Form
-            Right (lg:col-span-5): Booking Ticket, Selected Items, Bill
+            MAIN CONTENT AREA: GOLDEN RATIO (61.8% / 38.2%) LAYOUT
+            Left (61.8%): Event Details Form & Preparations
+            Right (38.2%): Royal Mysore Ticket & Live Ledger
             ========================================================== */}
         <PageTransition direction="forward">
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-6 pb-36">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          <main className="flex-1 px-[13px] sm:px-[21px] md:px-[34px] lg:px-[55px] w-full pt-[21px] pb-[144px]">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.618fr_1fr] gap-[21px] lg:gap-[34px] items-start">
               
               {/* ========================================================
-                  LEFT COLUMN: Event Details Form (Card 2)
+                  MAJOR GOLDEN SECTION (61.8%): Event Details Form
                   ======================================================== */}
-              <div className="lg:col-span-7 space-y-6 order-1">
+              <div className="w-full space-y-[21px] order-1 min-w-0">
                 {/* On mobile: TicketCard on top */}
                 <div className="lg:hidden">
                   <TicketCard
@@ -657,9 +657,9 @@ export const RequestPage: React.FC = () => {
             </div>
 
               {/* ========================================================
-                  RIGHT COLUMN: Ticket, Selected Items & Bill Breakdown
+                  MINOR GOLDEN SECTION (38.2%): Ticket & Bill Breakdown
                   ======================================================== */}
-              <div className="lg:col-span-5 space-y-5 order-2 lg:sticky lg:top-24">
+              <div className="w-full space-y-[21px] order-2 lg:sticky lg:top-[21px] min-w-0">
                 
                 {/* 1. Desktop Ticket Card */}
                 <div className="hidden lg:block">

@@ -1,0 +1,145 @@
+/* ==========================================================
+   SACRED GEOMETRY & GOLDEN RATIO (Φ = 1.6180339887) DESIGN TOKENS
+   Governs layout, typography, proportions, and Fibonacci spacing
+   across the TKS Iyengars customer catering experience.
+   ========================================================== */
+
+:root {
+  /* Divine Proportions */
+  --phi: 1.6180339887;
+  --phi-inv: 0.6180339887;
+  --phi-sq: 2.6180339887;
+
+  /* Major & Minor Golden Section Percentages */
+  --phi-major-pct: 61.803%;
+  --phi-minor-pct: 38.197%;
+
+  /* Fibonacci Spacing & Dimension Scale */
+  --fib-1: 3px;
+  --fib-2: 5px;
+  --fib-3: 8px;
+  --fib-4: 13px;
+  --fib-5: 21px;
+  --fib-6: 34px;
+  --fib-7: 55px;
+  --fib-8: 89px;
+  --fib-9: 144px;
+  --fib-10: 233px;
+
+  /* Fibonacci Border Radii */
+  --radius-fib-sm: 8px;
+  --radius-fib-md: 13px;
+  --radius-fib-lg: 21px;
+  --radius-fib-xl: 34px;
+}
+
+/* ==========================================================
+   GOLDEN RATIO TYPOGRAPHY SCALE (Fibonacci Font + Line-Height)
+   Each font size paired with its exact Φ line-height
+   ========================================================== */
+.text-golden-xs {
+  font-size: 10px;
+  line-height: 16px;
+}
+
+.text-golden-sm {
+  font-size: 13px;
+  line-height: 21px;
+}
+
+.text-golden-base {
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.text-golden-md {
+  font-size: 21px;
+  line-height: 34px;
+}
+
+.text-golden-lg {
+  font-size: 26px;
+  line-height: 42px;
+}
+
+.text-golden-xl {
+  font-size: 34px;
+  line-height: 55px;
+}
+
+.text-golden-2xl {
+  font-size: 42px;
+  line-height: 68px;
+}
+
+.text-golden-3xl {
+  font-size: 55px;
+  line-height: 89px;
+}
+
+/* ==========================================================
+   GOLDEN RECTANGLE ASPECT RATIOS (1.618 : 1 & 1 : 1.618)
+   ========================================================== */
+.aspect-golden-h {
+  aspect-ratio: 1.618 / 1;
+}
+
+.aspect-golden-v {
+  aspect-ratio: 1 / 1.618;
+}
+
+/* Golden Dish Card Aspect Ratio: 1 : 1.382 (Fibonacci 13:18) */
+.aspect-golden-card {
+  aspect-ratio: 1 / 1.382;
+}
+
+/* ==========================================================
+   GOLDEN RATIO LAYOUT GRIDS
+   Split screens dynamically proportioned to 61.8% and 38.2%
+   ========================================================== */
+.golden-grid-desktop {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fib-6);
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .golden-grid-desktop {
+    grid-template-columns: 1.618fr 1fr;
+    gap: var(--fib-6);
+    align-items: start;
+  }
+}
+
+.golden-section-major {
+  width: 100%;
+  min-width: 0;
+}
+
+.golden-section-minor {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .golden-sticky-rail {
+    position: sticky;
+    top: var(--fib-5);
+  }
+}
+
+/* Fibonacci Card Elevation & Framing */
+.golden-card {
+  border-radius: var(--radius-fib-lg);
+  padding: var(--fib-5);
+  box-shadow: 0 4px 21px -4px rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.03);
+  transition: all 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.golden-card-compact {
+  border-radius: var(--radius-fib-md);
+  padding: var(--fib-4);
+  box-shadow: 0 2px 13px -3px rgba(0, 0, 0, 0.04);
+}
+
