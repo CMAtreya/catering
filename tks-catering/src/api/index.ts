@@ -563,6 +563,25 @@ export async function deleteCategory(
   }
 }
 
+export const DEFAULT_DISH_IMAGE = '/default-dish.svg'
+
+export const CATEGORY_DEFAULT_EMOJIS: Record<string, string> = {
+  'Rice & Rice Dishes': '🍚',
+  'Curries & Gravies': '🥘',
+  'Sweets & Desserts': '🍯',
+  'Tiffins & Breakfast': '🥞',
+  'Beverages': '☕',
+  'Rasam & Soups': '🫖',
+  'Savouries & Snacks': '🥟',
+  'Accompaniments': '🥗',
+  'Special Items': '✨'
+}
+
+export function getDefaultEmoji(category?: string): string {
+  if (!category) return '🍲'
+  return CATEGORY_DEFAULT_EMOJIS[category] || '🍲'
+}
+
 /**
  * 15. Save or Edit Menu Item
  */
@@ -570,14 +589,20 @@ export async function saveItem(
   itemData: Partial<MenuItem> & { name: string; pricePerPlate: number; category: string }
 ): Promise<MenuItem[]> {
   await delay(200)
+  const defaultImg = DEFAULT_DISH_IMAGE
+  const defaultEmo = getDefaultEmoji(itemData.category)
+
   if (itemData.id) {
     const idx = itemsStore.findIndex((i) => i.id === itemData.id)
     if (idx !== -1) {
+      const existing = itemsStore[idx]
       itemsStore[idx] = {
-        ...itemsStore[idx],
+        ...existing,
         ...itemData,
         name: itemData.name.trim(),
-        pricePerPlate: Number(itemData.pricePerPlate)
+        pricePerPlate: Number(itemData.pricePerPlate),
+        image: itemData.image && itemData.image.trim() !== '' ? itemData.image : existing.image || defaultImg,
+        emoji: itemData.emoji || existing.emoji || defaultEmo
       } as MenuItem
       persistMenuItems()
       return [...itemsStore]
@@ -589,9 +614,9 @@ export async function saveItem(
     name: itemData.name.trim(),
     pricePerPlate: Number(itemData.pricePerPlate),
     category: itemData.category,
-    image: itemData.image || '',
+    image: itemData.image && itemData.image.trim() !== '' ? itemData.image : defaultImg,
     gradient: itemData.gradient || 'from-amber-100 to-yellow-200',
-    emoji: itemData.emoji || '🍽️',
+    emoji: itemData.emoji || defaultEmo,
     available: itemData.available !== undefined ? itemData.available : true
   }
 

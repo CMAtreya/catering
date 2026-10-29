@@ -487,9 +487,12 @@ export const CataloguePage: React.FC = () => {
                             }`}
                           >
                             <img
-                              src={item.image}
+                              src={item.image || '/default-dish.svg'}
                               alt={item.name}
                               className="w-9 h-9 rounded-lg object-cover shrink-0"
+                              onError={(e) => {
+                                ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
+                              }}
                             />
                             <div className="min-w-0 flex-1">
                               <p className="text-xs font-bold text-slate-800 truncate">{item.name}</p>

@@ -32,7 +32,9 @@ import {
   saveItem, 
   toggleItemAvailability, 
   moveItem, 
-  deleteItem 
+  deleteItem,
+  DEFAULT_DISH_IMAGE,
+  getDefaultEmoji
 } from '@/api'
 import type { Category, MenuItem } from '@/data/mockData'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
@@ -128,6 +130,7 @@ export const AdminMenuPage: React.FC = () => {
   const [itemPrice, setItemPrice] = useState<string>('')
   const [itemCategory, setItemCategory] = useState<string>('')
   const [itemImage, setItemImage] = useState<string>('')
+  const [itemEmoji, setItemEmoji] = useState<string>('🍲')
   const [itemAvailable, setItemAvailable] = useState<boolean>(true)
   const [isCompressingImage, setIsCompressingImage] = useState<boolean>(false)
   const [isSavingItem, setIsSavingItem] = useState<boolean>(false)
@@ -360,11 +363,13 @@ export const AdminMenuPage: React.FC = () => {
   // ITEM ACTIONS (Add / Edit / Delete / Toggle / Move)
   // ==========================================================
   const handleOpenAddItem = (defaultCatName?: string) => {
+    const defaultCat = defaultCatName || (categories[0] ? categories[0].name : '')
     setEditingItem(null)
     setItemName('')
     setItemPrice('')
-    setItemCategory(defaultCatName || (categories[0] ? categories[0].name : ''))
-    setItemImage('')
+    setItemCategory(defaultCat)
+    setItemImage(DEFAULT_DISH_IMAGE) // Default dish icon immediately set for any new item!
+    setItemEmoji(getDefaultEmoji(defaultCat))
     setItemAvailable(true)
     setIsItemSheetOpen(true)
   }
@@ -374,7 +379,8 @@ export const AdminMenuPage: React.FC = () => {
     setItemName(item.name)
     setItemPrice(String(item.pricePerPlate))
     setItemCategory(item.category)
-    setItemImage(item.image || '')
+    setItemImage(item.image || DEFAULT_DISH_IMAGE)
+    setItemEmoji(item.emoji || getDefaultEmoji(item.category))
     setItemAvailable(item.available)
     setIsItemSheetOpen(true)
   }
@@ -406,9 +412,9 @@ export const AdminMenuPage: React.FC = () => {
   }
 
   const handleRemoveImage = () => {
-    setItemImage('')
+    setItemImage(DEFAULT_DISH_IMAGE)
     if (fileInputRef.current) fileInputRef.current.value = ''
-    toast.info('Image removed. Reverted to dish emblem.')
+    toast.info('Reverted to default dish emblem icon')
   }
 
   // Save Item Handler
@@ -437,7 +443,8 @@ export const AdminMenuPage: React.FC = () => {
         name: cleanName,
         pricePerPlate: numericPrice,
         category: itemCategory,
-        image: itemImage,
+        image: itemImage.trim() || DEFAULT_DISH_IMAGE,
+        emoji: itemEmoji || getDefaultEmoji(itemCategory),
         available: itemAvailable
       })
 
@@ -614,7 +621,13 @@ export const AdminMenuPage: React.FC = () => {
         <select
           id="item-category"
           value={itemCategory}
-          onChange={(e) => setItemCategory(e.target.value)}
+          onChange={(e) => {
+            const nextCat = e.target.value
+            setItemCategory(nextCat)
+            if (!itemImage || itemImage === DEFAULT_DISH_IMAGE) {
+              setItemEmoji(getDefaultEmoji(nextCat))
+            }
+          }}
           className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-[var(--brand-300)]"
           required
         >
@@ -626,29 +639,31 @@ export const AdminMenuPage: React.FC = () => {
         </select>
       </div>
 
-      {/* Image (choose or photo, preview, compress, replace and remove) */}
+      {/* Image & Icon (Default dish icon assigned automatically, optional custom photo upload) */}
       <div className="space-y-2 pt-1">
-        <label className="text-xs font-bold text-slate-700 block">
-          Dish Photo
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-slate-700 block">
+            Dish Icon / Photo
+          </label>
+          <span className="text-[11px] font-semibold text-slate-500">
+            {itemImage && itemImage !== DEFAULT_DISH_IMAGE ? 'Custom Photo Uploaded' : 'Default Icon Active'}
+          </span>
+        </div>
 
         <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-center gap-4">
           {/* Image Preview Box */}
           <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-2xs flex items-center justify-center shrink-0">
-            {itemImage ? (
-              <img
-                src={itemImage}
-                alt="Dish preview"
-                width="80"
-                height="80"
-                decoding="async"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-3xl select-none">
-                {editingItem?.emoji || '🍽️'}
-              </span>
-            )}
+            <img
+              src={itemImage || DEFAULT_DISH_IMAGE}
+              alt="Dish preview"
+              width="80"
+              height="80"
+              decoding="async"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                ;(e.currentTarget as HTMLImageElement).src = DEFAULT_DISH_IMAGE
+              }}
+            />
             {isCompressingImage && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-xs flex items-center justify-center">
                 <RefreshCw className="w-5 h-5 text-[var(--brand)] animate-spin" />
@@ -657,9 +672,11 @@ export const AdminMenuPage: React.FC = () => {
           </div>
 
           {/* Upload & Actions */}
-          <div className="flex-1 space-y-2 text-center sm:text-left">
+          <div className="flex-1 space-y-2 text-center sm:text-left min-w-0">
             <p className="text-xs text-slate-600 font-medium">
-              Upload or snap a photo. Compressed automatically in browser for speed.
+              {itemImage && itemImage !== DEFAULT_DISH_IMAGE 
+                ? 'Custom photo attached. Automatically compressed for high performance.' 
+                : 'Default royal banquet dish emblem is assigned. You can also upload a custom photo.'}
             </p>
 
             <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
@@ -672,34 +689,60 @@ export const AdminMenuPage: React.FC = () => {
                 id="dish-photo-file"
               />
 
-              {itemImage ? (
-                <>
-                  <label
-                    htmlFor="dish-photo-file"
-                    className="px-3 py-1.5 rounded-full bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
-                  >
-                    <Camera className="w-3.5 h-3.5" />
-                    <span>Replace</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-200 inline-flex items-center gap-1.5"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                    <span>Remove</span>
-                  </button>
-                </>
-              ) : (
-                <label
-                  htmlFor="dish-photo-file"
-                  className="px-4 py-2 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-bold text-xs shadow-xs cursor-pointer inline-flex items-center gap-1.5 active:scale-95 transition-all"
+              <label
+                htmlFor="dish-photo-file"
+                className="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 shadow-2xs cursor-pointer inline-flex items-center gap-1.5 active:scale-95 transition-all"
+              >
+                <Camera className="w-3.5 h-3.5 text-[var(--brand)]" />
+                <span>{itemImage && itemImage !== DEFAULT_DISH_IMAGE ? 'Replace Photo' : 'Upload Custom Photo'}</span>
+              </label>
+
+              {itemImage && itemImage !== DEFAULT_DISH_IMAGE && (
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-200 inline-flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
                 >
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Choose photo / Take snapshot</span>
-                </label>
+                  <X className="w-3.5 h-3.5" />
+                  <span>Reset to Default Icon</span>
+                </button>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Quick Food Emblem Presets */}
+        <div className="space-y-1.5 pt-1">
+          <span className="text-[11px] font-bold text-slate-500 block">
+            Category Emblem:
+          </span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {[
+              { emoji: '🍲', label: 'Thali' },
+              { emoji: '🍚', label: 'Rice' },
+              { emoji: '🥞', label: 'Tiffin' },
+              { emoji: '🍯', label: 'Sweet' },
+              { emoji: '☕', label: 'Drink' },
+              { emoji: '🥟', label: 'Snack' },
+              { emoji: '🥘', label: 'Curry' },
+              { emoji: '🫖', label: 'Rasam' },
+            ].map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => {
+                  setItemEmoji(preset.emoji)
+                }}
+                className={`px-2 py-0.5 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 cursor-pointer ${
+                  itemEmoji === preset.emoji
+                    ? 'bg-amber-100 text-amber-900 border-amber-400 ring-1 ring-amber-400 shadow-2xs'
+                    : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                }`}
+              >
+                <span>{preset.emoji}</span>
+                <span className="text-[10px]">{preset.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -1151,21 +1194,18 @@ export const AdminMenuPage: React.FC = () => {
                                     {/* Left: Thumbnail & Details */}
                                     <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                                       <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100 border border-slate-200 shrink-0 flex items-center justify-center">
-                                        {item.image ? (
-                                          <img
-                                            src={item.image}
-                                            alt={item.name}
-                                            width="56"
-                                            height="56"
-                                            decoding="async"
-                                            className="w-full h-full object-cover"
-                                            loading="lazy"
-                                          />
-                                        ) : (
-                                          <span className="text-2xl select-none">
-                                            {item.emoji || '🍛'}
-                                          </span>
-                                        )}
+                                        <img
+                                          src={item.image || DEFAULT_DISH_IMAGE}
+                                          alt={item.name}
+                                          width="56"
+                                          height="56"
+                                          decoding="async"
+                                          className="w-full h-full object-cover"
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            ;(e.currentTarget as HTMLImageElement).src = DEFAULT_DISH_IMAGE
+                                          }}
+                                        />
                                       </div>
 
                                       <div className="min-w-0 space-y-0.5">

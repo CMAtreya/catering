@@ -701,11 +701,16 @@ export const RequestPage: React.FC = () => {
                               src={item.image}
                               alt={item.name}
                               className="w-8 h-8 rounded-lg object-cover shrink-0 border border-slate-200"
+                              onError={(e) => {
+                                ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
+                              }}
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
-                              🍲
-                            </div>
+                            <img
+                              src="/default-dish.svg"
+                              alt={item.name}
+                              className="w-8 h-8 rounded-lg object-cover shrink-0 border border-slate-200"
+                            />
                           )}
                           <div className="min-w-0">
                             <span className="font-bold text-slate-800 leading-tight block truncate">

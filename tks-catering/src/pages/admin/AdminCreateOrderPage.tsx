@@ -513,9 +513,16 @@ export const AdminCreateOrderPage: React.FC = () => {
                 <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden bg-slate-50/50">
                   {selectedItemsList.map((item) => (
                     <div key={item.id} className="p-2.5 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base select-none">{item.emoji || '🍽️'}</span>
-                        <span className="font-bold text-[var(--text-primary)]">{item.name}</span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <img
+                          src={item.image || '/default-dish.svg'}
+                          alt=""
+                          className="w-5 h-5 rounded-md object-cover shrink-0"
+                          onError={(e) => {
+                            ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
+                          }}
+                        />
+                        <span className="font-bold text-[var(--text-primary)] truncate">{item.name}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-slate-600">

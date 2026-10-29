@@ -84,10 +84,13 @@ export const Mock3DPlatedDish: React.FC<Mock3DPlatedDishProps> = ({
             {/* Inner Metallic Bowl Rim */}
             <div className="w-full h-full rounded-full overflow-hidden relative shadow-[inset_0_2px_5px_rgba(0,0,0,0.8)] border border-amber-800/40 bg-amber-950">
               <img
-                src={item.image || '/logo-128.webp'}
+                src={item.image || '/default-dish.svg'}
                 alt={item.name}
                 className="w-full h-full object-cover rounded-full"
                 loading="eager"
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
+                }}
               />
               {/* Liquid Gloss Specular Highlight */}
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/25 to-transparent pointer-events-none rounded-full" />
@@ -106,10 +109,13 @@ export const Mock3DPlatedDish: React.FC<Mock3DPlatedDishProps> = ({
           <div className="relative w-13 h-13 sm:w-16 sm:h-16 rounded-full p-0.5 bg-gradient-to-b from-amber-100/40 to-black/20 shadow-[0_8px_16px_rgba(0,0,0,0.55)] transition-transform duration-200 group-hover:scale-110 group-hover:-translate-y-1">
             <div className="w-full h-full rounded-full overflow-hidden relative border-2 border-amber-200/40 shadow-inner bg-stone-900">
               <img
-                src={item.image || '/logo-128.webp'}
+                src={item.image || '/default-dish.svg'}
                 alt={item.name}
                 className="w-full h-full object-cover rounded-full"
                 loading="eager"
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
+                }}
               />
               {/* 3D Spherical Glistening Dome Layer */}
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_30%,rgba(255,255,255,0.4)_0%,transparent_60%)] pointer-events-none rounded-full" />
@@ -128,10 +134,13 @@ export const Mock3DPlatedDish: React.FC<Mock3DPlatedDishProps> = ({
           <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl p-0.5 shadow-[0_7px_15px_rgba(0,0,0,0.5)] transition-transform duration-200 group-hover:scale-110 group-hover:-translate-y-1">
             <div className="w-full h-full rounded-xl sm:rounded-2xl overflow-hidden relative border border-white/50 shadow-sm bg-stone-900">
               <img
-                src={item.image || '/logo-128.webp'}
+                src={item.image || '/default-dish.svg'}
                 alt={item.name}
                 className="w-full h-full object-cover"
                 loading="eager"
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
+                }}
               />
               {/* Crisp Rim Light */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/20 pointer-events-none" />
@@ -146,10 +155,13 @@ export const Mock3DPlatedDish: React.FC<Mock3DPlatedDishProps> = ({
           <div className="relative w-11 h-14 sm:w-13 sm:h-16 rounded-b-xl p-[2.5px] bg-gradient-to-b from-yellow-300 via-amber-500 to-amber-700 shadow-[0_8px_16px_rgba(0,0,0,0.6)] border border-amber-200 transition-transform duration-200 group-hover:scale-110 group-hover:-translate-y-1">
             <div className="w-full h-full rounded-b-lg overflow-hidden relative shadow-inner bg-amber-950 flex flex-col justify-end">
               <img
-                src={item.image || '/logo-128.webp'}
+                src={item.image || '/default-dish.svg'}
                 alt={item.name}
                 className="w-full h-full object-cover"
                 loading="eager"
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
+                }}
               />
               {/* Frothy Head Overlay */}
               <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-amber-100/70 to-transparent pointer-events-none" />

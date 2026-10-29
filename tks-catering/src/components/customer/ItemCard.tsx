@@ -131,18 +131,24 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             decoding="async"
             loading="lazy"
             onLoad={() => setImageLoaded(true)}
+            onError={(e) => {
+              ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
+              setImageLoaded(true)
+            }}
             className={`w-full h-full object-cover transition-transform duration-300 ease-out ${
               isFull ? 'group-hover:scale-108' : ''
             } ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           />
         ) : (
-          /* Offline Gradient + Emoji Fallback */
+          /* Default Dish Icon Fallback */
           <div
-            className={`w-full h-full bg-gradient-to-br ${item.gradient} flex items-center justify-center text-3xl select-none`}
+            className={`w-full h-full bg-gradient-to-br ${item.gradient || 'from-amber-50 to-orange-100'} flex items-center justify-center p-4 select-none`}
           >
-            <span role="img" aria-label={item.name}>
-              {item.emoji}
-            </span>
+            <img
+              src="/default-dish.svg"
+              alt={item.name}
+              className="w-16 h-16 object-contain"
+            />
           </div>
         )}
 
