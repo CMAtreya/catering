@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { 
   Plus, 
@@ -103,52 +103,8 @@ export const AdminDashboardPage: React.FC = () => {
   const newRequestsCount = newRequests.length
   const activeOrdersCount = activeOrders.length
 
-  // Tab state to separate New Requests and Active Orders: 'new' | 'active' | 'split'
-  const [activeQueueTab, setActiveQueueTab] = useState<'new' | 'active' | 'split'>('new')
-
-  // Ref and height measurement to ensure the Order Queue card ends at the EXACT same bottom as the Calendar card
-  const calendarContainerRef = useRef<HTMLDivElement>(null)
-  const [calendarHeight, setCalendarHeight] = useState<number | undefined>(undefined)
-  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
-    typeof window !== 'undefined' ? window.innerWidth >= 1024 : true
-  )
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 1024)
-    }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  useEffect(() => {
-    if (!calendarContainerRef.current) return
-
-    const updateHeight = () => {
-      if (calendarContainerRef.current) {
-        const rect = calendarContainerRef.current.getBoundingClientRect()
-        if (rect.height > 0) {
-          setCalendarHeight(Math.round(rect.height))
-        }
-      }
-    }
-
-    updateHeight()
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === calendarContainerRef.current) {
-          const h = Math.round(entry.target.getBoundingClientRect().height)
-          if (h > 0) {
-            setCalendarHeight(h)
-          }
-        }
-      }
-    })
-
-    observer.observe(calendarContainerRef.current)
-    return () => observer.disconnect()
-  }, [orders, isLoading])
+  // Tab state to separate New Requests and Active Orders below the calendar: 'split' | 'new' | 'active'
+  const [activeQueueTab, setActiveQueueTab] = useState<'split' | 'new' | 'active'>('split')
 
   const handleConfirmOrder = async (orderId: string) => {
     try {
@@ -342,40 +298,71 @@ export const AdminDashboardPage: React.FC = () => {
         )}
 
         {/* ======================================================== */}
-        {/* 3, 4 & 5. DASHBOARD LAYOUT: TWO COLUMNS FROM 1024px       */}
-        {/* Left (7 cols): Calendar Card + Selected Date Panel       */}
-        {/* Right (5 cols): Separated & Scrollable Order Queues Card  */}
-        {/* Both columns strictly end at the exact same baseline!     */}
+        {/* 3. CATERING SCHEDULE CALENDAR (Full-Width Flagship Card)  */}
         {/* ======================================================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
-          
-          {/* Column 1 (Left, 7 cols on 1024px+): Calendar Card */}
-          <div ref={calendarContainerRef} className="col-span-12 lg:col-span-7 min-w-0">
-            {isLoading ? (
-              <CalendarSkeleton />
-            ) : (
-              <CalendarCard orders={orders} />
-            )}
-          </div>
+        <div className="w-full min-w-0">
+          {isLoading ? (
+            <CalendarSkeleton />
+          ) : (
+            <CalendarCard orders={orders} />
+          )}
+        </div>
 
-          {/* Column 2 (Right, 5 cols on 1024px+): Separated Orders with Scroll */}
-          <div 
-            className="col-span-12 lg:col-span-5 min-w-0 flex flex-col"
-            style={{
-              height: isDesktop && calendarHeight ? `${calendarHeight}px` : undefined,
-              maxHeight: isDesktop && calendarHeight ? `${calendarHeight}px` : undefined
-            }}
-          >
-            <div className="content-card bg-white border border-slate-200/80 rounded-[24px] shadow-sm overflow-hidden flex flex-col h-full min-h-0 max-lg:max-h-[580px]">
+        {/* ======================================================== */}
+        {/* 4 & 5. ORDER QUEUES SECTION: PLACED DIRECTLY BELOW CALENDAR*/}
+        {/* Separated New Requests & Active Orders with Scroll        */}
+        {/* ======================================================== */}
+        <div className="w-full min-w-0">
+          <div className="content-card bg-white border border-slate-200/80 rounded-[24px] shadow-sm overflow-hidden flex flex-col h-[520px]">
+            
+            {/* Header: Title, Segmented Tabs & CRM Link */}
+            <div className="p-3.5 sm:p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 bg-white">
               
-              {/* Header: Segmented Tabs & CRM Link */}
-              <div className="p-3 sm:p-4 border-b border-slate-100 flex items-center justify-between gap-2 shrink-0 bg-white">
+              {/* Title & Icon */}
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0">
+                  <Layers className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-black text-sm sm:text-base text-[var(--brand-900)] leading-tight">
+                    Order Queues & Enquiries
+                  </h3>
+                  <p className="text-[11px] text-[var(--text-muted)] font-medium">
+                    Live customer bookings & confirmed banquets
+                  </p>
+                </div>
+              </div>
+
+              {/* Segmented Tabs & Action */}
+              <div className="flex items-center justify-between sm:justify-end gap-3 flex-wrap">
                 <div 
                   role="tablist" 
                   aria-label="Order queues navigation"
                   className="flex items-center p-1 bg-slate-100/90 rounded-xl border border-slate-200/60"
                 >
-                  {/* Tab 1: New Requests */}
+                  {/* Tab 1: Side-by-Side (Both Queues) */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="tab-split-view"
+                    aria-selected={activeQueueTab === 'split'}
+                    aria-controls="panel-split-view"
+                    onClick={() => setActiveQueueTab('split')}
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      activeQueueTab === 'split'
+                        ? 'bg-white text-[var(--brand-900)] shadow-xs'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                    title="View both queues side-by-side"
+                  >
+                    <Layers className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Side-by-Side</span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                      {newRequestsCount + activeOrdersCount}
+                    </span>
+                  </button>
+
+                  {/* Tab 2: New Requests */}
                   <button
                     type="button"
                     role="tab"
@@ -402,7 +389,7 @@ export const AdminDashboardPage: React.FC = () => {
                     )}
                   </button>
 
-                  {/* Tab 2: Active Orders */}
+                  {/* Tab 3: Active Orders */}
                   <button
                     type="button"
                     role="tab"
@@ -428,25 +415,6 @@ export const AdminDashboardPage: React.FC = () => {
                       </span>
                     )}
                   </button>
-
-                  {/* Tab 3: Split / Both View */}
-                  <button
-                    type="button"
-                    role="tab"
-                    id="tab-split-view"
-                    aria-selected={activeQueueTab === 'split'}
-                    aria-controls="panel-split-view"
-                    onClick={() => setActiveQueueTab('split')}
-                    className={`hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      activeQueueTab === 'split'
-                        ? 'bg-white text-[var(--brand-900)] shadow-xs'
-                        : 'text-slate-500 hover:text-slate-900'
-                    }`}
-                    title="View both queues stacked"
-                  >
-                    <Layers className="w-3 h-3 text-slate-400" />
-                    <span>Both</span>
-                  </button>
                 </div>
 
                 {/* View all link */}
@@ -465,188 +433,201 @@ export const AdminDashboardPage: React.FC = () => {
                 </Link>
               </div>
 
-              {/* Scrollable Body: Internal scroll ending at Calendar baseline */}
-              <div 
-                id={
-                  activeQueueTab === 'new' 
-                    ? 'panel-new-requests' 
-                    : activeQueueTab === 'active' 
-                    ? 'panel-active-orders' 
-                    : 'panel-split-view'
-                }
-                role="tabpanel"
-                tabIndex={0}
-                className="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-4.5 space-y-3.5 custom-scrollbar focus:outline-none"
-              >
-                {isLoading ? (
+            </div>
+
+            {/* Scrollable Body: Smooth internal scroll inside bounded card */}
+            <div 
+              id={
+                activeQueueTab === 'split'
+                  ? 'panel-split-view'
+                  : activeQueueTab === 'new' 
+                  ? 'panel-new-requests' 
+                  : 'panel-active-orders'
+              }
+              role="tabpanel"
+              tabIndex={0}
+              className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 custom-scrollbar focus:outline-none"
+            >
+              {isLoading ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <Shimmer className="h-32 rounded-[20px]" />
                     <Shimmer className="h-32 rounded-[20px]" />
+                  </div>
+                  <div className="space-y-3">
+                    <Shimmer className="h-32 rounded-[20px]" />
                     <Shimmer className="h-32 rounded-[20px]" />
                   </div>
-                ) : activeQueueTab === 'new' ? (
-                  /* TAB 1: NEW REQUESTS ONLY */
-                  newRequests.length > 0 ? (
-                    <div className="space-y-3">
-                      {newRequests.map((order) => (
-                        <OrderCard
-                          key={order.id}
-                          order={order}
-                          showTimeReceived={true}
-                          onConfirm={handleConfirmOrder}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-6 space-y-2">
-                      <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <Inbox className="w-5 h-5 stroke-[1.5]" />
-                      </div>
-                      <h4 className="font-heading font-black text-sm text-[var(--brand-900)]">
-                        No pending online enquiries
-                      </h4>
-                      <p className="text-xs text-[var(--text-muted)] max-w-xs mx-auto">
-                        All incoming customer catering requests have been reviewed and processed.
-                      </p>
-                      {activeOrdersCount > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setActiveQueueTab('active')}
-                          className="mt-2 text-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
-                        >
-                          View {activeOrdersCount} Active Banquets →
-                        </button>
-                      )}
-                    </div>
-                  )
-                ) : activeQueueTab === 'active' ? (
-                  /* TAB 2: ACTIVE ORDERS ONLY */
-                  activeOrders.length > 0 ? (
-                    <div className="space-y-3">
-                      {activeOrders.map((order) => (
-                        <OrderCard
-                          key={order.id}
-                          order={order}
-                          showTimeReceived={false}
-                          onConfirm={handleConfirmOrder}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-6 space-y-2">
-                      <div className="w-11 h-11 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
-                        <CheckCircle2 className="w-5 h-5 stroke-[1.5]" />
-                      </div>
-                      <h4 className="font-heading font-bold text-sm text-[var(--brand-900)]">
-                        No active orders
-                      </h4>
-                      <p className="text-xs text-[var(--text-muted)] max-w-xs mx-auto">
-                        There are currently no orders under discussion or confirmed in the system.
-                      </p>
-                    </div>
-                  )
-                ) : (
-                  /* TAB 3: SPLIT / BOTH QUEUES */
-                  <div className="space-y-6">
-                    {/* Section 1: New Requests */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                          <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--brand-900)]">
-                            New Requests
-                          </h4>
-                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-red-100 text-red-700">
-                            {newRequestsCount}
-                          </span>
-                        </div>
-                        <Link to="/admin/orders?status=new" className="text-[11px] font-bold text-[var(--brand)] hover:underline">
-                          View all →
-                        </Link>
-                      </div>
-
-                      {newRequests.length > 0 ? (
-                        <div className="space-y-3">
-                          {newRequests.map((order) => (
-                            <OrderCard
-                              key={order.id}
-                              order={order}
-                              showTimeReceived={true}
-                              onConfirm={handleConfirmOrder}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-slate-400 py-3 text-center bg-slate-50 rounded-xl">
-                          No pending requests
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Section 2: Active Orders */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-[var(--brand)]" />
-                          <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--brand-900)]">
-                            Active Orders
-                          </h4>
-                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[var(--brand-soft)] text-[var(--brand-900)]">
-                            {activeOrdersCount}
-                          </span>
-                        </div>
-                        <Link to="/admin/orders?tab=active" className="text-[11px] font-bold text-[var(--brand)] hover:underline">
-                          View all →
-                        </Link>
-                      </div>
-
-                      {activeOrders.length > 0 ? (
-                        <div className="space-y-3">
-                          {activeOrders.map((order) => (
-                            <OrderCard
-                              key={order.id}
-                              order={order}
-                              showTimeReceived={false}
-                              onConfirm={handleConfirmOrder}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-slate-400 py-3 text-center bg-slate-50 rounded-xl">
-                          No active orders
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Card Footer: Summary & CRM Link */}
-              <div className="px-4 py-2.5 bg-slate-50/90 border-t border-slate-100 shrink-0 flex items-center justify-between text-xs text-[var(--text-muted)]">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-[var(--brand-900)]">
-                    {activeQueueTab === 'new' 
-                      ? `${newRequestsCount} New Enquiries` 
-                      : activeQueueTab === 'active' 
-                      ? `${activeOrdersCount} Active Banquets` 
-                      : `${newRequestsCount + activeOrdersCount} Total In Queue`}
-                  </span>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-[11px] text-slate-500">Scrollable Queue</span>
                 </div>
+              ) : activeQueueTab === 'split' ? (
+                /* TAB 1: SIDE-BY-SIDE (BOTH QUEUES SEPARATED IN 2 COLUMNS) */
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
+                  
+                  {/* Left Column: New Requests */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        <h4 className="font-heading font-black text-xs uppercase tracking-wider text-[var(--brand-900)]">
+                          New Requests
+                        </h4>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
+                          {newRequestsCount}
+                        </span>
+                      </div>
+                      <Link to="/admin/orders?status=new" className="text-xs font-bold text-[var(--brand)] hover:underline flex items-center gap-0.5">
+                        <span>View all</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </Link>
+                    </div>
 
-                <Link
-                  to="/admin/orders"
-                  className="font-bold text-[var(--brand)] hover:underline flex items-center gap-0.5 text-xs tap-target-48 sm:tap-target-auto"
-                >
-                  <span>Orders CRM</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
+                    {newRequests.length > 0 ? (
+                      <div className="space-y-3">
+                        {newRequests.map((order) => (
+                          <OrderCard
+                            key={order.id}
+                            order={order}
+                            showTimeReceived={true}
+                            onConfirm={handleConfirmOrder}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center bg-slate-50/70 border border-slate-100 rounded-[20px] space-y-1.5">
+                        <Inbox className="w-6 h-6 text-slate-400 mx-auto" />
+                        <p className="text-xs font-bold text-slate-700">No pending enquiries</p>
+                        <p className="text-[11px] text-slate-400">All customer requests have been processed.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Column: Active Orders */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-[var(--brand)]" />
+                        <h4 className="font-heading font-black text-xs uppercase tracking-wider text-[var(--brand-900)]">
+                          Active Orders
+                        </h4>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--brand-soft)] text-[var(--brand-900)] border border-[var(--brand-200)]">
+                          {activeOrdersCount}
+                        </span>
+                      </div>
+                      <Link to="/admin/orders?tab=active" className="text-xs font-bold text-[var(--brand)] hover:underline flex items-center gap-0.5">
+                        <span>View all</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+
+                    {activeOrders.length > 0 ? (
+                      <div className="space-y-3">
+                        {activeOrders.map((order) => (
+                          <OrderCard
+                            key={order.id}
+                            order={order}
+                            showTimeReceived={false}
+                            onConfirm={handleConfirmOrder}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center bg-slate-50/70 border border-slate-100 rounded-[20px] space-y-1.5">
+                        <CheckCircle2 className="w-6 h-6 text-slate-400 mx-auto" />
+                        <p className="text-xs font-bold text-slate-700">No active banquets</p>
+                        <p className="text-[11px] text-slate-400">No orders currently under discussion or confirmed.</p>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              ) : activeQueueTab === 'new' ? (
+                /* TAB 2: NEW REQUESTS FOCUSED FULL-WIDTH VIEW */
+                newRequests.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {newRequests.map((order) => (
+                      <OrderCard
+                        key={order.id}
+                        order={order}
+                        showTimeReceived={true}
+                        onConfirm={handleConfirmOrder}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="h-full min-h-[240px] flex flex-col items-center justify-center text-center p-6 space-y-2">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <Inbox className="w-6 h-6 stroke-[1.5]" />
+                    </div>
+                    <h4 className="font-heading font-black text-sm text-[var(--brand-900)]">
+                      No pending online enquiries
+                    </h4>
+                    <p className="text-xs text-[var(--text-muted)] max-w-xs mx-auto">
+                      All incoming customer catering requests have been reviewed and processed.
+                    </p>
+                    {activeOrdersCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setActiveQueueTab('active')}
+                        className="mt-2 text-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
+                      >
+                        View {activeOrdersCount} Active Banquets →
+                      </button>
+                    )}
+                  </div>
+                )
+              ) : (
+                /* TAB 3: ACTIVE ORDERS FOCUSED FULL-WIDTH VIEW */
+                activeOrders.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {activeOrders.map((order) => (
+                      <OrderCard
+                        key={order.id}
+                        order={order}
+                        showTimeReceived={false}
+                        onConfirm={handleConfirmOrder}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="h-full min-h-[240px] flex flex-col items-center justify-center text-center p-6 space-y-2">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+                      <CheckCircle2 className="w-6 h-6 stroke-[1.5]" />
+                    </div>
+                    <h4 className="font-heading font-bold text-sm text-[var(--brand-900)]">
+                      No active orders
+                    </h4>
+                    <p className="text-xs text-[var(--text-muted)] max-w-xs mx-auto">
+                      There are currently no orders under discussion or confirmed in the system.
+                    </p>
+                  </div>
+                )
+              )}
+            </div>
+
+            {/* Card Footer: Summary & CRM Link */}
+            <div className="px-4 py-3 bg-slate-50/90 border-t border-slate-100 shrink-0 flex items-center justify-between text-xs text-[var(--text-muted)]">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-[var(--brand-900)]">
+                  {newRequestsCount} New Enquiries
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="font-bold text-[var(--brand-900)]">
+                  {activeOrdersCount} Active Banquets
+                </span>
+                <span className="text-slate-300 hidden sm:inline">•</span>
+                <span className="text-[11px] text-slate-500 hidden sm:inline">Smooth Scrollable Feed</span>
               </div>
 
+              <Link
+                to="/admin/orders"
+                className="font-bold text-[var(--brand)] hover:underline flex items-center gap-0.5 text-xs tap-target-48 sm:tap-target-auto"
+              >
+                <span>Orders CRM</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
-          </div>
 
+          </div>
         </div>
 
       </div>
