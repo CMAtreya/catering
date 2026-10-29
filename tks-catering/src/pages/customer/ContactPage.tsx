@@ -499,23 +499,23 @@ export const ContactPage: React.FC = () => {
       </PageTransition>
 
         {/* ==========================================================
-            STICKY BOTTOM BAR: Full-width large brand button
+            STICKY BOTTOM BAR: Floating pill on all devices
             'Submit catering request'
             Morphs into progress ring while sending (no success motion until server confirms)
             ========================================================== */}
-        <div className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-xl lg:bottom-6 lg:rounded-2xl z-20 glass-bottom-bar border-t lg:border border-slate-200/80 shadow-2xl px-4 sm:px-6 py-3 sm:py-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:pb-3.5">
+        <div className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-4 md:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-xl z-20 pointer-events-auto rounded-2xl sm:rounded-[22px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.06)] px-3.5 sm:px-6 py-2.5 sm:py-3.5">
             <button
               type="button"
               id="submit-contact-btn"
               disabled={isSubmitting}
               onClick={() => handleSubmit()}
-              className={`h-12 sm:h-13 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.98] text-[var(--on-brand)] font-heading font-bold text-sm sm:text-base flex items-center justify-center shadow-lg transition-colors select-none tap-target-48 cursor-pointer ${
-                isSubmitting ? 'w-13 px-0 cursor-wait' : 'w-full px-6 gap-2'
+              className={`h-11 sm:h-13 rounded-xl sm:rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.98] text-[var(--on-brand)] font-heading font-bold text-sm sm:text-base flex items-center justify-center shadow-md transition-all select-none tap-target-48 cursor-pointer ${
+                isSubmitting ? 'w-11 sm:w-13 mx-auto px-0 cursor-wait' : 'w-full px-6 gap-2'
               }`}
             >
               {isSubmitting ? (
                 <div 
-                  className="w-6 h-6 rounded-full border-3 border-white border-t-transparent animate-spin"
+                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-3 border-white border-t-transparent animate-spin"
                   role="status"
                   aria-label="Submitting request..."
                 />

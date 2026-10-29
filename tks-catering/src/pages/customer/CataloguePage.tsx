@@ -644,35 +644,36 @@ export const CataloguePage: React.FC = () => {
             {/* ==========================================================
                 4. STICKY BOTTOM BAR (Instamart / Zepto Style Floating Bar)
                 Elevated floating bar with bag icon, odometer, and Proceed button.
+                Consistent floating island layout across all mobile and desktop screens.
                 ========================================================== */}
             <motion.nav
               aria-label="Order summary and checkout"
               key={bounceKey}
               animate={!isReduced && bounceKey > 0 ? { y: [0, -3, 0] } : undefined}
               transition={MOTION_SPRINGS.tap}
-              className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl lg:bottom-5 lg:rounded-2xl z-50 pointer-events-auto bg-white/95 backdrop-blur-md border-t lg:border border-slate-200/90 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] px-3.5 sm:px-5 py-2.5 sm:py-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] lg:pb-3"
+              className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-4 md:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl z-50 pointer-events-auto rounded-2xl sm:rounded-[22px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.06)] px-3.5 sm:px-5 py-2.5 sm:py-3"
             >
-              <div className="w-full flex items-center justify-between gap-3">
+              <div className="w-full flex items-center justify-between gap-2.5 sm:gap-4">
                 {/* Left: Bag icon + 'N items selected' with Odometer */}
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                     selectedCount > 0 
                       ? 'bg-[var(--brand)] text-white shadow-xs' 
                       : 'bg-slate-100 text-slate-400'
                   }`}>
-                    <ShoppingBag className="w-4 h-4" />
+                    <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                   </div>
-                  <div className="flex flex-col justify-center">
-                    <div className="font-heading font-black text-xs sm:text-sm text-slate-900 flex items-center gap-1 leading-tight">
+                  <div className="flex flex-col justify-center min-w-0">
+                    <div className="font-heading font-black text-xs sm:text-sm text-slate-900 flex items-center gap-1 leading-tight truncate">
                       <Odometer value={selectedCount} />
-                      <span>{selectedCount === 1 ? 'item' : 'items'} selected</span>
+                      <span className="truncate">{selectedCount === 1 ? 'item' : 'items'} selected</span>
                       {selectedCount > 0 && (
-                        <span className="text-[11px] font-bold text-[var(--brand)] ml-1">
+                        <span className="text-[11px] sm:text-xs font-bold text-[var(--brand)] shrink-0 ml-0.5">
                           • {formatRupees(perPlateTotal)}/pl
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight">
+                    <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight truncate mt-0.5">
                       {selectedCount === 0
                         ? 'Select dishes to build feast'
                         : 'Custom quotation on next step'}
@@ -681,15 +682,15 @@ export const CataloguePage: React.FC = () => {
                 </div>
 
                 {/* Right: Banana Leaf button & Proceed button */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                   {selectedCount > 0 && (
                     <button
                       type="button"
                       onClick={() => setIsLeafModalOpen(true)}
-                      className="h-10 sm:h-11 px-3 sm:px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-1.5 border border-emerald-200 transition-colors shadow-2xs cursor-pointer shrink-0"
+                      className="h-10 sm:h-11 px-2.5 sm:px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 active:scale-[0.97] text-emerald-800 font-bold text-xs flex items-center justify-center gap-1 sm:gap-1.5 border border-emerald-200 transition-colors shadow-2xs cursor-pointer shrink-0"
                       title="View feast arranged on traditional South Indian plantain leaf"
                     >
-                      <span>🍃</span>
+                      <span className="text-sm">🍃</span>
                       <span className="hidden sm:inline">Leaf View</span>
                     </button>
                   )}
@@ -697,7 +698,7 @@ export const CataloguePage: React.FC = () => {
                   {selectedCount === 0 ? (
                     <button
                       disabled
-                      className="h-10 sm:h-11 px-4 sm:px-5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs sm:text-sm cursor-not-allowed select-none tap-target-48 flex items-center justify-center transition-colors"
+                      className="h-10 sm:h-11 px-3.5 sm:px-5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs sm:text-sm cursor-not-allowed select-none tap-target-48 flex items-center justify-center transition-colors text-center shrink-0 whitespace-nowrap"
                     >
                       Select at least one item
                     </button>
@@ -706,7 +707,7 @@ export const CataloguePage: React.FC = () => {
                       type="button"
                       id="proceed-to-request-btn"
                       onClick={() => navigate('/request')}
-                      className="h-10 sm:h-11 px-5 sm:px-6 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.97] text-white font-heading font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md tap-target-48 transition-all select-none cursor-pointer"
+                      className="h-10 sm:h-11 px-4 sm:px-6 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.97] text-white font-heading font-black text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-1.5 shadow-md tap-target-48 transition-all select-none cursor-pointer shrink-0 whitespace-nowrap"
                     >
                       <span>Proceed</span>
                       <ChevronRight className="w-4 h-4 stroke-[3]" />

@@ -813,16 +813,16 @@ export const RequestPage: React.FC = () => {
 
         {/* ==========================================================
             STICKY BOTTOM BAR (glass-strong)
-            Floating centered pill on desktop, full-width on mobile
+            Floating centered bar on all devices (mobile, tablet, desktop)
             ========================================================== */}
-        <div className="fixed bottom-0 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl lg:bottom-6 lg:rounded-2xl z-50 pointer-events-auto glass-bottom-bar border-t lg:border border-slate-200/80 shadow-2xl px-4 sm:px-6 py-3 sm:py-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:pb-3.5">
+        <div className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-4 md:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl z-50 pointer-events-auto rounded-2xl sm:rounded-[22px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.06)] px-4 sm:px-6 py-2.5 sm:py-3.5">
           <div className="w-full flex items-center justify-between gap-3">
             {/* Left: Estimated food total */}
-            <div className="flex flex-col justify-center">
-              <span className="text-[11px] text-[var(--text-muted)] font-medium leading-none">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[11px] sm:text-xs text-[var(--text-muted)] font-medium leading-none truncate">
                 Estimated food total
               </span>
-              <span className="text-lg sm:text-xl text-[var(--brand-900)] pt-1 leading-tight">
+              <span className="text-base sm:text-xl font-heading font-black text-[var(--brand-900)] pt-1 leading-tight truncate">
                 <AnimatedPrice amount={estimatedFoodTotal} />
               </span>
             </div>
@@ -832,7 +832,7 @@ export const RequestPage: React.FC = () => {
               type="button"
               id="continue-request-btn"
               onClick={handleContinue}
-              className="h-12 px-7 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.98] text-[var(--on-brand)] font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-lg tap-target-48 transition-colors select-none cursor-pointer"
+              className="h-10 sm:h-12 px-5 sm:px-7 rounded-xl sm:rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.98] text-[var(--on-brand)] font-heading font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-md tap-target-48 transition-colors select-none cursor-pointer shrink-0 whitespace-nowrap"
             >
               <span>Continue</span>
               <ChevronRight className="w-4 h-4 stroke-[3]" />

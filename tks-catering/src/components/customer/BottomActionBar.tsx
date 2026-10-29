@@ -36,7 +36,7 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 280 }}
-          className={`fixed bottom-0 left-0 right-0 z-40 glass-bottom-bar px-4 py-3 sm:py-3.5 transition-all ${className}`}
+          className={`fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-4 md:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl z-40 rounded-2xl sm:rounded-[22px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.06)] px-3.5 sm:px-5 py-2.5 sm:py-3 transition-all ${className}`}
         >
           <div className="max-w-md md:max-w-xl mx-auto flex items-center justify-between gap-3">
             {/* Left: Summary Count & Pricing */}
