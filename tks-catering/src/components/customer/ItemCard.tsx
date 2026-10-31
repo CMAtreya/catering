@@ -15,8 +15,8 @@ interface ItemCardProps {
 
 /**
  * Authentic Mysuru Heritage Food Card
- * Designed following the heritage sattvic design system with pure vegetarian indicator,
- * heritage tags, Fraunces serif headlines, and smooth interactive feast addition.
+ * Designed with pure vegetarian indicator, heritage badges, Fraunces serif headlines,
+ * and a strictly consistent, beautifully aligned Add to Feast button across all cards.
  */
 export const ItemCard: React.FC<ItemCardProps> = ({ 
   item, 
@@ -29,8 +29,6 @@ export const ItemCard: React.FC<ItemCardProps> = ({
 
   const storeSelected = useDraftStore((state) => !!state.items[item.id])
   const storeToggle = useDraftStore((state) => state.toggleItem)
-  const guestCount = useDraftStore((state) => state.requirements.guestCount || 150)
-  const setRequirements = useDraftStore((state) => state.setRequirements)
 
   const isSelected = controlledSelected !== undefined ? controlledSelected : storeSelected
   const toggleItem = controlledToggle || storeToggle
@@ -49,20 +47,6 @@ export const ItemCard: React.FC<ItemCardProps> = ({
     }
 
     toggleItem(item)
-  }
-
-  const handleDecrementGuests = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (guestCount > 25) {
-      setRequirements({ guestCount: guestCount - 25 })
-    } else {
-      toggleItem(item)
-    }
-  }
-
-  const handleIncrementGuests = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setRequirements({ guestCount: guestCount + 25 })
   }
 
   return (
@@ -87,7 +71,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           toggleItem(item)
         }
       }}
-      className={`group relative rounded-[20px] p-3 sm:p-3.5 flex flex-col justify-between select-none cursor-pointer transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
+      className={`group relative rounded-[20px] p-3.5 flex flex-col justify-between select-none cursor-pointer transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
         !isAvailable
           ? 'bg-surface-container-low border border-outline-variant/30 opacity-60 cursor-not-allowed'
           : isSelected
@@ -149,7 +133,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0, transition: { duration: MOTION_DURATIONS.quick } }}
               transition={MOTION_SPRINGS.tap}
-              className="absolute top-2.5 right-2.5 bg-secondary-container/95 text-on-secondary-container text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs border border-secondary/30 pointer-events-none"
+              className="absolute top-2.5 right-2.5 bg-secondary-container/95 text-on-secondary-container text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs border border-secondary/30 pointer-events-none"
             >
               <span className="material-symbols-outlined text-[13px]">check_circle</span>
               <span>In Feast</span>
@@ -175,20 +159,22 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         )}
       </div>
 
-      {/* Item Details */}
+      {/* Item Details: Equalized heights for pixel-perfect card alignment */}
       <div className="flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="font-headline font-bold text-base sm:text-lg text-primary tracking-tight leading-snug group-hover:text-primary-container transition-colors">
+          <h3 className="font-headline font-bold text-base sm:text-lg text-primary tracking-tight leading-snug group-hover:text-primary-container transition-colors line-clamp-1 min-h-[1.75rem]">
             {item.name}
           </h3>
-          {item.description && (
-            <p className="text-xs text-on-surface-variant/80 font-normal mt-1 line-clamp-2 leading-relaxed">
+          {item.description ? (
+            <p className="text-xs text-on-surface-variant/80 font-normal mt-1 line-clamp-2 leading-relaxed min-h-[2.5rem]">
               {item.description}
             </p>
+          ) : (
+            <div className="min-h-[2.5rem]" />
           )}
         </div>
 
-        {/* Bottom portion price & CTA bar */}
+        {/* Bottom portion price & Consistent Add to Feast CTA button */}
         <div className="pt-3 border-t border-outline-variant/10 flex items-center justify-between mt-3">
           <div>
             <span className="text-[10px] uppercase font-bold text-outline tracking-wider block">
@@ -205,37 +191,21 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           {isAvailable && (
             <div aria-hidden="true">
               {isSelected ? (
-                <div 
-                  className="flex items-center bg-surface-container-low rounded-lg p-0.5 border border-outline-variant/20 shadow-2xs"
-                  onClick={(e) => e.stopPropagation()}
+                <div
+                  role="presentation"
+                  onClick={handleCardClick}
+                  className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-container text-white border border-primary text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer select-none shrink-0"
                 >
-                  <div 
-                    role="presentation"
-                    onClick={handleDecrementGuests}
-                    title="Decrease guests or remove"
-                    className="w-6 h-6 flex items-center justify-center text-primary font-bold hover:bg-surface rounded text-sm transition-colors cursor-pointer select-none"
-                  >
-                    -
-                  </div>
-                  <span className="px-2 text-xs font-bold text-primary font-sans select-none">
-                    {guestCount}
-                  </span>
-                  <div 
-                    role="presentation"
-                    onClick={handleIncrementGuests}
-                    title="Increase guests"
-                    className="w-6 h-6 flex items-center justify-center text-primary font-bold hover:bg-surface rounded text-sm transition-colors cursor-pointer select-none"
-                  >
-                    +
-                  </div>
+                  <span className="material-symbols-outlined text-[15px]">check</span>
+                  <span>Added to Feast</span>
                 </div>
               ) : (
                 <div
                   role="presentation"
                   onClick={handleCardClick}
-                  className="px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-primary-fixed/40 text-primary border border-primary/20 text-xs font-bold transition-all flex items-center gap-1 shadow-2xs hover:shadow-xs cursor-pointer select-none"
+                  className="h-8 px-3 rounded-lg bg-surface-container-low hover:bg-primary-fixed/40 text-primary border border-primary/25 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer select-none shrink-0"
                 >
-                  <span className="material-symbols-outlined text-[14px]">add</span>
+                  <span className="material-symbols-outlined text-[15px]">add</span>
                   <span>Add to Feast</span>
                 </div>
               )}
