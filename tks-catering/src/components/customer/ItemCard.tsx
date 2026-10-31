@@ -174,39 +174,34 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           )}
         </div>
 
-        {/* Bottom portion price & Consistent Add to Feast CTA button */}
-        <div className="pt-3 border-t border-outline-variant/10 flex items-center justify-between mt-3">
-          <div>
-            <span className="text-[10px] uppercase font-bold text-outline tracking-wider block">
-              {item.portionLabel || 'Portion / Plate'}
+        {/* Bottom portion price & Consistent Add to Feast CTA button strictly on a single line */}
+        <div className="pt-3 border-t border-outline-variant/10 flex items-center justify-between mt-3 gap-2">
+          <div className="flex items-baseline gap-1 whitespace-nowrap">
+            <span className="font-headline font-bold text-base sm:text-lg text-primary">
+              {formatRupees(item.pricePerPlate)}
             </span>
-            <div className="flex items-baseline gap-1">
-              <span className="font-headline font-bold text-base text-primary">
-                {formatRupees(item.pricePerPlate)}
-              </span>
-              <span className="text-[11px] text-outline">/ plate</span>
-            </div>
+            <span className="text-xs text-outline font-medium">/ plate</span>
           </div>
 
           {isAvailable && (
-            <div aria-hidden="true">
+            <div aria-hidden="true" className="shrink-0">
               {isSelected ? (
                 <div
                   role="presentation"
                   onClick={handleCardClick}
-                  className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-container text-white border border-primary text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer select-none shrink-0"
+                  className="h-8 px-3 sm:px-3.5 rounded-lg bg-primary hover:bg-primary-container text-white border border-primary text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer select-none whitespace-nowrap shrink-0"
                 >
-                  <span className="material-symbols-outlined text-[15px]">check</span>
-                  <span>Added to Feast</span>
+                  <span className="material-symbols-outlined text-[15px] shrink-0">check</span>
+                  <span className="whitespace-nowrap">Added to Feast</span>
                 </div>
               ) : (
                 <div
                   role="presentation"
                   onClick={handleCardClick}
-                  className="h-8 px-3 rounded-lg bg-surface-container-low hover:bg-primary-fixed/40 text-primary border border-primary/25 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer select-none shrink-0"
+                  className="h-8 px-3 sm:px-3.5 rounded-lg bg-surface-container-low hover:bg-primary-fixed/40 text-primary border border-primary/25 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer select-none whitespace-nowrap shrink-0"
                 >
-                  <span className="material-symbols-outlined text-[15px]">add</span>
-                  <span>Add to Feast</span>
+                  <span className="material-symbols-outlined text-[15px] shrink-0">add</span>
+                  <span className="whitespace-nowrap">Add to Feast</span>
                 </div>
               )}
             </div>
