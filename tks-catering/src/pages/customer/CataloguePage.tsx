@@ -1,98 +1,50 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'motion/react'
-import { 
-  ChevronRight, 
-  Phone, 
-  RefreshCw, 
-  AlertCircle, 
-  Search, 
-  X, 
-  ShoppingBag, 
-  Sparkles, 
-  LayoutGrid, 
-  Layers 
-} from 'lucide-react'
 import { getCatalogue, type CatalogueResponse } from '@/api'
-import type { Category, MenuItem } from '@/data/mockData'
 import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
 import { ItemCard } from '@/components/customer/ItemCard'
-import { CatalogueSkeleton } from '@/components/ui/skeletons'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
-import { useMotionTier } from '@/motion/MotionProvider'
-import { CollapsingHeader } from '@/components/motion/CollapsingHeader'
-import { ScrollReveal } from '@/components/motion/ScrollReveal'
-import { Odometer } from '@/components/motion/Odometer'
-import { Hero3D } from '@/components/motion/Hero3D'
-import { getItemEntranceVariants, MOTION_SPRINGS } from '@/motion/tokens'
-import { PresetFeastBar } from '@/components/customer/PresetFeastBar'
+import { CatalogueSkeleton } from '@/components/ui/skeletons'
 import { VirtualBananaLeafModal } from '@/components/customer/VirtualBananaLeafModal'
-import { PlantainLeafCanvas } from '@/components/customer/PlantainLeafCanvas'
-import { PurityFilterMatrix, type PurityFilter } from '@/components/customer/PurityFilterMatrix'
 import { TastingSessionModal } from '@/components/customer/TastingSessionModal'
-import { FloatingMenuNav } from '@/components/customer/FloatingMenuNav'
-import { formatRupees } from '@/lib/format'
 
-type ViewMode = 'grid' | 'leaf' | 'split'
+type PurityFilter = 'all' | 'satvik' | 'pureGhee' | 'live'
 
 export const CataloguePage: React.FC = () => {
   const navigate = useNavigate()
-  const { tier, isReduced } = useMotionTier()
 
   // State for catalogue data, loading, and error
   const [data, setData] = useState<CatalogueResponse | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
-  // View mode switcher: Golden Split (61.8% / 38.2%) vs Full Menu Grid vs Full Plantain Leaf
-  const [viewMode, setViewMode] = useState<ViewMode>('split')
+  // Filter & search state
+  const [activeCategoryId, setActiveCategoryId] = useState<string>('cat-all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [purityFilter, setPurityFilter] = useState<PurityFilter>('all')
 
   // Modals state
   const [isLeafModalOpen, setIsLeafModalOpen] = useState(false)
   const [isTastingModalOpen, setIsTastingModalOpen] = useState(false)
 
-  // Purity Filter state
-  const [purityFilter, setPurityFilter] = useState<PurityFilter>('all')
-
-  // Scroll spy active category id
-  const [activeCategoryId, setActiveCategoryId] = useState<string>('')
-  
-  // Search query for quick-commerce instant dish filtering
-  const [searchQuery, setSearchQuery] = useState<string>('')
-  
-  // Track if a manual tab click initiated scroll (to prevent scroll spy flicker)
-  const isTabClickScrolling = useRef<boolean>(false)
-
-  // Global stores
+  // Global draft store
   const selectedItems = useDraftStore((state) => state.items)
   const toggleItem = useDraftStore((state) => state.toggleItem)
-  const clearItems = useDraftStore((state) => state.clearItems)
+  const requirements = useDraftStore((state) => state.requirements)
+  const setRequirements = useDraftStore((state) => state.setRequirements)
   const selectedCount = Object.keys(selectedItems).length
   const perPlateTotal = useDraftStore((state) => state.getPerPlateTotal())
+  const guestCount = requirements.guestCount || 150
   const enquiriesCount = useEnquiryStore((state) => state.enquiries.length)
 
-  // Bounce animation key for bottom bar when item selection changes
-  const [bounceKey, setBounceKey] = useState<number>(0)
-  const prevCountRef = useRef(selectedCount)
-
-  useEffect(() => {
-    if (prevCountRef.current !== selectedCount) {
-      prevCountRef.current = selectedCount
-      setBounceKey((k) => k + 1)
-    }
-  }, [selectedCount])
-
-  // Fetch catalogue data
+  // Load catalogue data
   const loadCatalogue = async () => {
     try {
       setLoading(true)
       setError(null)
       const res = await getCatalogue()
       setData(res)
-      if (res.categories.length > 0) {
-        setActiveCategoryId(res.categories[0].id)
-      }
     } catch {
       setError('Unable to load catering menu. Please check your connection and retry.')
     } finally {
@@ -104,778 +56,684 @@ export const CataloguePage: React.FC = () => {
     loadCatalogue()
   }, [])
 
-  // Category items mapping helper
-  const getCategoryItems = (category: Category, allItems: MenuItem[]): MenuItem[] => {
-    return allItems.filter(
-      (item) => item.category === category.name || item.category === category.id
-    )
-  }
+  // Categories list
+  const categories = useMemo(() => {
+    if (!data?.categories) return []
+    // Ensure "All Dishes" is at front if not already
+    const hasAll = data.categories.some((c) => c.id === 'cat-all')
+    if (hasAll) return data.categories
+    return [
+      { id: 'cat-all', name: 'All Dishes', displayOrder: 0 },
+      ...data.categories
+    ]
+  }, [data?.categories])
 
-  // Count selected items belonging to a given category
-  const getCategorySelectedCount = (category: Category): number => {
-    if (!data) return 0
-    const catItemIds = new Set(
-      getCategoryItems(category, data.items).map((item) => item.id)
-    )
-    let count = 0
-    for (const id of Object.keys(selectedItems)) {
-      if (catItemIds.has(id)) count++
-    }
-    return count
-  }
+  // Filtered items based on Category, Search Query, and Purity Filter
+  const filteredItems = useMemo(() => {
+    if (!data?.items) return []
 
-  // Filtered items when searching (Instamart / Zepto style instant search)
-  const filteredSearchItems = searchQuery.trim() && data
-    ? data.items.filter((item) => {
-        const q = searchQuery.toLowerCase().trim()
-        return (
-          item.name.toLowerCase().includes(q) ||
-          item.category.toLowerCase().includes(q) ||
-          (item.description && item.description.toLowerCase().includes(q))
-        )
-      })
-    : null
-
-  // Purity Filter matching helper
-  const matchesPurityFilter = (item: MenuItem): boolean => {
-    if (purityFilter === 'all') return true
-    if (purityFilter === 'pure-ghee') {
-      return Boolean(item.pureGhee) || item.name.toLowerCase().includes('ghee')
-    }
-    if (purityFilter === 'satvik') {
-      return Boolean(item.satvik)
-    }
-    if (purityFilter === 'sweets') {
-      return item.category === 'Sweets & Desserts'
-    }
-    if (purityFilter === 'tiffins') {
-      return item.category === 'Tiffins & Breakfast'
-    }
-    if (purityFilter === 'beverages') {
-      return item.category === 'Beverages'
-    }
-    return true
-  }
-
-  // Smooth scroll to category section
-  const scrollToCategory = (categoryId: string) => {
-    isTabClickScrolling.current = true
-    setActiveCategoryId(categoryId)
-
-    const element = document.getElementById(`cat-section-${categoryId}`)
-    if (element) {
-      const offset = 120
-      const bodyRect = document.body.getBoundingClientRect().top
-      const elementRect = element.getBoundingClientRect().top
-      const elementPosition = elementRect - bodyRect
-      const offsetPosition = elementPosition - offset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: isReduced ? 'auto' : 'smooth'
-      })
-
-      setTimeout(() => {
-        isTabClickScrolling.current = false
-      }, 600)
-    }
-  }
-
-  // Scroll spy effect: detect which category is currently in viewport
-  useEffect(() => {
-    if (!data || data.categories.length === 0) return
-
-    const handleScroll = () => {
-      if (isTabClickScrolling.current) return
-
-      const headerOffset = 150
-      const categories = data.categories
-
-      for (let i = categories.length - 1; i >= 0; i--) {
-        const cat = categories[i]
-        const element = document.getElementById(`cat-section-${cat.id}`)
-        if (element) {
-          const rect = element.getBoundingClientRect()
-          if (rect.top <= headerOffset) {
-            setActiveCategoryId((prev) => (prev !== cat.id ? cat.id : prev))
-            break
-          }
+    return data.items.filter((item) => {
+      // 1. Category filter
+      if (activeCategoryId && activeCategoryId !== 'cat-all') {
+        const catObj = categories.find((c) => c.id === activeCategoryId)
+        if (catObj && item.category !== catObj.name && item.category !== catObj.id) {
+          return false
         }
       }
-    }
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [data])
+      // 2. Search query filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim()
+        const matchesName = item.name.toLowerCase().includes(q)
+        const matchesDesc = (item.description || '').toLowerCase().includes(q)
+        const matchesTag = (item.heritageTag || '').toLowerCase().includes(q)
+        const matchesCategory = item.category.toLowerCase().includes(q)
+        if (!matchesName && !matchesDesc && !matchesTag && !matchesCategory) {
+          return false
+        }
+      }
+
+      // 3. Purity matrix filter
+      if (purityFilter === 'satvik' && !item.satvik) {
+        return false
+      }
+      if (purityFilter === 'pureGhee' && !item.pureGhee) {
+        return false
+      }
+      if (purityFilter === 'live') {
+        const isLive = (item.heritageTag || '').toLowerCase().includes('live') ||
+                       (item.name || '').toLowerCase().includes('rotti') ||
+                       (item.name || '').toLowerCase().includes('dosa') ||
+                       (item.name || '').toLowerCase().includes('coffee')
+        if (!isLive) return false
+      }
+
+      return true
+    })
+  }, [data?.items, activeCategoryId, searchQuery, purityFilter, categories])
+
+  // Estimated banquet total
+  const displayPerPlate = perPlateTotal > 0 ? perPlateTotal : 460
+  const estimatedBanquetTotal = displayPerPlate * guestCount
+
+  // WhatsApp share link
+  const whatsappUrl = useMemo(() => {
+    const text = encodeURIComponent(
+      `Namaskara! I am planning a traditional Mysore Iyengar feast for ${guestCount} guests (${requirements.eventType || 'Muhurtham'}). Selected ${selectedCount} dishes at ₹${displayPerPlate}/plate. Estimated banquet total: ₹${estimatedBanquetTotal.toLocaleString('en-IN')}. Could you please share quotation and availability?`
+    )
+    return `https://wa.me/918212448920?text=${text}`
+  }, [guestCount, requirements.eventType, selectedCount, displayPerPlate, estimatedBanquetTotal])
 
   return (
-    <CustomerDesktopShell maxWidth="w-full">
-      <div className="w-full flex flex-col bg-transparent relative min-h-screen">
-        
-        {/* ==========================================================
-            1. COLLAPSING LARGE-TITLE HEADER (iOS STYLE)
-            ========================================================== */}
-        <CollapsingHeader
-          categories={data?.categories || []}
-          activeCategoryId={activeCategoryId}
-          onSelectCategory={scrollToCategory}
-          getCategorySelectedCount={getCategorySelectedCount}
-          enquiriesCount={enquiriesCount}
-        />
-
-        {/* Loading state with skeleton */}
-        {loading && (
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full pb-32">
-            <div className="mt-3 mb-2 h-20 rounded-[20px] animate-pulse bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200" />
-            <CatalogueSkeleton count={8} />
-          </main>
-        )}
-
-        {/* Error state with retry */}
-        {!loading && error && (
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full p-6 flex flex-col items-center justify-center text-center my-auto pb-32">
-            <div className="w-16 h-16 rounded-2xl bg-[var(--status-cancelled-bg)] text-[var(--status-cancelled-text)] flex items-center justify-center mb-4 border border-[var(--status-cancelled-border)] shadow-sm">
-              <AlertCircle className="w-8 h-8" />
-            </div>
-            <h2 className="font-serif font-bold text-xl text-[var(--text-primary)]">
-              Unable to Load Menu
-            </h2>
-            <p className="text-sm text-[var(--text-muted)] max-w-xs mt-1 mb-6">
-              {error}
-            </p>
-            <button
-              onClick={loadCatalogue}
-              className="px-6 py-3 rounded-full bg-[var(--brand)] text-[var(--on-brand)] font-bold text-sm shadow-md hover:bg-[var(--brand-600)] transition-all flex items-center gap-2 tap-target-48 cursor-pointer"
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span>Retry</span>
-            </button>
-          </main>
-        )}
-
-        {/* Empty state: No items available */}
-        {!loading && !error && data && data.items.length === 0 && (
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 w-full p-6 flex flex-col items-center justify-center text-center my-auto pb-32">
-            <div className="text-5xl mb-3">🍲</div>
-            <h2 className="font-serif font-bold text-xl text-[var(--brand-900)]">
-              Menu is being updated. Please call us.
-            </h2>
-            <p className="text-xs text-[var(--text-muted)] max-w-sm mt-1 mb-6">
-              Our traditional catering selection is currently undergoing seasonal updates.
-            </p>
-            <a
-              href={`tel:${data.businessInfo?.phone || '+919000000000'}`}
-              className="px-6 py-3 rounded-full bg-[var(--brand)] text-[var(--on-brand)] font-bold text-sm shadow-md hover:bg-[var(--brand-600)] transition-all flex items-center gap-2 tap-target-48"
-            >
-              <Phone className="w-4 h-4" />
-              <span>Call {data.businessInfo?.phone || '+91 90000 00000'}</span>
+    <CustomerDesktopShell>
+      {/* 1. TOP ANNOUNCEMENT BANNER */}
+      <header className="bg-primary text-on-primary py-1.5 px-4 text-xs font-medium tracking-wide border-b border-primary-container/40">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[16px] text-secondary-container">local_fire_department</span>
+            <span className="truncate">Mysuru's Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic</span>
+          </div>
+          <div className="flex items-center gap-4 text-[11px] text-primary-fixed shrink-0">
+            <a href="tel:+918212448920" className="hover:underline flex items-center gap-1">
+              <span className="material-symbols-outlined text-[13px]">phone_in_talk</span>
+              <span className="hidden sm:inline">Kitchen Hotline:</span> +91 821 244 8920
             </a>
-          </main>
-        )}
+          </div>
+        </div>
+      </header>
 
-        {/* Loaded Catalogue View */}
-        {!loading && !error && data && data.items.length > 0 && (
-          <>
-            {/* ==========================================================
-                MAIN CONTENT AREA (GOLDEN RATIO Φ = 1.618 EDGE-TO-EDGE)
-                ========================================================== */}
-            <main className="flex-1 px-[13px] sm:px-[21px] md:px-[34px] lg:px-[55px] w-full pt-[13px] pb-[144px] space-y-[21px] sm:space-y-[34px]">
-              
-              {/* 1. INSTANT SEARCH BAR & GOLDEN VIEW SWITCHER */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-[13px]">
-                {/* Search Bar */}
-                <div className="relative flex-1">
-                  <div className="relative flex items-center bg-white border border-slate-200/90 hover:border-slate-300 focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/15 rounded-[13px] sm:rounded-[21px] shadow-2xs transition-all px-[21px] py-[10px] sm:py-[13px]">
-                    <Search className="w-4 h-4 text-slate-400 shrink-0 mr-[13px]" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search dishes (e.g. Mysore Pak, Bisi Bele Bath, Rasam, Pongal...)"
-                      className="w-full bg-transparent text-golden-xs sm:text-golden-sm text-slate-800 placeholder-slate-400 focus:outline-none font-medium"
-                      aria-label="Search catering dishes"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setSearchQuery('')}
-                        className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-                        aria-label="Clear search"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                </div>
+      {/* 2. STICKY TOP NAVIGATION BAR */}
+      <nav className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-outline-variant/15 py-3 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Brand Logo & Title */}
+          <div className="flex items-center gap-3">
+            <img 
+              alt="TKS Iyengar's Logo" 
+              className="h-10 w-auto object-contain rounded-md" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6occrKYgf2RCe6-ZpsHHNSwBTZw3OIJCIu6JOOkQR-MmVOIiKZ7bUBYzMU1l09v4a7bX1aa5bfz0MQN5Gh1wPHBVRO7LGbM1E9Bko7oNR5cwbenpCKvUqkdjPSjrtKo9Dv1OlVn0VLfzhNsNmnyXZsER8N1zZKYj1hy1Z5QQB-5nt5D6OCeHk91zan3n3flKIP17cg5vuWoRorqja0dU2rPYG_7kXSD98DR2K5GVG8F_91Jgo9rr6"
+            />
+            <div>
+              <h1 className="font-headline font-bold text-lg leading-tight text-primary">
+                TKS Iyengar's<br/>
+                <span className="text-xs uppercase font-sans tracking-widest text-on-surface-variant font-semibold">Catering</span>
+              </h1>
+              <span className="inline-block text-[9px] bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 px-1.5 py-0.2 rounded-xs font-bold uppercase tracking-wider">
+                ✦ 100% Mysuru Sattvic Heritage
+              </span>
+            </div>
+          </div>
 
-                {/* Golden View Switcher: Golden Split (61.8% / 38.2%) vs Full Grid vs Live Plantain Leaf */}
-                <div className="flex items-center rounded-[13px] sm:rounded-[21px] bg-white border border-slate-200/90 p-[3px] shadow-2xs shrink-0 self-start sm:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('split')}
-                    className={`px-[13px] py-[8px] rounded-[10px] text-golden-xs sm:text-golden-sm font-bold transition-all flex items-center gap-[5px] cursor-pointer select-none ${
-                      viewMode === 'split'
-                        ? 'bg-[var(--brand)] text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                    title="Golden Ratio Split: 61.8% Menu + 38.2% Live Banana Leaf"
-                  >
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>Golden Split (Φ)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('grid')}
-                    className={`px-[13px] py-[8px] rounded-[10px] text-golden-xs sm:text-golden-sm font-bold transition-all flex items-center gap-[5px] cursor-pointer select-none ${
-                      viewMode === 'grid'
-                        ? 'bg-[var(--brand)] text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <LayoutGrid className="w-3.5 h-3.5" />
-                    <span>Menu Grid</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('leaf')}
-                    className={`px-[13px] py-[8px] rounded-[10px] text-golden-xs sm:text-golden-sm font-bold transition-all flex items-center gap-[5px] cursor-pointer select-none ${
-                      viewMode === 'leaf'
-                        ? 'bg-emerald-700 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-emerald-700'
-                    }`}
-                  >
-                    <span>🍃</span>
-                    <span>Live Leaf ({selectedCount})</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 2. GOLDEN HERO BANNER (61.8% Narrative vs 38.2% Visual Stage) */}
-              {viewMode !== 'leaf' && !searchQuery && (
-                <section aria-label="Feast selection banner" className="p-[21px] sm:p-[34px] rounded-[21px] sm:rounded-[34px] bg-gradient-to-r from-[var(--brand-900)] via-[var(--brand)] to-[var(--brand-800)] text-[var(--on-brand)] shadow-lg overflow-hidden relative border border-amber-950/20">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[21px] sm:gap-[34px]">
-                    {/* Major Golden Section (61.8% Width) */}
-                    <div className="space-y-[13px] z-10 max-w-full sm:max-w-[61.8%]">
-                      <div className="flex items-center gap-[8px] flex-wrap">
-                        <span className="text-[10px] tracking-wider uppercase font-black text-amber-300 bg-amber-400/20 px-[10px] py-[3px] rounded-full border border-amber-300/30 inline-flex items-center gap-[5px]">
-                          <span>⚡</span>
-                          <span>Mysuru Authentic Feast</span>
-                        </span>
-                        <span className="text-[10px] font-bold text-white/90 bg-white/10 px-[10px] py-[3px] rounded-full">
-                          100% Pure Cow Ghee
-                        </span>
-                        <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/40 px-[10px] py-[3px] rounded-full border border-emerald-400/30">
-                          Satvik Brahmin Kitchen
-                        </span>
-                      </div>
-
-                      <h2 className="font-heading font-black text-golden-xl sm:text-golden-2xl tracking-tight leading-tight">
-                        Craft Your Royal Catering Feast
-                      </h2>
-                      <p className="text-golden-xs sm:text-golden-sm text-white/90 font-medium leading-relaxed">
-                        Handcrafted South Indian delicacies, ceremonial Muhurtham spreads, and live per-plate quotations. Tap dishes below or arrange on the traditional plantain leaf.
-                      </p>
-
-                      {/* Quick Interactive Actions */}
-                      <div className="pt-[5px] flex items-center gap-[8px] flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() => setViewMode('leaf')}
-                          className="px-[21px] py-[10px] rounded-full text-golden-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all shadow-xs flex items-center gap-[5px] cursor-pointer active:scale-95"
-                        >
-                          <span>🍃</span>
-                          <span>Open Plantain Leaf</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setIsTastingModalOpen(true)}
-                          className="px-[21px] py-[10px] rounded-full text-golden-xs font-bold bg-white/15 hover:bg-white/25 text-white transition-all border border-white/30 flex items-center gap-[5px] cursor-pointer"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                          <span>Book Tasting Box</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Minor Golden Section (38.2% Visual Stage): Ceremonial Brass Lamp */}
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 shrink-0 relative flex items-center justify-center self-end sm:self-center">
-                      <Hero3D />
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {/* 3. CURATED PRESET FEASTS (Golden Rectangles 1.618 : 1) */}
-              {viewMode !== 'leaf' && !searchQuery && (
-                <PresetFeastBar
-                  availableItems={data.items}
-                  onOpenLeafVisualizer={() => setIsLeafModalOpen(true)}
-                />
-              )}
-
-              {/* 4. DIETARY & PURITY FILTER MATRIX */}
-              {viewMode !== 'leaf' && !searchQuery && (
-                <PurityFilterMatrix
-                  activeFilter={purityFilter}
-                  onSelectFilter={setPurityFilter}
-                  totalCount={data.items.length}
-                />
-              )}
-
-              {/* ==========================================================
-                  VIEW MODE A: FULL LIVE PLANTAIN LEAF CANVAS
-                  ========================================================== */}
-              {viewMode === 'leaf' && (
-                <div className="space-y-[21px]">
-                  <div className="flex items-center justify-between bg-white p-[21px] rounded-[21px] border border-slate-200/90 shadow-2xs">
-                    <div>
-                      <h3 className="font-heading font-black text-golden-base sm:text-golden-md text-slate-900 flex items-center gap-[8px]">
-                        <span>🍃 Ceremonial South Indian Plantain Leaf</span>
-                        <span className="text-golden-xs font-bold px-[8px] py-[2px] rounded-full bg-emerald-100 text-emerald-800">
-                          {selectedCount} dishes placed
-                        </span>
-                      </h3>
-                      <p className="text-golden-xs text-slate-500 mt-[5px]">
-                        Dishes are placed in traditional Brahmin order. Click any (+) slot to add, or tap a placed dish to remove.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setViewMode('split')}
-                      className="px-[21px] py-[10px] rounded-[13px] border border-slate-200 hover:bg-slate-100 text-slate-700 text-golden-xs font-bold transition-colors cursor-pointer"
-                    >
-                      Back to Menu
-                    </button>
-                  </div>
-
-                  {/* The Full Canvas */}
-                  <PlantainLeafCanvas
-                    availableItems={data.items}
-                    selectedItemsMap={selectedItems}
-                    onToggleItem={toggleItem}
-                    showGhosts={true}
-                  />
-
-                  {/* Quick-add category carousel below the leaf */}
-                  <div className="bg-white rounded-[21px] p-[21px] border border-slate-200/90 shadow-sm space-y-[13px]">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-heading font-bold text-golden-sm sm:text-golden-base text-slate-900">
-                        Quick Add Dishes to Leaf
-                      </h4>
-                      <span className="text-golden-xs text-slate-400">
-                        Tap any dish to place it on the banana leaf
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-[8px] sm:gap-[13px]">
-                      {data.items.map((item) => {
-                        const isSelected = Boolean(selectedItems[item.id])
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => toggleItem(item)}
-                            className={`p-[10px] rounded-[13px] text-left border transition-all flex items-center gap-[8px] cursor-pointer ${
-                              isSelected
-                                ? 'bg-emerald-50 border-emerald-400 shadow-2xs ring-1 ring-emerald-400/20'
-                                : 'bg-slate-50 hover:bg-white border-slate-200/80 hover:shadow-2xs'
-                            }`}
-                          >
-                            <img
-                              src={item.image || '/default-dish.svg'}
-                              alt={item.name}
-                              className="w-9 h-9 rounded-[8px] object-cover shrink-0"
-                              onError={(e) => {
-                                ;(e.currentTarget as HTMLImageElement).src = '/default-dish.svg'
-                              }}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-golden-xs font-bold text-slate-800 truncate">{item.name}</p>
-                              <p className="text-[10px] font-semibold text-[var(--brand)]">{formatRupees(item.pricePerPlate)}</p>
-                            </div>
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs ${
-                              isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
-                            }`}>
-                              {isSelected ? '✓' : '+'}
-                            </div>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ==========================================================
-                  VIEW MODE B: GOLDEN RATIO DUAL SPLIT (61.8% / 38.2%)
-                  ========================================================== */}
-              {viewMode === 'split' && (
-                <div className="grid grid-cols-1 lg:grid-cols-[1.618fr_1fr] gap-[21px] lg:gap-[34px] items-start w-full">
-                  {/* Major Golden Section (61.8%): Menu Items */}
-                  <div className="w-full min-w-0 space-y-[21px] sm:space-y-[34px]">
-                    {/* Search Results View */}
-                    {filteredSearchItems !== null ? (
-                      <section className="space-y-[13px]">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-heading font-black text-golden-sm sm:text-golden-base text-slate-800">
-                            Found {filteredSearchItems.length} {filteredSearchItems.length === 1 ? 'dish' : 'dishes'} for &ldquo;{searchQuery}&rdquo;
-                          </h3>
-                          <button
-                            type="button"
-                            onClick={() => setSearchQuery('')}
-                            className="text-golden-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
-                          >
-                            Clear search
-                          </button>
-                        </div>
-
-                        {filteredSearchItems.length === 0 ? (
-                          <div className="p-[34px] text-center bg-white rounded-[21px] border border-dashed border-slate-200">
-                            <p className="text-golden-sm font-semibold text-slate-700">No matching dishes found</p>
-                            <p className="text-golden-xs text-slate-400 mt-1">Try searching for sweets, rice, rasam, or curries</p>
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-[8px] sm:gap-[13px]">
-                            {filteredSearchItems.map((item) => (
-                              <ItemCard key={item.id} item={item} />
-                            ))}
-                          </div>
-                        )}
-                      </section>
-                    ) : (
-                      /* Regular Category View */
-                      data.categories.map((category) => {
-                        const categoryItems = getCategoryItems(category, data.items).filter(matchesPurityFilter)
-                        if (categoryItems.length === 0) return null
-
-                        return (
-                          <section
-                            key={category.id}
-                            id={`cat-section-${category.id}`}
-                            className="scroll-mt-32 space-y-[13px]"
-                          >
-                            <ScrollReveal>
-                              <div className="flex items-center justify-between pt-[5px] border-b border-slate-200/60 pb-[8px]">
-                                <h3 className="font-heading font-black text-golden-base sm:text-golden-md text-slate-800 tracking-tight flex items-center gap-[8px]">
-                                  <span>{category.name}</span>
-                                  <span className="text-golden-xs font-bold text-slate-500 bg-slate-100 px-[8px] py-[2px] rounded-full font-sans">
-                                    {categoryItems.length} {categoryItems.length === 1 ? 'item' : 'items'}
-                                  </span>
-                                </h3>
-                              </div>
-                            </ScrollReveal>
-
-                            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-[8px] sm:gap-[13px]">
-                              {categoryItems.map((item, index) => {
-                                const variants = getItemEntranceVariants(tier, index)
-                                return (
-                                  <motion.div
-                                    key={item.id}
-                                    initial={isReduced ? false : variants.hidden}
-                                    whileInView={isReduced ? undefined : variants.visible}
-                                    viewport={{ once: true, margin: '-20px' }}
-                                  >
-                                    <ItemCard item={item} />
-                                  </motion.div>
-                                )
-                              })}
-                            </div>
-                          </section>
-                        )
-                      })
-                    )}
-                  </div>
-
-                  {/* Minor Golden Section (38.2%): Sticky Live Banana Leaf Cockpit */}
-                  <div className="hidden lg:block w-full sticky top-[21px] space-y-[13px] min-w-0">
-                    {/* Platter Card */}
-                    <div className="bg-white rounded-[21px] border border-slate-200/90 shadow-sm p-[13px] space-y-[8px]">
-                      <div className="flex items-center justify-between pb-[5px]">
-                        <span className="font-heading font-black text-golden-sm text-slate-900 flex items-center gap-[5px]">
-                          <span>🍃 Plantain Leaf Platter</span>
-                        </span>
-                        <span className="text-golden-xs font-bold text-emerald-800 bg-emerald-100 px-[8px] py-[2px] rounded-full">
-                          {selectedCount} placed
-                        </span>
-                      </div>
-
-                      <PlantainLeafCanvas
-                        availableItems={data.items}
-                        selectedItemsMap={selectedItems}
-                        onToggleItem={toggleItem}
-                        showGhosts={true}
-                        className="rounded-[13px]"
-                      />
-                    </div>
-
-                    {/* Auspicious Feast Ledger Card */}
-                    <div className="bg-white rounded-[21px] border border-slate-200/90 shadow-sm p-[16px] space-y-[13px]">
-                      <div className="flex items-center justify-between pb-[8px] border-b border-slate-100">
-                        <div>
-                          <span className="text-golden-xs text-slate-400 uppercase tracking-wider font-bold block">
-                            Base Rate Per Plate
-                          </span>
-                          <div className="flex items-baseline gap-[5px]">
-                            <span className="font-heading font-black text-golden-lg text-[var(--brand)]">
-                              {formatRupees(perPlateTotal)}
-                            </span>
-                            <span className="text-golden-xs text-slate-400 font-medium">/ plate</span>
-                          </div>
-                        </div>
-
-                        {selectedCount > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => clearItems()}
-                            className="text-golden-xs font-bold text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
-                          >
-                            Clear all
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Selected Items horizontal chips */}
-                      {selectedCount > 0 ? (
-                        <div className="space-y-[8px]">
-                          <div className="flex items-center justify-between text-golden-xs text-slate-500">
-                            <span>Placed on leaf ({selectedCount}):</span>
-                            <span className="font-bold text-slate-700">100 plates ≈ {formatRupees(perPlateTotal * 100)}</span>
-                          </div>
-                          <div className="flex gap-[5px] overflow-x-auto no-scrollbar py-1">
-                            {Object.values(selectedItems).map((it) => (
-                              <span
-                                key={it.id}
-                                className="px-[8px] py-[3px] rounded-full text-[10px] font-bold bg-amber-50 border border-amber-200 text-amber-900 whitespace-nowrap shrink-0 flex items-center gap-1"
-                              >
-                                <span>✓</span>
-                                <span>{it.name}</span>
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-golden-xs text-slate-400 text-center py-[8px]">
-                          Tap any dish on the left to serve it onto the fresh leaf
-                        </p>
-                      )}
-
-                      {/* Action buttons */}
-                      <div className="grid grid-cols-2 gap-[8px] pt-[5px]">
-                        <button
-                          type="button"
-                          onClick={() => setIsLeafModalOpen(true)}
-                          className="h-[38px] rounded-[10px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-golden-xs font-bold border border-emerald-200 transition-colors flex items-center justify-center gap-[5px] cursor-pointer"
-                        >
-                          <span>🍃 Expand Leaf</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setIsTastingModalOpen(true)}
-                          className="h-[38px] rounded-[10px] bg-amber-50 hover:bg-amber-100 text-amber-900 text-golden-xs font-bold border border-amber-200 transition-colors flex items-center justify-center gap-[5px] cursor-pointer"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                          <span>Tasting Box</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ==========================================================
-                  VIEW MODE C: FULL MENU GRID (100% Full Width)
-                  ========================================================== */}
-              {viewMode === 'grid' && (
-                <div className="w-full space-y-[21px] sm:space-y-[34px]">
-                  {/* Search Results View */}
-                  {filteredSearchItems !== null ? (
-                    <section className="space-y-[13px]">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-heading font-black text-golden-sm sm:text-golden-base text-slate-800">
-                          Found {filteredSearchItems.length} {filteredSearchItems.length === 1 ? 'dish' : 'dishes'} for &ldquo;{searchQuery}&rdquo;
-                        </h3>
-                        <button
-                          type="button"
-                          onClick={() => setSearchQuery('')}
-                          className="text-golden-xs font-bold text-[var(--brand)] hover:underline cursor-pointer"
-                        >
-                          Clear search
-                        </button>
-                      </div>
-
-                      {filteredSearchItems.length === 0 ? (
-                        <div className="p-[34px] text-center bg-white rounded-[21px] border border-dashed border-slate-200">
-                          <p className="text-golden-sm font-semibold text-slate-700">No matching dishes found</p>
-                          <p className="text-golden-xs text-slate-400 mt-1">Try searching for sweets, rice, rasam, or curries</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-[8px] sm:gap-[13px]">
-                          {filteredSearchItems.map((item) => (
-                            <ItemCard key={item.id} item={item} />
-                          ))}
-                        </div>
-                      )}
-                    </section>
-                  ) : (
-                    /* Regular Category View */
-                    data.categories.map((category) => {
-                      const categoryItems = getCategoryItems(category, data.items).filter(matchesPurityFilter)
-                      if (categoryItems.length === 0) return null
-
-                      return (
-                        <section
-                          key={category.id}
-                          id={`cat-section-${category.id}`}
-                          className="scroll-mt-32 space-y-[13px]"
-                        >
-                          <ScrollReveal>
-                            <div className="flex items-center justify-between pt-[5px] border-b border-slate-200/60 pb-[8px]">
-                              <h3 className="font-heading font-black text-golden-base sm:text-golden-md lg:text-golden-lg text-slate-800 tracking-tight flex items-center gap-[8px]">
-                                <span>{category.name}</span>
-                                <span className="text-golden-xs font-bold text-slate-500 bg-slate-100 px-[8px] py-[2px] rounded-full font-sans">
-                                  {categoryItems.length} {categoryItems.length === 1 ? 'item' : 'items'}
-                                </span>
-                              </h3>
-                            </div>
-                          </ScrollReveal>
-
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-[8px] sm:gap-[13px]">
-                            {categoryItems.map((item, index) => {
-                              const variants = getItemEntranceVariants(tier, index)
-                              return (
-                                <motion.div
-                                  key={item.id}
-                                  initial={isReduced ? false : variants.hidden}
-                                  whileInView={isReduced ? undefined : variants.visible}
-                                  viewport={{ once: true, margin: '-20px' }}
-                                >
-                                  <ItemCard item={item} />
-                                </motion.div>
-                              )
-                            })}
-                          </div>
-                        </section>
-                      )
-                    })
-                  )}
-                </div>
-              )}
-
-            </main>
-
-            {/* ==========================================================
-                4. FLOATING MENU CATEGORIES BUTTON (BOTTOM-LEFT, LOGO ONLY)
-                ========================================================== */}
-            {data && data.categories && data.categories.length > 0 && (
-              <FloatingMenuNav
-                categories={data.categories}
-                activeCategoryId={activeCategoryId}
-                onSelectCategory={scrollToCategory}
-                getCategorySelectedCount={getCategorySelectedCount}
-                categoryItemCounts={data.categories.reduce((acc, cat) => {
-                  acc[cat.id] = getCategoryItems(cat, data.items).length
-                  return acc
-                }, {} as Record<string, number>)}
-              />
-            )}
-
-            {/* ==========================================================
-                5. GOLDEN FLOATING BOTTOM BAR (61.8% / 38.2% SECTION)
-                ========================================================== */}
-            <motion.nav
-              aria-label="Order summary and checkout"
-              key={bounceKey}
-              animate={!isReduced && bounceKey > 0 ? { y: [0, -3, 0] } : undefined}
-              transition={MOTION_SPRINGS.tap}
-              className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-[13px] sm:inset-x-[21px] lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-3xl z-40 pointer-events-auto rounded-[21px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_13px_34px_-5px_rgba(0,0,0,0.15),0_3px_13px_rgba(0,0,0,0.06)] p-[8px] sm:p-[13px]"
+          {/* Middle Nav Links */}
+          <div className="hidden md:flex items-center space-x-6 text-sm font-semibold text-on-surface-variant">
+            <a className="hover:text-primary transition-colors cursor-pointer" href="#tradition">Tradition</a>
+            <a className="text-primary font-bold border-b-2 border-primary pb-0.5 cursor-pointer" href="#menus">Catering Menus</a>
+            <button 
+              type="button"
+              onClick={() => setIsLeafModalOpen(true)}
+              className="hover:text-primary transition-colors cursor-pointer flex items-center gap-1"
             >
-              <div className="w-full flex items-center justify-between gap-[13px] sm:gap-[21px]">
-                {/* Major Golden Section (61.8%): Bag icon + 'N items selected' with Odometer */}
-                <div className="flex items-center gap-[10px] sm:gap-[13px] min-w-0 flex-[1.618]">
-                  <div className={`w-[38px] h-[38px] sm:w-[44px] sm:h-[44px] rounded-[13px] flex items-center justify-center shrink-0 transition-colors ${
-                    selectedCount > 0 
-                      ? 'bg-[var(--brand)] text-white shadow-xs' 
-                      : 'bg-slate-100 text-slate-400'
-                  }`}>
-                    <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </div>
-                  <div className="flex flex-col justify-center min-w-0">
-                    <div className="font-heading font-black text-golden-xs sm:text-golden-sm text-slate-900 flex items-center gap-1 leading-tight truncate">
-                      <Odometer value={selectedCount} />
-                      <span className="truncate">{selectedCount === 1 ? 'item' : 'items'} selected</span>
-                      {selectedCount > 0 && (
-                        <span className="text-golden-xs font-bold text-[var(--brand)] shrink-0 ml-0.5">
-                          • {formatRupees(perPlateTotal)}/pl
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[10px] sm:text-golden-xs text-slate-500 font-medium leading-tight truncate mt-[2px]">
-                      {selectedCount === 0
-                        ? 'Select dishes to build feast'
-                        : 'Custom quotation on next step'}
-                    </span>
-                  </div>
-                </div>
+              <span className="material-symbols-outlined text-[16px] text-tertiary-container">eco</span>
+              Muhurtham Feasts
+            </button>
+            <button 
+              type="button"
+              onClick={() => navigate('/enquiries')}
+              className="hover:text-primary transition-colors cursor-pointer flex items-center gap-1"
+            >
+              Enquiry
+              {enquiriesCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
+                  {enquiriesCount}
+                </span>
+              )}
+            </button>
+          </div>
 
-                {/* Minor Golden Section (38.2%): Leaf button & Proceed button */}
-                <div className="flex items-center gap-[8px] shrink-0">
-                  {selectedCount > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setIsLeafModalOpen(true)}
-                      className="h-[38px] sm:h-[44px] px-[10px] sm:px-[16px] rounded-[13px] bg-emerald-50 hover:bg-emerald-100 active:scale-[0.97] text-emerald-800 font-bold text-golden-xs flex items-center justify-center gap-[5px] border border-emerald-200 transition-colors shadow-2xs cursor-pointer shrink-0"
-                      title="View feast arranged on traditional South Indian plantain leaf"
-                    >
-                      <span className="text-sm">🍃</span>
-                      <span className="hidden sm:inline">Leaf View</span>
-                    </button>
-                  )}
+          {/* Right Actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <a 
+              className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-fixed/30 hover:bg-primary-fixed/50 px-3 py-1.5 rounded-full transition-colors border border-primary/10" 
+              href="tel:+918212448920"
+            >
+              <span className="material-symbols-outlined text-[16px]">call</span>
+              +91 821 244 8920
+            </a>
 
-                  {selectedCount === 0 ? (
-                    <button
-                      disabled
-                      className="h-[38px] sm:h-[44px] px-[13px] sm:px-[21px] rounded-[13px] bg-slate-100 text-slate-400 font-bold text-golden-xs sm:text-golden-sm cursor-not-allowed select-none tap-target-48 flex items-center justify-center transition-colors text-center shrink-0 whitespace-nowrap"
-                    >
-                      Select at least one item
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      id="proceed-to-request-btn"
-                      onClick={() => navigate('/request')}
-                      className="h-[38px] sm:h-[44px] px-[16px] sm:px-[26px] rounded-[13px] bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.97] text-white font-heading font-black text-golden-xs sm:text-golden-sm flex items-center justify-center gap-[5px] shadow-md tap-target-48 transition-all select-none cursor-pointer shrink-0 whitespace-nowrap"
-                    >
-                      <span>Proceed</span>
-                      <ChevronRight className="w-4 h-4 stroke-[3]" />
-                    </button>
-                  )}
+            {/* Enquiries Button */}
+            <button 
+              type="button"
+              onClick={() => navigate('/enquiries')}
+              className="relative p-2 rounded-full hover:bg-surface-container-low transition-colors" 
+              title="My Enquiries"
+              aria-label="View previous banquet enquiries"
+            >
+              <span className="material-symbols-outlined text-[20px] text-on-surface">calendar_month</span>
+              {enquiriesCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
+              )}
+            </button>
+
+            {/* Shopping Bag Button */}
+            <button 
+              type="button"
+              onClick={() => {
+                if (selectedCount > 0) {
+                  navigate('/request')
+                } else {
+                  setIsLeafModalOpen(true)
+                }
+              }}
+              className="relative p-2 rounded-full hover:bg-surface-container-low transition-colors" 
+              title="Selected Items"
+              aria-label={`Selected delicacies: ${selectedCount}`}
+            >
+              <span className="material-symbols-outlined text-[22px] text-on-surface">shopping_bag</span>
+              {selectedCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-on-primary rounded-full text-[10px] flex items-center justify-center font-bold">
+                  {selectedCount}
+                </span>
+              )}
+            </button>
+
+            {/* Plan Event Banquet Button */}
+            <button 
+              type="button"
+              onClick={() => {
+                if (selectedCount > 0) {
+                  navigate('/request')
+                } else {
+                  const firstItem = data?.items?.[0]
+                  if (firstItem) toggleItem(firstItem)
+                  navigate('/request')
+                }
+              }}
+              className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[16px]">flatware</span>
+              Plan Event Banquet
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="w-full flex-1 flex flex-col">
+        {/* 3. INTERACTIVE EVENT CONTEXT BAR */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 pb-2 w-full">
+          <div className="bg-surface-container-low rounded-2xl p-4 border border-outline-variant/15 flex flex-wrap items-center justify-between gap-4 shadow-2xs">
+            {/* Auspicious Occasion */}
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary text-2xl">celebration</span>
+              <div>
+                <label 
+                  htmlFor="catering-occasion-select" 
+                  className="block text-[10px] uppercase font-bold text-outline tracking-wider"
+                >
+                  Auspicious Occasion
+                </label>
+                <select 
+                  id="catering-occasion-select"
+                  aria-label="Catering occasion type"
+                  value={requirements.eventType || 'Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)'}
+                  onChange={(e) => setRequirements({ eventType: e.target.value })}
+                  className="bg-transparent font-headline font-bold text-sm sm:text-base text-primary focus:outline-none cursor-pointer pr-4"
+                >
+                  <option value="Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)">Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)</option>
+                  <option value="Traditional Muhurtham (ವಿವಾಹ)">Traditional Muhurtham (ವಿವಾಹ)</option>
+                  <option value="Grihapravesham (ಗೃಹಪ್ರವೇಶ)">Grihapravesham (ಗೃಹಪ್ರವೇಶ)</option>
+                  <option value="Ayushya Homam (ಆಯುಷ್ಯ ಹೋಮ)">Ayushya Homam (ಆಯುಷ್ಯ ಹೋಮ)</option>
+                  <option value="Seemantham (ಸೀಮಂತ)">Seemantham (ಸೀಮಂತ)</option>
+                  <option value="Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)">Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Number of Guests */}
+            <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-2 sm:pt-0 sm:pl-6">
+              <span className="material-symbols-outlined text-primary text-2xl">groups</span>
+              <div>
+                <span className="block text-[10px] uppercase font-bold text-outline tracking-wider">Number of Guests</span>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <button 
+                    type="button" 
+                    onClick={() => setRequirements({ guestCount: Math.max(25, guestCount - 25) })}
+                    title="Decrease 25 guests"
+                    aria-label="Decrease 25 guests"
+                    className="w-6 h-6 rounded-full bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center font-bold text-xs text-primary hover:bg-surface-container-high transition-colors cursor-pointer select-none"
+                  >
+                    -
+                  </button>
+                  <span className="font-headline font-bold text-sm sm:text-base text-primary min-w-[3ch] text-center select-none">
+                    {guestCount}
+                  </span>
+                  <span className="text-xs text-outline font-medium">Guests</span>
+                  <button 
+                    type="button" 
+                    onClick={() => setRequirements({ guestCount: guestCount + 25 })}
+                    title="Increase 25 guests"
+                    aria-label="Increase 25 guests"
+                    className="w-6 h-6 rounded-full bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center font-bold text-xs text-primary hover:bg-surface-container-high transition-colors cursor-pointer select-none"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
-            </motion.nav>
+            </div>
 
-            {/* Virtual Plantain Leaf Ceremonial Layout Modal */}
-            <VirtualBananaLeafModal
-              isOpen={isLeafModalOpen}
-              onClose={() => setIsLeafModalOpen(false)}
-              onProceedToRequirements={() => navigate('/request')}
-              availableItems={data.items}
-            />
+            {/* Muhurtham Date */}
+            <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-2 sm:pt-0 sm:pl-6">
+              <span className="material-symbols-outlined text-primary text-2xl">event</span>
+              <div>
+                <label 
+                  htmlFor="muhurtham-date-input"
+                  className="block text-[10px] uppercase font-bold text-outline tracking-wider"
+                >
+                  Muhurtham Date
+                </label>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <input 
+                    id="muhurtham-date-input"
+                    type="date" 
+                    aria-label="Muhurtham event date"
+                    value={requirements.eventDate || '2026-11-18'} 
+                    onChange={(e) => setRequirements({ eventDate: e.target.value })}
+                    className="bg-transparent font-headline font-bold text-xs sm:text-sm text-primary focus:outline-none cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
 
-            {/* Tasting Box Booking Modal */}
-            <TastingSessionModal
-              isOpen={isTastingModalOpen}
-              onClose={() => setIsTastingModalOpen(false)}
-              availableItems={data.items}
-            />
-          </>
-        )}
+            {/* Traditional Plantain Leaf Service Tag */}
+            <div className="hidden lg:flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-xl border border-outline-variant/15 text-xs text-on-surface-variant font-medium">
+              <span className="material-symbols-outlined text-tertiary-container text-base">eco</span>
+              <div>
+                <span className="font-bold text-on-surface block text-[11px]">Traditional Plantain Leaf</span>
+                <span className="text-[10px] text-outline">Live hot counters &amp; Mysuru Rasam service included</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      </div>
+        {/* 4. TITLE & PER-PLATE RATE CARD SECTION */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 pb-4 w-full">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed/40 text-primary border border-primary/20 text-xs font-bold mb-2">
+                <span className="material-symbols-outlined text-[14px]">verified</span>
+                100% Pure Ghee &amp; Authentic Mysuru Temple Recipes
+              </div>
+              <h2 className="font-headline font-black text-3xl sm:text-4xl text-primary tracking-tight">
+                Catering Menu Catalogue
+              </h2>
+              <p className="text-sm text-on-surface-variant mt-2 max-w-2xl font-normal leading-relaxed">
+                Handcrafted sacred heritage dishes for grand muhurthams, upanayanas, and household poojas. Pick delicacies to customize your plantain leaf feast.
+              </p>
+            </div>
+
+            {/* Feast Price Live Rate Card */}
+            <div className="bg-surface-container-low border border-outline-variant/15 rounded-2xl p-4 flex items-center gap-4 self-start md:self-auto shrink-0 shadow-xs">
+              <div className="p-2.5 bg-primary/10 rounded-xl text-primary flex items-center justify-center">
+                <span className="material-symbols-outlined text-2xl">restaurant</span>
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-outline block uppercase tracking-wider">Feast Price / Guest</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-headline font-black text-2xl text-primary">
+                    ₹{displayPerPlate}
+                  </span>
+                  <span className="text-xs text-on-surface-variant font-medium">/ plate</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. SEARCH & DIETARY FILTER CHIPS */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-8 py-3 w-full">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+            {/* Search Box */}
+            <div className="relative flex-1">
+              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">
+                search
+              </span>
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search Puliyogare, Mysore Pak, Rasam, Pongal..." 
+                className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-full pl-10 pr-9 py-2.5 text-xs sm:text-sm text-on-surface placeholder-outline/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs"
+              />
+              {searchQuery && (
+                <button 
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface p-1"
+                  aria-label="Clear search query"
+                >
+                  <span className="material-symbols-outlined text-[16px]">close</span>
+                </button>
+              )}
+            </div>
+
+            {/* Dietary Filter Buttons */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+              <button 
+                type="button" 
+                onClick={() => setPurityFilter(purityFilter === 'satvik' ? 'all' : 'satvik')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer select-none ${
+                  purityFilter === 'satvik'
+                    ? 'bg-tertiary-container text-white border border-tertiary-container shadow-2xs'
+                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/15'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[14px]">spa</span>
+                <span>No Onion No Garlic</span>
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setPurityFilter(purityFilter === 'pureGhee' ? 'all' : 'pureGhee')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer select-none ${
+                  purityFilter === 'pureGhee'
+                    ? 'bg-secondary-container text-on-secondary-container border border-secondary shadow-2xs'
+                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/15'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[14px]">water_drop</span>
+                <span>Pure Desi Ghee Only</span>
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setPurityFilter(purityFilter === 'live' ? 'all' : 'live')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer select-none ${
+                  purityFilter === 'live'
+                    ? 'bg-primary text-on-primary border border-primary shadow-2xs'
+                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/15'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[14px]">skillet</span>
+                <span>Live Tiffin Counter</span>
+              </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setPurityFilter('all')
+                  setSearchQuery('')
+                  setActiveCategoryId('cat-all')
+                }}
+                title="Reset all filters"
+                className="px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/15 transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer select-none"
+              >
+                <span className="material-symbols-outlined text-[14px]">tune</span>
+                <span>Filters</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. AGILE CATEGORY PILL CAROUSEL */}
+        <section className="sticky top-[69px] z-30 bg-surface/95 backdrop-blur-md border-y border-outline-variant/10 py-2.5 px-4 sm:px-8 w-full">
+          <div 
+            role="tablist" 
+            aria-label="Catering menu categories" 
+            className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-0.5"
+          >
+            {categories.map((cat) => {
+              const isSelected = activeCategoryId === cat.id || (!activeCategoryId && cat.id === 'cat-all')
+              return (
+                <button 
+                  key={cat.id}
+                  role="tab"
+                  aria-selected={isSelected}
+                  type="button"
+                  onClick={() => setActiveCategoryId(cat.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 shrink-0 cursor-pointer select-none ${
+                    isSelected
+                      ? 'bg-primary text-on-primary shadow-xs'
+                      : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high border border-outline-variant/15'
+                  }`}
+                >
+                  {cat.id === 'cat-all' && <span className="material-symbols-outlined text-[14px]">all_inclusive</span>}
+                  {cat.id === 'cat-rice' && <span className="material-symbols-outlined text-[14px]">rice_bowl</span>}
+                  {cat.id === 'cat-tiffins' && <span className="material-symbols-outlined text-[14px]">bakery_dining</span>}
+                  {cat.id === 'cat-sambar' && <span className="material-symbols-outlined text-[14px]">soup_kitchen</span>}
+                  {cat.id === 'cat-sweets' && <span className="material-symbols-outlined text-[14px]">cake</span>}
+                  {cat.id === 'cat-palya' && <span className="material-symbols-outlined text-[14px]">nutrition</span>}
+                  {cat.id === 'cat-beverages' && <span className="material-symbols-outlined text-[14px]">local_cafe</span>}
+                  <span>
+                    {cat.name} {cat.id === 'cat-all' ? `(${filteredItems.length})` : ''}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+
+        {/* 7. DISH CARDS GRID */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 w-full flex-1">
+          {loading ? (
+            <CatalogueSkeleton />
+          ) : error ? (
+            <div className="p-8 text-center bg-surface-container-low rounded-2xl border border-outline-variant/20 max-w-md mx-auto my-12">
+              <span className="material-symbols-outlined text-4xl text-primary mb-2">error</span>
+              <p className="text-sm font-semibold text-primary">{error}</p>
+              <button 
+                type="button" 
+                onClick={loadCatalogue} 
+                className="mt-4 px-4 py-2 rounded-full bg-primary text-on-primary text-xs font-bold"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredItems.length === 0 ? (
+            <div className="p-12 text-center bg-surface-container-low rounded-2xl border border-outline-variant/15 max-w-md mx-auto my-8">
+              <span className="material-symbols-outlined text-4xl text-outline mb-2">search_off</span>
+              <h4 className="font-headline font-bold text-base text-primary">No dishes found</h4>
+              <p className="text-xs text-on-surface-variant mt-1">
+                Try adjusting your search query or selecting a different dietary filter.
+              </p>
+              <button 
+                type="button"
+                onClick={() => {
+                  setSearchQuery('')
+                  setPurityFilter('all')
+                  setActiveCategoryId('cat-all')
+                }}
+                className="mt-4 px-4 py-1.5 rounded-full bg-surface-container-high text-xs font-bold text-primary hover:bg-surface-container-highest transition-colors"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {filteredItems.map((item) => (
+                <ItemCard key={item.id} item={item} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 8. HERITAGE PURITY GUARANTEE BENTO GRID */}
+        <section aria-label="Heritage purity guarantees" className="max-w-7xl mx-auto px-4 sm:px-8 py-8 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Bento Card 1: Pure Desi Ghee */}
+            <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/15 flex items-start gap-3.5 shadow-2xs">
+              <div className="p-2.5 rounded-xl bg-secondary-container/20 text-on-secondary-container shrink-0">
+                <span className="material-symbols-outlined text-2xl">water_drop</span>
+              </div>
+              <div>
+                <h4 className="font-headline font-bold text-sm text-primary">100% Pure Desi Ghee</h4>
+                <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
+                  Every sweet, sambar tempering, and payasam is cooked exclusively in authentic dairy clarified butter with zero hydrogenated fats.
+                </p>
+              </div>
+            </div>
+
+            {/* Bento Card 2: Traditional Banana Leaf */}
+            <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/15 flex items-start gap-3.5 shadow-2xs">
+              <div className="p-2.5 rounded-xl bg-tertiary-container/20 text-tertiary-container shrink-0">
+                <span className="material-symbols-outlined text-2xl">eco</span>
+              </div>
+              <div>
+                <h4 className="font-headline font-bold text-sm text-primary">Traditional Banana Leaf</h4>
+                <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
+                  Full seated traditional serving protocol with trained Mysuru servers adhering to Panchanga order of dishes.
+                </p>
+              </div>
+            </div>
+
+            {/* Bento Card 3: Strict Vedic Hygiene */}
+            <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/15 flex items-start gap-3.5 shadow-2xs">
+              <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
+                <span className="material-symbols-outlined text-2xl">workspace_premium</span>
+              </div>
+              <div>
+                <h4 className="font-headline font-bold text-sm text-primary">Strict Vedic Hygiene</h4>
+                <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
+                  Prepared by Vaishnavite cooks following devout rituals, with RO-purified water and sanitised brass kitchen vessels.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* 9. TRADITIONAL HERITAGE FOOTER */}
+      <footer className="bg-surface-container-low border-t border-outline-variant/15 py-10 px-4 sm:px-8 mt-12 pb-32 text-xs text-on-surface-variant w-full">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <h3 className="font-headline font-bold text-primary text-base">TKS Iyengar's Catering</h3>
+            <span className="text-[10px] bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 px-1.5 py-0.5 rounded font-bold">
+              Mysuru Estd. 1984
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-semibold text-outline">
+            <a href="#tradition" className="hover:text-primary transition-colors">Sacred Menu Heritage</a>
+            <button 
+              type="button" 
+              onClick={() => setIsLeafModalOpen(true)}
+              className="hover:text-primary transition-colors"
+            >
+              Muhurtham Packages
+            </button>
+            <a href="#purity" className="hover:text-primary transition-colors">Purity Guarantee</a>
+            <button 
+              type="button" 
+              onClick={() => setIsTastingModalOpen(true)}
+              className="hover:text-primary transition-colors"
+            >
+              Tasting Box Session
+            </button>
+            <button 
+              type="button" 
+              onClick={() => navigate('/enquiries')}
+              className="hover:text-primary transition-colors"
+            >
+              Enquiry for Banquets
+            </button>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto border-t border-outline-variant/10 mt-6 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-outline">
+          <p>© 2026 TKS Iyengar's Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage.</p>
+          <div className="flex items-center gap-4">
+            <span>Head Kitchen: 142/A Krishnamurthy Puram, Mysuru 570004</span>
+            <a href="#privacy" className="hover:text-primary">Privacy Policy</a>
+          </div>
+        </div>
+      </footer>
+
+      {/* 10. FLOATING BOTTOM SUMMARY BAR */}
+      <aside 
+        aria-label="Banquet feast selection summary" 
+        className="fixed bottom-4 left-4 right-4 sm:left-8 sm:right-8 z-50 pointer-events-auto"
+      >
+        <div className="max-w-4xl mx-auto bg-surface/90 backdrop-blur-md border border-outline-variant/20 rounded-full p-2.5 sm:p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 ring-1 ring-black/5">
+          {/* Left: Delicacies Count & Per Plate Rate */}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">soup_kitchen</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-headline font-bold text-xs sm:text-sm text-primary">
+                  {selectedCount} Delicacies Selected
+                </span>
+                <span className="text-[11px] text-on-surface-variant font-medium">
+                  • {guestCount} Guests
+                </span>
+              </div>
+              <div className="text-[10px] text-outline flex items-center gap-1">
+                <span>Per-Plate: ₹{displayPerPlate}</span>
+                <span>• Includes Service &amp; Leaves</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Center / Right: Estimate, WhatsApp & Primary Proceed CTA */}
+          <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t sm:border-t-0 border-outline-variant/10 pt-2 sm:pt-0">
+            <div className="text-left sm:text-right">
+              <span className="text-[9px] uppercase font-bold text-outline tracking-wider block">
+                Banquet Estimate
+              </span>
+              <span className="font-headline font-black text-sm sm:text-base text-primary">
+                ₹{estimatedBanquetTotal.toLocaleString('en-IN')}
+              </span>
+              <span className="text-[9px] text-outline block -mt-0.5">
+                + applicable GST &amp; transport
+              </span>
+            </div>
+
+            {/* WhatsApp Share Button */}
+            <a 
+              href={whatsappUrl}
+              target="_blank" 
+              rel="noopener noreferrer"
+              aria-label="Share feast requirements on WhatsApp"
+              className="px-3 py-2 rounded-full bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-xs flex items-center gap-1 border border-[#25D366]/30 transition-colors shrink-0"
+            >
+              <span className="material-symbols-outlined text-[16px]">chat</span>
+              <span className="hidden md:inline">WhatsApp</span>
+            </a>
+
+            {/* Primary Proceed Button (Maintains strict Playwright test compatibility) */}
+            {selectedCount === 0 ? (
+              <button
+                id="proceed-to-request-btn"
+                type="button"
+                disabled={true}
+                className="px-5 py-2.5 rounded-full bg-surface-container-high text-outline text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-75 shrink-0"
+              >
+                <span>Select at least one item</span>
+              </button>
+            ) : (
+              <button
+                id="proceed-to-request-btn"
+                type="button"
+                onClick={() => navigate('/request')}
+                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg hover:scale-102 transition-all cursor-pointer shrink-0"
+              >
+                <span>Proceed to Muhurtham Quote</span>
+                <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* Modals for Banana Leaf Preview & Tasting Box */}
+      {isLeafModalOpen && (
+        <VirtualBananaLeafModal 
+          isOpen={isLeafModalOpen} 
+          onClose={() => setIsLeafModalOpen(false)} 
+        />
+      )}
+
+      {isTastingModalOpen && (
+        <TastingSessionModal 
+          isOpen={isTastingModalOpen} 
+          onClose={() => setIsTastingModalOpen(false)} 
+          availableItems={data?.items || []}
+        />
+      )}
     </CustomerDesktopShell>
   )
 }

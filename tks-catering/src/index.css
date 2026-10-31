@@ -5,29 +5,82 @@
 @import "tw-animate-css";
 
 @theme {
-  --font-sans: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-heading: 'Geist Variable', system-ui, sans-serif;
-  --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-serif: 'EB Garamond', 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   --font-kannada: 'Noto Sans Kannada', sans-serif;
+  --font-fraunces: 'Fraunces', serif;
+  --font-headline-md: 'EB Garamond', serif;
+  --font-headline-sm: 'EB Garamond', serif;
+  --font-headline-lg: 'EB Garamond', serif;
+  --font-display-lg: 'EB Garamond', serif;
+  --font-display-lg-mobile: 'EB Garamond', serif;
+  --font-body-lg: 'Inter', sans-serif;
+  --font-body-md: 'Inter', sans-serif;
+  --font-title-lg: 'Inter', sans-serif;
+  --font-title-md: 'Inter', sans-serif;
+  --font-label-lg: 'Inter', sans-serif;
+  --font-label-md: 'Inter', sans-serif;
+  --font-price-lg: 'Inter', sans-serif;
+  --font-price-md: 'Inter', sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-on-error: #ffffff;
+  --color-primary: #880000;
+  --color-inverse-primary: #ffb4a8;
+  --color-surface-tint: #bc150c;
+  --color-tertiary-fixed-dim: #7bda94;
+  --color-on-surface: #281714;
+  --color-on-error-container: #93000a;
+  --color-surface: #fff8f6;
+  --color-on-tertiary-fixed: #00210c;
+  --color-tertiary: #004b23;
+  --color-on-surface-variant: #5c403b;
+  --color-tertiary-container: #006632;
+  --color-inverse-on-surface: #ffedea;
+  --color-primary-fixed: #ffdad4;
+  --color-error-container: #ffdad6;
+  --color-on-secondary-fixed: #291800;
+  --color-inverse-surface: #3f2c28;
+  --color-surface-container-lowest: #ffffff;
+  --color-background: #fff8f6;
+  --color-primary-container: #b30a05;
+  --color-surface-container-low: #fff0ee;
+  --color-on-primary: #ffffff;
+  --color-secondary-container: #fdb647;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #6f4900;
+  --color-surface-bright: #fff8f6;
+  --color-error: #ba1a1a;
+  --color-surface-container-highest: #fbdbd6;
+  --color-on-primary-container: #ffc0b6;
+  --color-on-primary-fixed-variant: #930000;
+  --color-surface-variant: #fbdbd6;
+  --color-secondary-fixed-dim: #ffb94d;
+  --color-on-tertiary: #ffffff;
+  --color-outline: #906f6a;
+  --color-surface-container-high: #ffe2dd;
+  --color-secondary-fixed: #ffddb2;
+  --color-on-tertiary-fixed-variant: #005227;
+  --color-on-tertiary-container: #83e39b;
+  --color-surface-dim: #f2d3ce;
+  --color-secondary: #815500;
+  --color-on-primary-fixed: #410000;
+  --color-on-secondary-fixed-variant: #624000;
+  --color-tertiary-fixed: #97f7ae;
+  --color-surface-container: #ffe9e5;
+  --color-outline-variant: #e5bdb7;
+  --color-on-background: #281714;
+  --color-primary-fixed-dim: #ffb4a8;
 
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
 
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
@@ -293,5 +346,49 @@ textarea {
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+/* Material Symbols Outlined config */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #e5bdb7;
+  border-radius: 9999px;
+}
+
+.btn-iyengar-gradient {
+  background: linear-gradient(90deg, #8B0A00 0%, #E0000F 50%, #8B0A00 100%);
+  box-shadow: 0 8px 24px -4px rgba(179, 10, 5, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-iyengar-gradient:hover {
+  box-shadow: 0 10px 28px -2px rgba(179, 10, 5, 0.45);
+  transform: translateY(-1px);
+}
+.btn-iyengar-gradient:active {
+  transform: scale(0.98);
+}
+
+.gold-accent-gradient {
+  background: linear-gradient(135deg, #F0D08A 0%, #C98A1A 100%);
+}
+
+.ambient-glow-top {
+  background: radial-gradient(circle at 10% 0%, rgba(224, 0, 15, 0.08) 0%, rgba(255, 248, 246, 0) 65%);
+}
+
+.ambient-glow-right {
+  background: radial-gradient(circle at 90% 20%, rgba(201, 138, 26, 0.08) 0%, rgba(255, 248, 246, 0) 60%);
 }
 

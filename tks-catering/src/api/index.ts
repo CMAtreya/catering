@@ -34,18 +34,15 @@ function loadStoredItems(): MenuItem[] {
     if (stored) {
       const parsed = JSON.parse(stored)
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map((p: MenuItem) => {
-          const initial = INITIAL_ITEMS.find((it) => it.id === p.id)
+        return INITIAL_ITEMS.map((initial) => {
+          const storedItem = parsed.find((p: MenuItem) => p.id === initial.id)
+          if (!storedItem) return initial
           return {
-            ...p,
-            image: p.image || initial?.image || '',
-            description: p.description || initial?.description || '',
-            bestseller: p.bestseller ?? initial?.bestseller,
-            mustTry: p.mustTry ?? initial?.mustTry,
-            pureGhee: p.pureGhee ?? initial?.pureGhee,
-            satvik: p.satvik ?? initial?.satvik,
-            leafZone: p.leafZone || initial?.leafZone,
-            leafContainer: p.leafContainer || initial?.leafContainer,
+            ...initial,
+            pricePerPlate: storedItem.pricePerPlate ?? initial.pricePerPlate,
+            available: storedItem.available ?? initial.available,
+            heritageTag: initial.heritageTag || storedItem.heritageTag,
+            portionLabel: initial.portionLabel || storedItem.portionLabel
           }
         })
       }
