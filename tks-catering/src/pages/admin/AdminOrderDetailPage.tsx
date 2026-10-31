@@ -1074,7 +1074,7 @@ export const AdminOrderDetailPage: React.FC = () => {
       {/* ======================================================== */}
       {/* (6) ACTION BAR (glass, floating, compact)                */}
       {/* ======================================================== */}
-      <div className={`fixed bottom-3 sm:bottom-5 inset-x-3 sm:inset-x-6 lg:left-72 lg:right-8 lg:max-w-4xl lg:mx-auto z-30 glass-floating-bar rounded-2xl sm:rounded-full px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-xl border border-slate-200/90 transition-all duration-200 ${
+      <div className={`fixed bottom-3 sm:bottom-5 inset-x-3 sm:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-4xl z-30 glass-floating-bar rounded-2xl sm:rounded-full px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-xl border border-slate-200/90 transition-all duration-200 ${
         isKeyboardOpen ? 'translate-y-full opacity-0 pointer-events-none lg:translate-y-0 lg:opacity-100 lg:pointer-events-auto' : 'translate-y-0 opacity-100'
       }`}>
         <div className="w-full">

@@ -266,7 +266,7 @@ export const AdminCreateOrderPage: React.FC = () => {
 
   return (
     <AdminAppShell title="Create Manual Order" subtitle="Take in-person or phone enquiry">
-      <div className="max-w-5xl mx-auto space-y-6 pb-28">
+      <div className="max-w-5xl mx-auto space-y-6 pb-36">
         
         {/* Navigation & Header strip */}
         <div className="flex items-center justify-between pb-2 border-b border-slate-200/80">
@@ -720,29 +720,49 @@ export const AdminCreateOrderPage: React.FC = () => {
     </div>
 
       {/* ======================================================== */}
-      {/* STICKY GLASS BOTTOM BAR 'Save enquiry'                   */}
+      {/* FLOATING ACTION BAR: 'Save enquiry'                       */}
       {/* ======================================================== */}
-      <div className="fixed bottom-0 left-0 right-0 lg:left-64 z-20 glass-bottom-bar p-3.5 sm:p-4 pb-[max(0.875rem,env(safe-area-inset-bottom))] border-t border-slate-200/80">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-              Manual Order Estimate
-            </p>
-            <p className="font-heading font-black text-lg text-[var(--brand-900)] truncate">
-              {formatRupees(estimatedFoodTotal)}
-            </p>
+      <div 
+        role="region"
+        aria-label="Save enquiry action bar"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] sm:bottom-6 inset-x-3 sm:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-5xl z-30 pointer-events-auto rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_12px_40px_-6px_rgba(0,0,0,0.16),0_4px_16px_rgba(0,0,0,0.06)] ring-1 ring-black/5 px-4 sm:px-6 py-3 sm:py-3.5 transition-all duration-200"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] flex items-center justify-center text-[var(--brand-900)] shrink-0 hidden sm:flex">
+              <UtensilsCrossed className="w-5 h-5 text-[var(--brand)]" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] sm:text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                  Manual Order Estimate
+                </p>
+                <span className="text-[10px] font-semibold text-slate-500 hidden md:inline">
+                  • {plates} plates • {selectedItemsList.length} items
+                </span>
+              </div>
+              <p className="font-heading font-black text-lg sm:text-2xl text-[var(--brand-900)] truncate leading-tight">
+                {formatRupees(estimatedFoodTotal)}
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={handleSaveEnquiry}
             disabled={isSaving || !isOnline}
-            className="h-12 px-8 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] font-heading font-bold text-sm shadow-md active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 tap-target-48 cursor-pointer"
+            className="h-11 sm:h-12 px-6 sm:px-8 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-[var(--on-brand)] font-heading font-bold text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 tap-target-48 cursor-pointer shrink-0"
           >
             {isSaving ? (
-              <span>Saving enquiry...</span>
+              <>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Saving enquiry...</span>
+              </>
             ) : (
-              <span>Save enquiry</span>
+              <>
+                <Check className="w-4 h-4 stroke-[2.5]" />
+                <span>Save enquiry</span>
+              </>
             )}
           </button>
         </div>
