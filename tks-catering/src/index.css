@@ -392,3 +392,16 @@ textarea {
   background: radial-gradient(circle at 90% 20%, rgba(201, 138, 26, 0.08) 0%, rgba(255, 248, 246, 0) 60%);
 }
 
+.custom-warm-shadow {
+  box-shadow: 0 4px 20px -2px rgba(107, 8, 0, 0.06), 0 2px 6px -1px rgba(43, 26, 23, 0.04);
+}
+
+.custom-cta-glow {
+  box-shadow: 0 8px 24px -4px rgba(179, 10, 5, 0.35);
+}
+
+.crimson-gradient {
+  background: linear-gradient(90deg, #8B0A00 0%, #E0000F 50%, #8B0A00 100%);
+}
+
+
