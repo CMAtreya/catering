@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { getCatalogue, type CatalogueResponse } from '@/api'
+import type { MenuItem } from '@/data/mockData'
 import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
 import { ItemCard } from '@/components/customer/ItemCard'
@@ -10,6 +12,56 @@ import { VirtualBananaLeafModal } from '@/components/customer/VirtualBananaLeafM
 import { TastingSessionModal } from '@/components/customer/TastingSessionModal'
 
 type PurityFilter = 'all' | 'satvik' | 'pureGhee' | 'live'
+type NavTab = 'tradition' | 'menus' | 'muhurtham' | 'enquiry'
+
+interface PresetFeastPlan {
+  id: string
+  name: string
+  kannadaName: string
+  subtitle: string
+  tag: string
+  icon: string
+  itemIds: string[]
+}
+
+const PRESET_MUHURTHAM_FEASTS: PresetFeastPlan[] = [
+  {
+    id: 'kalyana-feast',
+    name: 'Royal Mysore Kalyana Feast',
+    kannadaName: 'ರಾಜ ಮಹೋತ್ಸವ ಕಲ್ಯಾಣ ಊಟ',
+    subtitle: 'Grand wedding banquet with pure cow ghee sweets, traditional saaru & live service.',
+    tag: '👑 Most Popular',
+    icon: 'crown',
+    itemIds: ['item-1', 'item-2', 'item-3', 'item-4', 'item-7', 'item-8', 'item-9', 'item-10', 'item-12']
+  },
+  {
+    id: 'muhurtham-breakfast',
+    name: 'Traditional Muhurtham Breakfast',
+    kannadaName: 'ಸಾಂಪ್ರದಾಯಿಕ ಮುಹೂರ್ತ ತಿಂಡಿ',
+    subtitle: 'Fluffy idlis, crispy medu vadas, ghee ven pongal, and aromatic filter coffee.',
+    tag: '🌅 Morning Feasts',
+    icon: 'wb_sunny',
+    itemIds: ['item-5', 'item-6', 'item-10', 'item-12']
+  },
+  {
+    id: 'satvik-homam',
+    name: 'Satvik Ayushya Homam Feast',
+    kannadaName: 'ಸಾತ್ವಿಕ ಆಯುಷ್ಯ ಹೋಮ ಊಟ',
+    subtitle: 'Pristine Vedic pooja spread, strictly no onion/garlic, temple-simmered dishes.',
+    tag: '🌿 100% Satvik',
+    icon: 'spa',
+    itemIds: ['item-1', 'item-7', 'item-9', 'item-11']
+  },
+  {
+    id: 'grihapravesha-special',
+    name: 'Grihapravesha Banquet',
+    kannadaName: 'ಗೃಹಪ್ರವೇಶ ಶುಭ ಸಮಾರಂಭ',
+    subtitle: 'Auspicious housewarming feast with royal Mysore Pak and heritage gojju spread.',
+    tag: '🏡 Housewarming',
+    icon: 'cottage',
+    itemIds: ['item-2', 'item-3', 'item-4', 'item-8', 'item-12']
+  }
+]
 
 export const CataloguePage: React.FC = () => {
   const navigate = useNavigate()
@@ -18,6 +70,9 @@ export const CataloguePage: React.FC = () => {
   const [data, setData] = useState<CatalogueResponse | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Active top nav tab state
+  const [activeNavTab, setActiveNavTab] = useState<NavTab>('menus')
 
   // Filter & search state
   const [activeCategoryId, setActiveCategoryId] = useState<string>('cat-all')
@@ -31,6 +86,7 @@ export const CataloguePage: React.FC = () => {
   // Global draft store
   const selectedItems = useDraftStore((state) => state.items)
   const toggleItem = useDraftStore((state) => state.toggleItem)
+  const loadPresetFeast = useDraftStore((state) => state.loadPresetFeast)
   const requirements = useDraftStore((state) => state.requirements)
   const setRequirements = useDraftStore((state) => state.setRequirements)
   const selectedCount = Object.keys(selectedItems).length
@@ -56,10 +112,28 @@ export const CataloguePage: React.FC = () => {
     loadCatalogue()
   }, [])
 
+  // Smooth scroll helper for navbar portions
+  const scrollToSection = (sectionId: 'tradition' | 'menus' | 'muhurtham') => {
+    setActiveNavTab(sectionId)
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  // Handle navigation for the 4 top navbar options
+  const handleNavClick = (tab: NavTab) => {
+    if (tab === 'enquiry') {
+      setActiveNavTab('enquiry')
+      navigate('/enquiries')
+    } else {
+      scrollToSection(tab)
+    }
+  }
+
   // Categories list
   const categories = useMemo(() => {
     if (!data?.categories) return []
-    // Ensure "All Dishes" is at front if not already
     const hasAll = data.categories.some((c) => c.id === 'cat-all')
     if (hasAll) return data.categories
     return [
@@ -116,6 +190,22 @@ export const CataloguePage: React.FC = () => {
   const displayPerPlate = perPlateTotal > 0 ? perPlateTotal : 460
   const estimatedBanquetTotal = displayPerPlate * guestCount
 
+  // Load preset feast handler
+  const handleLoadPreset = (preset: PresetFeastPlan) => {
+    if (!data?.items) return
+    const itemsToLoad: MenuItem[] = []
+    preset.itemIds.forEach((id) => {
+      const found = data.items.find((it) => it.id === id)
+      if (found) itemsToLoad.push(found)
+    })
+
+    if (itemsToLoad.length > 0) {
+      loadPresetFeast(itemsToLoad, preset.name)
+      toast.success(`${preset.name} loaded with ${itemsToLoad.length} authentic delicacies!`)
+      scrollToSection('menus')
+    }
+  }
+
   // WhatsApp share link
   const whatsappUrl = useMemo(() => {
     const text = encodeURIComponent(
@@ -125,10 +215,10 @@ export const CataloguePage: React.FC = () => {
   }, [guestCount, requirements.eventType, selectedCount, displayPerPlate, estimatedBanquetTotal])
 
   return (
-    <CustomerDesktopShell>
-      {/* 1. TOP ANNOUNCEMENT BANNER */}
-      <header className="bg-primary text-on-primary py-1.5 px-4 text-xs font-medium tracking-wide border-b border-primary-container/40">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+    <CustomerDesktopShell maxWidth="w-full">
+      {/* 1. TOP ANNOUNCEMENT BANNER (Full Page Edge-to-Edge) */}
+      <header className="bg-primary text-on-primary py-2 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 text-xs font-medium tracking-wide border-b border-primary-container/40 w-full">
+        <div className="w-full flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px] text-secondary-container">local_fire_department</span>
             <span className="truncate">Mysuru's Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic</span>
@@ -142,9 +232,9 @@ export const CataloguePage: React.FC = () => {
         </div>
       </header>
 
-      {/* 2. STICKY TOP NAVIGATION BAR */}
-      <nav className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-outline-variant/15 py-3 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      {/* 2. STICKY TOP NAVIGATION BAR (Full Page Edge-to-Edge) */}
+      <nav className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/15 py-3 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 w-full shadow-2xs">
+        <div className="w-full flex items-center justify-between">
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-3">
             <img 
@@ -163,24 +253,59 @@ export const CataloguePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Middle Nav Links */}
-          <div className="hidden md:flex items-center space-x-6 text-sm font-semibold text-on-surface-variant">
-            <a className="hover:text-primary transition-colors cursor-pointer" href="#tradition">Tradition</a>
-            <a className="text-primary font-bold border-b-2 border-primary pb-0.5 cursor-pointer" href="#menus">Catering Menus</a>
-            <button 
+          {/* 4 Working Middle Nav Links */}
+          <div className="hidden md:flex items-center space-x-8 text-sm font-semibold">
+            {/* 1. Tradition */}
+            <button
               type="button"
-              onClick={() => setIsLeafModalOpen(true)}
-              className="hover:text-primary transition-colors cursor-pointer flex items-center gap-1"
+              onClick={() => handleNavClick('tradition')}
+              className={`pb-1 transition-all cursor-pointer select-none ${
+                activeNavTab === 'tradition'
+                  ? 'text-primary font-bold border-b-2 border-primary'
+                  : 'text-on-surface-variant hover:text-primary'
+              }`}
+            >
+              Tradition
+            </button>
+
+            {/* 2. Catering Menus */}
+            <button
+              type="button"
+              onClick={() => handleNavClick('menus')}
+              className={`pb-1 transition-all cursor-pointer select-none ${
+                activeNavTab === 'menus'
+                  ? 'text-primary font-bold border-b-2 border-primary'
+                  : 'text-on-surface-variant hover:text-primary'
+              }`}
+            >
+              Catering Menus
+            </button>
+
+            {/* 3. Muhurtham Feasts */}
+            <button
+              type="button"
+              onClick={() => handleNavClick('muhurtham')}
+              className={`pb-1 transition-all cursor-pointer select-none flex items-center gap-1.5 ${
+                activeNavTab === 'muhurtham'
+                  ? 'text-primary font-bold border-b-2 border-primary'
+                  : 'text-on-surface-variant hover:text-primary'
+              }`}
             >
               <span className="material-symbols-outlined text-[16px] text-tertiary-container">eco</span>
-              Muhurtham Feasts
+              <span>Muhurtham Feasts</span>
             </button>
-            <button 
+
+            {/* 4. Enquiry */}
+            <button
               type="button"
-              onClick={() => navigate('/enquiries')}
-              className="hover:text-primary transition-colors cursor-pointer flex items-center gap-1"
+              onClick={() => handleNavClick('enquiry')}
+              className={`pb-1 transition-all cursor-pointer select-none flex items-center gap-1.5 ${
+                activeNavTab === 'enquiry'
+                  ? 'text-primary font-bold border-b-2 border-primary'
+                  : 'text-on-surface-variant hover:text-primary'
+              }`}
             >
-              Enquiry
+              <span>Enquiry</span>
               {enquiriesCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
                   {enquiriesCount}
@@ -192,7 +317,7 @@ export const CataloguePage: React.FC = () => {
           {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             <a 
-              className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-fixed/30 hover:bg-primary-fixed/50 px-3 py-1.5 rounded-full transition-colors border border-primary/10" 
+              className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-fixed/30 hover:bg-primary-fixed/50 px-3.5 py-1.5 rounded-full transition-colors border border-primary/10" 
               href="tel:+918212448920"
             >
               <span className="material-symbols-outlined text-[16px]">call</span>
@@ -254,16 +379,49 @@ export const CataloguePage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Mobile Sub-Navigation Bar for 4 Options */}
+        <div className="flex md:hidden items-center justify-around border-t border-outline-variant/10 pt-2.5 mt-2.5 text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => handleNavClick('tradition')}
+            className={`px-2 py-1 ${activeNavTab === 'tradition' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
+          >
+            Tradition
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavClick('menus')}
+            className={`px-2 py-1 ${activeNavTab === 'menus' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
+          >
+            Menus
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavClick('muhurtham')}
+            className={`px-2 py-1 ${activeNavTab === 'muhurtham' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
+          >
+            Feasts
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavClick('enquiry')}
+            className={`px-2 py-1 ${activeNavTab === 'enquiry' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
+          >
+            Enquiry {enquiriesCount > 0 ? `(${enquiriesCount})` : ''}
+          </button>
+        </div>
       </nav>
 
-      {/* MAIN CONTENT AREA */}
+      {/* MAIN FULL-PAGE CONTAINER */}
       <main className="w-full flex-1 flex flex-col">
-        {/* 3. INTERACTIVE EVENT CONTEXT BAR */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 pb-2 w-full">
-          <div className="bg-surface-container-low rounded-2xl p-4 border border-outline-variant/15 flex flex-wrap items-center justify-between gap-4 shadow-2xs">
+        
+        {/* SECTION A: INTERACTIVE EVENT CONTEXT BAR (Full Page Width) */}
+        <section id="context-bar" className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-6 pb-2">
+          <div className="w-full bg-surface-container-low rounded-2xl p-4 sm:p-5 border border-outline-variant/15 flex flex-wrap items-center justify-between gap-4 shadow-2xs">
             {/* Auspicious Occasion */}
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary text-2xl">celebration</span>
+              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl">celebration</span>
               <div>
                 <label 
                   htmlFor="catering-occasion-select" 
@@ -276,7 +434,7 @@ export const CataloguePage: React.FC = () => {
                   aria-label="Catering occasion type"
                   value={requirements.eventType || 'Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)'}
                   onChange={(e) => setRequirements({ eventType: e.target.value })}
-                  className="bg-transparent font-headline font-bold text-sm sm:text-base text-primary focus:outline-none cursor-pointer pr-4"
+                  className="bg-transparent font-headline font-bold text-sm sm:text-base lg:text-lg text-primary focus:outline-none cursor-pointer pr-4"
                 >
                   <option value="Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)">Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)</option>
                   <option value="Traditional Muhurtham (ವಿವಾಹ)">Traditional Muhurtham (ವಿವಾಹ)</option>
@@ -290,7 +448,7 @@ export const CataloguePage: React.FC = () => {
 
             {/* Number of Guests */}
             <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-2 sm:pt-0 sm:pl-6">
-              <span className="material-symbols-outlined text-primary text-2xl">groups</span>
+              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl">groups</span>
               <div>
                 <span className="block text-[10px] uppercase font-bold text-outline tracking-wider">Number of Guests</span>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -299,11 +457,11 @@ export const CataloguePage: React.FC = () => {
                     onClick={() => setRequirements({ guestCount: Math.max(25, guestCount - 25) })}
                     title="Decrease 25 guests"
                     aria-label="Decrease 25 guests"
-                    className="w-6 h-6 rounded-full bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center font-bold text-xs text-primary hover:bg-surface-container-high transition-colors cursor-pointer select-none"
+                    className="w-7 h-7 rounded-full bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center font-bold text-xs text-primary hover:bg-surface-container-high transition-colors cursor-pointer select-none shadow-2xs"
                   >
                     -
                   </button>
-                  <span className="font-headline font-bold text-sm sm:text-base text-primary min-w-[3ch] text-center select-none">
+                  <span className="font-headline font-bold text-base sm:text-lg text-primary min-w-[3ch] text-center select-none">
                     {guestCount}
                   </span>
                   <span className="text-xs text-outline font-medium">Guests</span>
@@ -312,7 +470,7 @@ export const CataloguePage: React.FC = () => {
                     onClick={() => setRequirements({ guestCount: guestCount + 25 })}
                     title="Increase 25 guests"
                     aria-label="Increase 25 guests"
-                    className="w-6 h-6 rounded-full bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center font-bold text-xs text-primary hover:bg-surface-container-high transition-colors cursor-pointer select-none"
+                    className="w-7 h-7 rounded-full bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center font-bold text-xs text-primary hover:bg-surface-container-high transition-colors cursor-pointer select-none shadow-2xs"
                   >
                     +
                   </button>
@@ -322,7 +480,7 @@ export const CataloguePage: React.FC = () => {
 
             {/* Muhurtham Date */}
             <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-2 sm:pt-0 sm:pl-6">
-              <span className="material-symbols-outlined text-primary text-2xl">event</span>
+              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl">event</span>
               <div>
                 <label 
                   htmlFor="muhurtham-date-input"
@@ -337,25 +495,105 @@ export const CataloguePage: React.FC = () => {
                     aria-label="Muhurtham event date"
                     value={requirements.eventDate || '2026-11-18'} 
                     onChange={(e) => setRequirements({ eventDate: e.target.value })}
-                    className="bg-transparent font-headline font-bold text-xs sm:text-sm text-primary focus:outline-none cursor-pointer"
+                    className="bg-transparent font-headline font-bold text-xs sm:text-sm lg:text-base text-primary focus:outline-none cursor-pointer"
                   />
                 </div>
               </div>
             </div>
 
             {/* Traditional Plantain Leaf Service Tag */}
-            <div className="hidden lg:flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-xl border border-outline-variant/15 text-xs text-on-surface-variant font-medium">
-              <span className="material-symbols-outlined text-tertiary-container text-base">eco</span>
+            <div className="hidden lg:flex items-center gap-2.5 bg-surface-container-lowest px-4 py-2 rounded-xl border border-outline-variant/15 text-xs text-on-surface-variant font-medium shadow-2xs">
+              <span className="material-symbols-outlined text-tertiary-container text-lg">eco</span>
               <div>
-                <span className="font-bold text-on-surface block text-[11px]">Traditional Plantain Leaf</span>
-                <span className="text-[10px] text-outline">Live hot counters &amp; Mysuru Rasam service included</span>
+                <span className="font-bold text-on-surface block text-xs">Traditional Plantain Leaf</span>
+                <span className="text-[11px] text-outline">Live hot counters &amp; Mysuru Rasam service included</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 4. TITLE & PER-PLATE RATE CARD SECTION */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 pb-4 w-full">
+        {/* SECTION B: MUHURTHAM FEASTS PORTION (Portion 3 from Navbar, Full Page Width) */}
+        <section 
+          id="muhurtham" 
+          aria-label="Curated Muhurtham Banquet Feasts" 
+          className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 py-8 scroll-mt-20"
+        >
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 text-xs font-bold mb-2">
+                <span className="material-symbols-outlined text-[14px]">stars</span>
+                Curated Banquet Packages
+              </div>
+              <h2 className="font-headline font-black text-2xl sm:text-3xl lg:text-4xl text-primary tracking-tight">
+                Muhurtham Feasts &amp; Grand Packages
+              </h2>
+              <p className="text-sm text-on-surface-variant mt-1.5 max-w-3xl font-normal leading-relaxed">
+                Handcrafted authentic Mysuru banquet menus perfected across 40 years. Select any auspicious feast to load all its authentic delicacies into your estimation with a single tap.
+              </p>
+            </div>
+
+            {/* Leaf Visualizer Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsLeafModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-tertiary-container/15 hover:bg-tertiary-container/25 text-tertiary-container border border-tertiary-container/30 text-xs font-bold transition-all flex items-center gap-2 self-start md:self-auto shrink-0 shadow-2xs cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[18px]">eco</span>
+              <span>Preview on Banana Leaf</span>
+            </button>
+          </div>
+
+          {/* 4 Curated Feast Cards Grid (Full width across screen) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
+            {PRESET_MUHURTHAM_FEASTS.map((feast) => (
+              <div 
+                key={feast.id}
+                className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/15 flex flex-col justify-between hover:shadow-md transition-all duration-300 hover:border-primary/30"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-container/30 text-on-secondary-container border border-secondary/20">
+                      {feast.tag}
+                    </span>
+                    <span className="material-symbols-outlined text-primary text-xl">
+                      {feast.icon}
+                    </span>
+                  </div>
+                  <h3 className="font-headline font-bold text-base sm:text-lg text-primary tracking-tight">
+                    {feast.name}
+                  </h3>
+                  <p className="text-[11px] font-kannada text-on-surface-variant/90 font-medium mt-0.5">
+                    {feast.kannadaName}
+                  </p>
+                  <p className="text-xs text-on-surface-variant/80 mt-2 leading-relaxed">
+                    {feast.subtitle}
+                  </p>
+                  <div className="mt-3 text-[11px] text-outline font-semibold">
+                    Includes {feast.itemIds.length} traditional delicacies
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-outline-variant/10">
+                  <button
+                    type="button"
+                    onClick={() => handleLoadPreset(feast)}
+                    className="w-full py-2 px-3 rounded-xl bg-surface-container-lowest hover:bg-primary hover:text-white text-primary border border-primary/25 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer select-none"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">add_task</span>
+                    <span>Load This Feast</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* SECTION C: CATERING MENUS PORTION (Portion 2 from Navbar, Full Page Width) */}
+        <section 
+          id="menus" 
+          aria-label="Catering Menu Catalogue" 
+          className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-8 pb-4 scroll-mt-20"
+        >
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed/40 text-primary border border-primary/20 text-xs font-bold mb-2">
@@ -365,7 +603,7 @@ export const CataloguePage: React.FC = () => {
               <h2 className="font-headline font-black text-3xl sm:text-4xl text-primary tracking-tight">
                 Catering Menu Catalogue
               </h2>
-              <p className="text-sm text-on-surface-variant mt-2 max-w-2xl font-normal leading-relaxed">
+              <p className="text-sm text-on-surface-variant mt-2 max-w-3xl font-normal leading-relaxed">
                 Handcrafted sacred heritage dishes for grand muhurthams, upanayanas, and household poojas. Pick delicacies to customize your plantain leaf feast.
               </p>
             </div>
@@ -388,8 +626,8 @@ export const CataloguePage: React.FC = () => {
           </div>
         </section>
 
-        {/* 5. SEARCH & DIETARY FILTER CHIPS */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-8 py-3 w-full">
+        {/* SEARCH & DIETARY FILTER CHIPS (Full Page Width) */}
+        <section className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 py-3">
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             {/* Search Box */}
             <div className="relative flex-1">
@@ -470,12 +708,12 @@ export const CataloguePage: React.FC = () => {
           </div>
         </section>
 
-        {/* 6. AGILE CATEGORY PILL CAROUSEL */}
-        <section className="sticky top-[69px] z-30 bg-surface/95 backdrop-blur-md border-y border-outline-variant/10 py-2.5 px-4 sm:px-8 w-full">
+        {/* AGILE CATEGORY PILL CAROUSEL (Full Page Width) */}
+        <section className="sticky top-[69px] z-30 bg-surface/95 backdrop-blur-md border-y border-outline-variant/10 py-2.5 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 w-full">
           <div 
             role="tablist" 
             aria-label="Catering menu categories" 
-            className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-0.5"
+            className="w-full flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-0.5"
           >
             {categories.map((cat) => {
               const isSelected = activeCategoryId === cat.id || (!activeCategoryId && cat.id === 'cat-all')
@@ -508,8 +746,8 @@ export const CataloguePage: React.FC = () => {
           </div>
         </section>
 
-        {/* 7. DISH CARDS GRID */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 w-full flex-1">
+        {/* DISH CARDS GRID (Full Page Width across all viewports) */}
+        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 py-6 flex-1">
           {loading ? (
             <CatalogueSkeleton />
           ) : error ? (
@@ -544,7 +782,7 @@ export const CataloguePage: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6 w-full">
               {filteredItems.map((item) => (
                 <ItemCard key={item.id} item={item} />
               ))}
@@ -552,54 +790,91 @@ export const CataloguePage: React.FC = () => {
           )}
         </div>
 
-        {/* 8. HERITAGE PURITY GUARANTEE BENTO GRID */}
-        <section aria-label="Heritage purity guarantees" className="max-w-7xl mx-auto px-4 sm:px-8 py-8 w-full">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* SECTION D: TRADITION PORTION (Portion 1 from Navbar, Full Page Width) */}
+        <section 
+          id="tradition" 
+          aria-label="Authentic Mysuru Sattvic Tradition" 
+          className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 scroll-mt-20 border-t border-outline-variant/15 bg-surface-container-low/50"
+        >
+          <div className="w-full mb-8">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed/40 text-primary border border-primary/20 text-xs font-bold mb-2">
+              <span className="material-symbols-outlined text-[14px]">temple_hindu</span>
+              ✦ 40+ Years of Sacred Culinary Mastery
+            </div>
+            <h2 className="font-headline font-black text-2xl sm:text-3xl lg:text-4xl text-primary tracking-tight">
+              Mysuru Brahmin Tradition &amp; Sacred Sattvic Heritage
+            </h2>
+            <p className="text-sm text-on-surface-variant mt-2 max-w-4xl font-normal leading-relaxed">
+              For over four decades, TKS Iyengar's Catering has upheld the holy culinary rites of ancient Mysuru and Melkote. Prepared strictly without onion, garlic, or artificial essences, our recipes honor devout Vaishnavite hospitality, slow-cooked in traditional eeya chombu tin-lined vessels with pure churned cow ghee.
+            </p>
+          </div>
+
+          {/* Heritage Purity Guarantee Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
             {/* Bento Card 1: Pure Desi Ghee */}
-            <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/15 flex items-start gap-3.5 shadow-2xs">
-              <div className="p-2.5 rounded-xl bg-secondary-container/20 text-on-secondary-container shrink-0">
+            <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/15 flex items-start gap-4 shadow-2xs hover:shadow-md transition-shadow">
+              <div className="p-3 rounded-xl bg-secondary-container/20 text-on-secondary-container shrink-0">
                 <span className="material-symbols-outlined text-2xl">water_drop</span>
               </div>
               <div>
-                <h4 className="font-headline font-bold text-sm text-primary">100% Pure Desi Ghee</h4>
-                <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Every sweet, sambar tempering, and payasam is cooked exclusively in authentic dairy clarified butter with zero hydrogenated fats.
+                <h3 className="font-headline font-bold text-base text-primary">100% Pure Desi Ghee</h3>
+                <p className="text-xs text-on-surface-variant mt-1.5 leading-relaxed">
+                  Every sweet, sambar tempering, and payasam is slow-cooked exclusively in authentic dairy clarified butter with zero hydrogenated fats or palm oils.
                 </p>
               </div>
             </div>
 
             {/* Bento Card 2: Traditional Banana Leaf */}
-            <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/15 flex items-start gap-3.5 shadow-2xs">
-              <div className="p-2.5 rounded-xl bg-tertiary-container/20 text-tertiary-container shrink-0">
+            <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/15 flex items-start gap-4 shadow-2xs hover:shadow-md transition-shadow">
+              <div className="p-3 rounded-xl bg-tertiary-container/20 text-tertiary-container shrink-0">
                 <span className="material-symbols-outlined text-2xl">eco</span>
               </div>
               <div>
-                <h4 className="font-headline font-bold text-sm text-primary">Traditional Banana Leaf</h4>
-                <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Full seated traditional serving protocol with trained Mysuru servers adhering to Panchanga order of dishes.
+                <h3 className="font-headline font-bold text-base text-primary">Traditional Banana Leaf Protocol</h3>
+                <p className="text-xs text-on-surface-variant mt-1.5 leading-relaxed">
+                  Full seated traditional serving protocol with trained Mysuru servers strictly adhering to Vedic Panchanga dish serving order.
                 </p>
               </div>
             </div>
 
             {/* Bento Card 3: Strict Vedic Hygiene */}
-            <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/15 flex items-start gap-3.5 shadow-2xs">
-              <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
+            <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/15 flex items-start gap-4 shadow-2xs hover:shadow-md transition-shadow">
+              <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
                 <span className="material-symbols-outlined text-2xl">workspace_premium</span>
               </div>
               <div>
-                <h4 className="font-headline font-bold text-sm text-primary">Strict Vedic Hygiene</h4>
-                <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Prepared by Vaishnavite cooks following devout rituals, with RO-purified water and sanitised brass kitchen vessels.
+                <h3 className="font-headline font-bold text-base text-primary">Strict Vedic Hygiene</h3>
+                <p className="text-xs text-on-surface-variant mt-1.5 leading-relaxed">
+                  Prepared by Vaishnavite cooks following devout ritual purity, with multi-stage RO-purified water and autoclaved brass kitchen vessels.
                 </p>
               </div>
             </div>
           </div>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={() => scrollToSection('menus')}
+              className="px-5 py-2.5 rounded-full bg-primary text-on-primary text-xs font-bold hover:bg-primary-container shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>Explore Catering Menus</span>
+              <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsTastingModalOpen(true)}
+              className="px-5 py-2.5 rounded-full bg-surface-container-lowest text-primary border border-primary/25 text-xs font-bold hover:bg-surface-container-high transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[15px]">box</span>
+              <span>Request Private Tasting Box</span>
+            </button>
+          </div>
         </section>
       </main>
 
-      {/* 9. TRADITIONAL HERITAGE FOOTER */}
-      <footer className="bg-surface-container-low border-t border-outline-variant/15 py-10 px-4 sm:px-8 mt-12 pb-32 text-xs text-on-surface-variant w-full">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      {/* 9. TRADITIONAL HERITAGE FOOTER (Full Page Width) */}
+      <footer className="bg-surface-container-low border-t border-outline-variant/15 py-10 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 mt-12 pb-32 text-xs text-on-surface-variant w-full">
+        <div className="w-full flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <h3 className="font-headline font-bold text-primary text-base">TKS Iyengar's Catering</h3>
             <span className="text-[10px] bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 px-1.5 py-0.5 rounded font-bold">
@@ -607,32 +882,24 @@ export const CataloguePage: React.FC = () => {
             </span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-semibold text-outline">
-            <a href="#tradition" className="hover:text-primary transition-colors">Sacred Menu Heritage</a>
-            <button 
-              type="button" 
-              onClick={() => setIsLeafModalOpen(true)}
-              className="hover:text-primary transition-colors"
-            >
+            <button type="button" onClick={() => scrollToSection('tradition')} className="hover:text-primary transition-colors cursor-pointer">
+              Sacred Menu Heritage
+            </button>
+            <button type="button" onClick={() => scrollToSection('muhurtham')} className="hover:text-primary transition-colors cursor-pointer">
               Muhurtham Packages
             </button>
-            <a href="#purity" className="hover:text-primary transition-colors">Purity Guarantee</a>
-            <button 
-              type="button" 
-              onClick={() => setIsTastingModalOpen(true)}
-              className="hover:text-primary transition-colors"
-            >
+            <button type="button" onClick={() => scrollToSection('tradition')} className="hover:text-primary transition-colors cursor-pointer">
+              Purity Guarantee
+            </button>
+            <button type="button" onClick={() => setIsTastingModalOpen(true)} className="hover:text-primary transition-colors cursor-pointer">
               Tasting Box Session
             </button>
-            <button 
-              type="button" 
-              onClick={() => navigate('/enquiries')}
-              className="hover:text-primary transition-colors"
-            >
+            <button type="button" onClick={() => navigate('/enquiries')} className="hover:text-primary transition-colors cursor-pointer">
               Enquiry for Banquets
             </button>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto border-t border-outline-variant/10 mt-6 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-outline">
+        <div className="w-full border-t border-outline-variant/10 mt-6 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-outline">
           <p>© 2026 TKS Iyengar's Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage.</p>
           <div className="flex items-center gap-4">
             <span>Head Kitchen: 142/A Krishnamurthy Puram, Mysuru 570004</span>
@@ -641,12 +908,12 @@ export const CataloguePage: React.FC = () => {
         </div>
       </footer>
 
-      {/* 10. FLOATING BOTTOM SUMMARY BAR */}
+      {/* 10. FLOATING BOTTOM SUMMARY BAR (Generous Wide Layout) */}
       <aside 
         aria-label="Banquet feast selection summary" 
-        className="fixed bottom-4 left-4 right-4 sm:left-8 sm:right-8 z-50 pointer-events-auto"
+        className="fixed bottom-4 left-4 right-4 sm:left-8 sm:right-8 lg:left-12 lg:right-12 xl:left-16 xl:right-16 2xl:left-24 2xl:right-24 z-50 pointer-events-auto"
       >
-        <div className="max-w-4xl mx-auto bg-surface/90 backdrop-blur-md border border-outline-variant/20 rounded-full p-2.5 sm:p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 ring-1 ring-black/5">
+        <div className="w-full max-w-6xl mx-auto bg-surface/90 backdrop-blur-md border border-outline-variant/20 rounded-full p-2.5 sm:p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 ring-1 ring-black/5">
           {/* Left: Delicacies Count & Per Plate Rate */}
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
