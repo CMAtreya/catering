@@ -488,29 +488,6 @@ export const AdminMenuPage: React.FC = () => {
                 </p>
               </div>
             </div>
-
-            {/* Right Action Cluster */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <button
-                type="button"
-                onClick={handleOpenAddCategory}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl border border-outline-variant bg-surface-container-low hover:bg-surface-container text-on-surface text-xs font-bold transition-all shadow-xs cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-base text-secondary">
-                  create_new_folder
-                </span>
-                <span>Add Category</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleOpenAddItem}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary text-xs font-bold shadow-[0_8px_20px_-4px_rgba(179,10,5,0.35)] hover:brightness-105 active:scale-95 transition-all cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-base">add_circle</span>
-                <span>+ Add Food Item</span>
-              </button>
-            </div>
           </header>
 
           {/* TWO-COLUMN WORKSPACE CANVAS */}
