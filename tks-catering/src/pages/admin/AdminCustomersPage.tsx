@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { getCustomers, getOrders, recordEnquiry } from '@/api'
 import type { CustomerRecord, Order } from '@/data/mockData'
 import { toast } from 'sonner'
+import { AdminAppShell } from '@/components/admin/AdminAppShell'
 
 interface CustomerMeta {
   area: string
@@ -110,9 +111,6 @@ export const AdminCustomersPage: React.FC = () => {
 
   // View Controller Mode ('directory' | 'detail')
   const [viewState, setViewState] = useState<'directory' | 'detail'>('directory')
-
-  // Mobile Cards Simulation Mode (Toggle for preview)
-  const [isMobileCardsSimulated, setIsMobileCardsSimulated] = useState<boolean>(false)
 
   // Selected Customer Phone for Detail View
   const [selectedPhone, setSelectedPhone] = useState<string>('9845023419')
@@ -338,278 +336,60 @@ export const AdminCustomersPage: React.FC = () => {
     }
   }
 
-  // Sign out
-  const handleSignOut = () => {
-    try {
-      localStorage.removeItem('tks_admin_auth')
-      sessionStorage.clear()
-    } catch {}
-    toast.success('Signed out of admin desk')
-    navigate('/admin/login')
-  }
-
   return (
-    <div className="min-h-screen text-on-surface font-sans text-sm antialiased selection:bg-surface-variant selection:text-primary flex flex-col bg-background">
-      
-      {/* ============================================================== */}
-      {/* TOP INTERACTIVE PREVIEW CONTROLLER BAR                         */}
-      {/* ============================================================== */}
-      <header className="bg-surface-container-high border-b border-outline-variant/60 sticky top-0 z-50 px-4 sm:px-6 lg:px-8 2xl:px-12 py-2.5 shadow-sm">
-        <div className="w-full flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-container text-white text-xs font-bold">
-              CRM
-            </span>
-            <span className="font-serif text-base text-primary font-semibold">
-              TKS Iyengar&apos;s Desk Views:
-            </span>
+    <AdminAppShell>
+      <div className="w-full px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 space-y-6">
+
+        {/* ========================================================
+             1. TOP SHELL BAR (Namaskara, Live Pulse Badge, Action CTAs)
+             ======================================================== */}
+        <header className="w-full bg-white/90 backdrop-blur-md rounded-2xl border border-outline-variant/60 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-primary tracking-tight">
+                  Namaskara
+                </h1>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Live Kitchen &amp; CRM Synced
+                </span>
+              </div>
+              <p className="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
+                <span className="material-symbols-outlined text-[15px] text-amber-700">calendar_today</span>
+                <span>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })} • Mysuru Central Unit</span>
+              </p>
+            </div>
           </div>
 
-          {/* State Switcher Navigation */}
-          <div className="flex flex-wrap items-center gap-1.5 bg-surface-container-lowest p-1 rounded-xl border border-outline-variant/50 shadow-inner">
+          {/* Quick Actions */}
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
             <button
-              id="btn-state-directory"
-              type="button"
-              onClick={() => setViewState('directory')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer ${
-                viewState === 'directory'
-                  ? 'bg-primary-container text-white shadow-sm'
-                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">table_chart</span>
-              <span>1. Customers Directory (Table View)</span>
-            </button>
-
-            <button
-              id="btn-state-detail"
-              type="button"
-              onClick={() => setViewState('detail')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer ${
-                viewState === 'detail'
-                  ? 'bg-primary-container text-white shadow-sm'
-                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">account_circle</span>
-              <span>2. Customer Detail Profile ({selectedCustomer.name})</span>
-            </button>
-
-            <button
-              id="btn-state-modal"
               type="button"
               onClick={() => setIsEnquiryModalOpen(true)}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-150 flex items-center gap-1.5 cursor-pointer"
+              className="p-2.5 px-3.5 rounded-xl border border-outline-variant/60 bg-white text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 text-xs font-semibold shadow-xs cursor-pointer active:scale-95"
             >
-              <span className="material-symbols-outlined text-[16px]">edit_calendar</span>
-              <span>3. + Record General Enquiry Sheet</span>
+              <span className="material-symbols-outlined text-[16px] text-primary">edit_note</span>
+              <span>Record Enquiry</span>
             </button>
 
             <button
-              id="btn-state-mobile"
               type="button"
-              onClick={() => setIsMobileCardsSimulated(!isMobileCardsSimulated)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer ${
-                isMobileCardsSimulated
-                  ? 'bg-secondary-fixed text-on-secondary-fixed-variant'
-                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'
-              }`}
+              onClick={() => navigate('/admin/orders/new')}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-xs shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer"
+              style={{ background: 'linear-gradient(90deg, #8B0A00 0%, #E0000F 50%, #8B0A00 100%)' }}
             >
-              <span className="material-symbols-outlined text-[16px]">smartphone</span>
-              <span id="mobile-toggle-text">
-                {isMobileCardsSimulated ? 'Desktop Table View' : '4. Mobile Cards Preview'}
-              </span>
+              <span className="material-symbols-outlined text-[18px]">add_circle</span>
+              <span className="whitespace-nowrap">Create Manual Order</span>
             </button>
           </div>
+        </header>
 
-          <div className="hidden xl:flex items-center text-xs text-on-surface-variant gap-2 bg-surface-container px-2.5 py-1 rounded-full border border-outline-variant/40">
-            <span className="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></span>
-            <span>Mysuru Admin Desk V2.4 · 100% Satvik Iyengar Catering</span>
-          </div>
-        </div>
-      </header>
-
-      {/* ============================================================== */}
-      {/* MAIN APP CONTAINER                                             */}
-      {/* ============================================================== */}
-      <div className="flex-1 flex overflow-hidden">
-        
-        {/* ============================================================ */}
-        {/* LEFT SIDEBAR (Cream/Warm Ivory Border, 240px)                */}
-        {/* ============================================================ */}
-        <aside
-          id="app-sidebar"
-          className={`w-60 shrink-0 bg-surface-container-lowest border-r border-outline-variant/60 flex flex-col justify-between z-20 transition-all duration-300 ${
-            isMobileCardsSimulated ? 'hidden' : 'hidden md:flex'
-          }`}
+        {/* VIEW CANVAS WRAPPER */}
+        <div
+          id="content-canvas"
+          className="w-full space-y-6"
         >
-          <div className="p-4 flex flex-col gap-5">
-            {/* Logo & Brand Anchor Header */}
-            <div className="flex flex-col items-center text-center p-3 rounded-xl bg-surface-container-low border border-outline-variant/40">
-              <div className="w-36 max-w-full mb-2">
-                <img
-                  alt="TKS Iyengar Authentic Iyengar Restaurant Logo"
-                  className="w-full h-auto object-contain mx-auto"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuANllf5jQBC8EsIdQNn7O89so9EbLmLWKMTcGluRiPsiRQN9H-sq8UBQRk6C0oaYfGZnHBAl8ctv2kz3RXlp5n5cTq6c8VOfDhME8nI22CUkORo9mLS1DufXnLIyHc_DnWpWE9qQmSid3UdRy2M7vVabnc_o4zxz2R02jDD2zsi-T6S8aTfvhL7paFtbsEh24-N6PS06ZrGCPt2ZNu024B5ATjbVWDp7kkOi9peC1tJYE_RaNkr5uoy"
-                />
-              </div>
-              <div className="w-full pt-1.5 border-t border-outline-variant/40">
-                <span className="font-serif text-lg text-primary block leading-tight font-bold">
-                  Admin Desk
-                </span>
-                <span className="text-xs text-secondary font-medium tracking-wide">
-                  Mysuru Central Kitchen
-                </span>
-              </div>
-            </div>
-
-            {/* Navigation Menu */}
-            <nav className="flex flex-col gap-1.5">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-outline px-3 mb-1">
-                Kitchen &amp; Front Desk
-              </div>
-              
-              <Link
-                to="/admin"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors text-sm font-semibold"
-              >
-                <span className="material-symbols-outlined text-[20px]">dashboard</span>
-                <span>Dashboard</span>
-              </Link>
-
-              <Link
-                to="/admin/orders"
-                className="flex items-center justify-between px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors text-sm font-semibold"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[20px]">receipt_long</span>
-                  <span>All Orders</span>
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary">
-                  14
-                </span>
-              </Link>
-
-              <Link
-                to="/admin/menu"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors text-sm font-semibold"
-              >
-                <span className="material-symbols-outlined text-[20px]">restaurant_menu</span>
-                <span>Catering Menu</span>
-              </Link>
-
-              {/* Active Customers Tab */}
-              <button
-                type="button"
-                onClick={() => setViewState('directory')}
-                className="w-full text-left flex items-center justify-between px-3 py-2.5 rounded-xl bg-primary-container text-white shadow-md shadow-primary/20 transition-all text-sm font-semibold cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    groups
-                  </span>
-                  <span>Customers</span>
-                </div>
-                <span className="w-2 h-2 rounded-full bg-secondary-fixed"></span>
-              </button>
-
-              <div className="pt-3 text-[11px] font-bold uppercase tracking-wider text-outline px-3 mb-1">
-                Catering &amp; Feasts
-              </div>
-
-              <Link
-                to="/admin/orders"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors text-sm font-semibold"
-              >
-                <span className="material-symbols-outlined text-[20px]">celebration</span>
-                <span>Feast Packages</span>
-              </Link>
-
-              <Link
-                to="/tradition"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors text-sm font-semibold"
-              >
-                <span className="material-symbols-outlined text-[20px]">auto_stories</span>
-                <span>Tradition &amp; Heritage</span>
-              </Link>
-            </nav>
-          </div>
-
-          {/* Supervisor Desk Profile & Sign Out */}
-          <div className="p-3 border-t border-outline-variant/60 bg-surface-container-low/60 m-2 rounded-xl">
-            <div className="flex items-center gap-2.5 mb-2.5">
-              <div className="w-9 h-9 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant flex items-center justify-center font-bold text-xs border border-secondary/40 shrink-0">
-                KS
-              </div>
-              <div className="overflow-hidden">
-                <div className="text-xs text-on-surface font-semibold truncate leading-tight">
-                  K. Seshadri / Raghavan
-                </div>
-                <div className="text-[11px] text-on-surface-variant truncate">
-                  Mysuru Main Kitchen
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium text-error hover:bg-error-container/60 transition-colors cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[15px]">logout</span>
-              <span>Sign Out Desk</span>
-            </button>
-          </div>
-        </aside>
-
-        {/* ============================================================ */}
-        {/* RIGHT WORKSPACE                                              */}
-        {/* ============================================================ */}
-        <main className="flex-1 flex flex-col overflow-y-auto custom-scroll bg-surface" id="main-viewport-container">
-          
-          {/* Top Status & Action Bar */}
-          <div className="bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/60 px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30">
-            <div className="flex items-center gap-4">
-              <div>
-                <span className="font-serif text-lg text-primary font-bold">Namaskara</span>
-                <span className="hidden sm:inline text-xs text-on-surface-variant ml-2 bg-surface-container px-2 py-0.5 rounded-full border border-outline-variant/40 font-medium">
-                  {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })} · Mysuru Central Unit
-                </span>
-              </div>
-              <div className="hidden md:flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-100/60 px-2.5 py-1 rounded-full border border-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                <span className="font-medium">Live Kitchen &amp; Orders Synced</span>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="flex items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => setIsEnquiryModalOpen(true)}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-primary border border-outline-variant hover:bg-surface-container transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">edit_note</span>
-                <span>+ Record Enquiry</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigate('/admin/orders/new')}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-primary via-primary-container to-primary hover:opacity-95 active:scale-95 transition-all shadow-md shadow-primary/25 flex items-center gap-1.5 cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">add_circle</span>
-                <span>Create Manual Order</span>
-              </button>
-            </div>
-          </div>
-
-          {/* VIEW CANVAS WRAPPER */}
-          <div
-            id="content-canvas"
-            className={`p-4 sm:p-6 lg:p-8 2xl:p-12 w-full transition-all duration-300 ${
-              isMobileCardsSimulated ? 'max-w-md mx-auto' : ''
-            }`}
-          >
             {/* Loading Indicator */}
             {isLoading && (
               <div className="flex flex-col items-center justify-center py-20 text-on-surface-variant gap-3">
@@ -755,12 +535,10 @@ export const AdminCustomersPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* TABLE VIEW (Desktop / Tablet, Hidden when simulated mobile preview is ON) */}
+                    {/* TABLE VIEW (Desktop, >= 1024px) */}
                     <div
                       id="table-view-section"
-                      className={`bg-surface-container-lowest rounded-2xl border border-outline-variant/70 overflow-hidden shadow-sm ${
-                        isMobileCardsSimulated ? 'hidden' : 'block'
-                      }`}
+                      className="bg-surface-container-lowest rounded-2xl border border-outline-variant/70 overflow-hidden shadow-sm hidden lg:block"
                     >
                       <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse min-w-[760px]">
@@ -919,12 +697,10 @@ export const AdminCustomersPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* MOBILE CARD VIEW (Shown when toggled or on mobile viewports) */}
+                    {/* MOBILE CARD VIEW (Shown on mobile/tablet viewports < 1024px) */}
                     <div
                       id="mobile-cards-section"
-                      className={`flex flex-col gap-3.5 ${
-                        isMobileCardsSimulated ? 'flex' : 'md:hidden'
-                      }`}
+                      className="flex flex-col gap-3.5 lg:hidden"
                     >
                       <div className="text-xs font-semibold text-secondary uppercase tracking-wider">
                         Mobile Card Format (Tap to view history)
@@ -1436,34 +1212,7 @@ export const AdminCustomersPage: React.FC = () => {
               </>
             )}
 
-          </div>
-
-          {/* ============================================================ */}
-          {/* FOOTER COMPONENT                                             */}
-          {/* ============================================================ */}
-          <footer className="w-full bg-surface-container-low border-t border-outline-variant/50 mt-auto">
-            <div className="w-full px-4 md:px-12 2xl:px-16 py-10 flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="flex flex-col items-center md:items-start">
-                <span className="font-serif text-xl text-primary font-bold">TKS Iyengar&apos;s Catering</span>
-                <p className="text-on-surface-variant text-center md:text-left mt-1 text-xs">
-                  © 2025 TKS Iyengar&apos;s Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage Feasts. All rights reserved.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-on-surface-variant">
-                <a className="hover:text-primary transition-colors cursor-pointer" href="#sacred-heritage">Sacred Menu Heritage</a>
-                <span className="text-outline-variant">•</span>
-                <a className="hover:text-primary transition-colors cursor-pointer" href="#muhurtham-packages">Muhurtham Packages</a>
-                <span className="text-outline-variant">•</span>
-                <a className="hover:text-primary transition-colors cursor-pointer" href="#purity-guarantee">Purity Guarantee</a>
-                <span className="text-outline-variant">•</span>
-                <a className="hover:text-primary transition-colors cursor-pointer" href="#temple-tradition">Temple Tradition</a>
-                <span className="text-outline-variant">•</span>
-                <a className="hover:text-primary transition-colors cursor-pointer" href="#privacy">Privacy Policy</a>
-              </div>
-            </div>
-          </footer>
-
-        </main>
+        </div>
       </div>
 
       {/* ============================================================== */}
@@ -1615,7 +1364,7 @@ export const AdminCustomersPage: React.FC = () => {
         </div>
       )}
 
-    </div>
+    </AdminAppShell>
   )
 }
 
