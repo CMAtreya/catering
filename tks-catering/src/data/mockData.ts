@@ -704,14 +704,55 @@ export const INITIAL_ORDERS: Order[] = [
 ]
 
 export const INITIAL_CUSTOMERS: Record<string, CustomerRecord> = {
+  '9845023419': {
+    phone: '9845023419',
+    name: 'Venkatesh Murthy',
+    address: 'No. 74, 5th Cross, Jayalakshmipuram, Mysuru - 570012',
+    firstContacted: '2023-01-14',
+    lastContacted: '2025-11-18',
+    enquiryCount: 5,
+    confirmedCount: 3,
+    notes: 'Patron visited desk. Daughter\'s wedding confirmed for Dec 14 at Shree Cauvery Kalyana Mantapa. Very particular about traditional Melkote taste. Ensure master cook Raghavan oversees tempering.'
+  },
   '9845012345': {
     phone: '9845012345',
-    name: 'Kalyan Ramanathan',
-    firstContacted: '2026-06-12',
-    lastContacted: '2026-10-20',
+    name: 'Srinivasa Raghavan',
+    address: 'Agrahara, Mysuru',
+    firstContacted: '2024-06-02',
+    lastContacted: '2025-11-15',
+    enquiryCount: 2,
+    confirmedCount: 1,
+    notes: 'Prominent family in Agrahara. Prefers authentic Iyengar Puliyogare and pure cow ghee.'
+  },
+  '9448167890': {
+    phone: '9448167890',
+    name: 'Sowmya Anantharaman',
+    address: 'Gokulam 3rd Stage, Mysuru',
+    firstContacted: '2022-10-18',
+    lastContacted: '2025-11-10',
     enquiryCount: 4,
     confirmedCount: 2,
-    notes: 'Prominent family in Saraswathipuram. Prefers authentic Iyengar Puliyogare and pure cow ghee.'
+    notes: 'Regular family for annual Satyanarayana Pooja and house festivals.'
+  },
+  '9880199201': {
+    phone: '9880199201',
+    name: 'Dr. C. Srinivasa Varadan',
+    address: 'Kuvempunagar, Mysuru',
+    firstContacted: '2023-08-05',
+    lastContacted: '2025-11-02',
+    enquiryCount: 1,
+    confirmedCount: 0,
+    notes: 'Inquired regarding hospital department celebration feast and Kaapi flasks.'
+  },
+  '9900234812': {
+    phone: '9900234812',
+    name: 'Padmavathi Narasimhan',
+    address: 'VV Mohalla, Mysuru',
+    firstContacted: '2024-03-12',
+    lastContacted: '2025-10-28',
+    enquiryCount: 3,
+    confirmedCount: 1,
+    notes: 'Munji catering in VV Mohalla completed successfully.'
   },
   '9448067890': {
     phone: '9448067890',
