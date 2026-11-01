@@ -598,7 +598,7 @@ export const AdminCustomersPage: React.FC = () => {
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-primary via-primary-container to-primary hover:opacity-95 active:scale-95 transition-all shadow-md shadow-primary/25 flex items-center gap-1.5 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px]">add_circle</span>
-                <span>+ Create Manual Order</span>
+                <span>Create Manual Order</span>
               </button>
             </div>
           </div>

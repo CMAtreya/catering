@@ -484,7 +484,7 @@ export const AdminOrdersPage: React.FC = () => {
               style={{ background: 'linear-gradient(90deg, #8B0A00 0%, #E0000F 50%, #8B0A00 100%)' }}
             >
               <span className="material-symbols-outlined text-[18px]">add_circle</span>
-              <span className="whitespace-nowrap">+ Create Manual Order</span>
+              <span className="whitespace-nowrap">Create Manual Order</span>
             </button>
           </div>
         </header>

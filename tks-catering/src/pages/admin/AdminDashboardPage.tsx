@@ -273,7 +273,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Action Area: Refresh & + Create Manual Order */}
+          {/* Action Area: Refresh & Create Manual Order */}
           <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
             <button
               type="button"
@@ -290,14 +290,14 @@ export const AdminDashboardPage: React.FC = () => {
               <span className="hidden sm:inline">Refresh</span>
             </button>
 
-            {/* Big Prominent Red Button "+ Create Manual Order" */}
+            {/* Big Prominent Red Button "Create Manual Order" */}
             <button
               type="button"
               onClick={() => handleOpenManualOrderWithDate(selectedDateKey)}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#8B0A00] to-[#B30A05] hover:from-[#5C0500] hover:to-[#8B0A00] text-white font-bold text-sm sm:text-base shadow-md shadow-[#8B0A00]/30 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
             >
               <span className="material-symbols-outlined text-xl sm:text-2xl font-black">add_circle</span>
-              <span>+ Create Manual Order</span>
+              <span>Create Manual Order</span>
             </button>
           </div>
         </header>
