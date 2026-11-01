@@ -14,6 +14,7 @@ export interface LocalEnquiryRecord {
   createdAt: string
   eventDate: string
   eventTime: 'Morning' | 'Afternoon' | 'Evening'
+  specificTime?: string
   eventType: string
   guestCount: number
   totalAmount: number

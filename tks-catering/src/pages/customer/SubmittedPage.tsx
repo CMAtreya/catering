@@ -43,33 +43,6 @@ export const SubmittedPage: React.FC = () => {
     navigate('/enquiries')
   }
 
-  // Panchanga and Kannada helpers
-  const getPanchangaDetails = (dateStr?: string) => {
-    if (!dateStr) return { display: '18 Nov 2025', tithi: 'Karthika Somavara Feast' }
-    try {
-      const d = parseISO(dateStr)
-      if (!isValid(d)) return { display: dateStr, tithi: 'Shubha Muhurtham Feast' }
-      const display = format(d, 'dd MMM yyyy')
-      const dayName = format(d, 'EEEE')
-      const dayKannadaMap: Record<string, string> = {
-        Monday: 'Somavara',
-        Tuesday: 'Mangalavara',
-        Wednesday: 'Budhavara',
-        Thursday: 'Guruvara',
-        Friday: 'Shukravara',
-        Saturday: 'Shanivara',
-        Sunday: 'Bhanuvara'
-      }
-      const kannadaDay = dayKannadaMap[dayName] || dayName
-      return {
-        display,
-        tithi: `Karthika ${kannadaDay} Feast`
-      }
-    } catch {
-      return { display: dateStr, tithi: 'Shubha Muhurtham Feast' }
-    }
-  }
-
   const getOccasionKannada = (eventType?: string) => {
     const normalized = (eventType || '').toLowerCase()
     if (normalized.includes('griha') || normalized.includes('housewarming')) return 'ಗೃಹ ಪ್ರವೇಶ'
@@ -84,7 +57,6 @@ export const SubmittedPage: React.FC = () => {
   const displayId = storeOrder?.orderId ? storeOrder.orderId.replace(/^#/, '') : 'TKS-84920'
   const displayOccasion = storeOrder?.eventType || 'Griha Pravesh'
   const occasionKannada = getOccasionKannada(displayOccasion)
-  const panchanga = getPanchangaDetails(storeOrder?.eventDate)
   const guestCount = storeOrder?.guestCount || 100
   const itemCount = storeOrder?.itemsCount || storeOrder?.itemsList?.length || 5
   const itemSummary = storeOrder?.itemsSummary || 'Puliyogare, Bisi Bele Bath, Melkote Huli, Mysore Pak, Filter Coffee'
@@ -267,11 +239,17 @@ export const SubmittedPage: React.FC = () => {
                   <li className="py-3 flex justify-between items-start gap-4">
                     <span className="text-on-surface-variant flex items-center gap-1.5 shrink-0">
                       <span className="material-symbols-outlined text-base text-secondary">event</span>
-                      Auspicious Date:
+                      Event Date &amp; Time:
                     </span>
                     <div className="text-right">
-                      <span className="font-semibold text-on-surface block">{panchanga.display}</span>
-                      <span className="text-on-surface-variant text-xs block">({panchanga.tithi})</span>
+                      <span className="font-semibold text-on-surface block">
+                        {storeOrder?.eventDate && isValid(parseISO(storeOrder.eventDate))
+                          ? format(parseISO(storeOrder.eventDate), 'EEE, dd MMM yyyy')
+                          : (storeOrder?.eventDate || '18 Nov 2025')}
+                      </span>
+                      <span className="text-on-surface-variant text-xs block">
+                        {storeOrder?.eventTime || 'Morning'} Service{storeOrder?.specificTime ? ` • ${storeOrder.specificTime}` : ''}
+                      </span>
                     </div>
                   </li>
 

@@ -93,6 +93,8 @@ const requirementsSchema = z.object({
     .string()
     .trim()
     .min(1, 'Please select an occasion date'),
+  eventTime: z.enum(['Morning', 'Afternoon', 'Evening']).default('Morning'),
+  specificTime: z.string().optional(),
   guestCount: z
     .number()
     .int('Number of plates must be a whole number')
@@ -122,6 +124,8 @@ export const RequestPage: React.FC = () => {
   // Form state initialized from draftStore
   const [eventType, setEventType] = useState<string>(requirements.eventType || '')
   const [eventDate, setEventDate] = useState<string>(requirements.eventDate || '')
+  const [eventTime, setEventTime] = useState<'Morning' | 'Afternoon' | 'Evening'>(requirements.eventTime || 'Morning')
+  const [specificTime, setSpecificTime] = useState<string>(requirements.specificTime || '')
   const [guestCount, setGuestCount] = useState<number | ''>(requirements.guestCount || 100)
   const [venueAddress, setVenueAddress] = useState<string>(requirements.venueAddress || '')
   const [notes, setNotes] = useState<string>(requirements.notes || '')
@@ -160,6 +164,8 @@ export const RequestPage: React.FC = () => {
     const parseResult = requirementsSchema.safeParse({
       eventType,
       eventDate,
+      eventTime,
+      specificTime,
       guestCount: numericPlates,
       venueAddress,
       notes
@@ -188,6 +194,8 @@ export const RequestPage: React.FC = () => {
     setRequirements({
       eventType: parseResult.data.eventType,
       eventDate: parseResult.data.eventDate,
+      eventTime: parseResult.data.eventTime,
+      specificTime: specificTime.trim() || undefined,
       guestCount: parseResult.data.guestCount,
       venueAddress: parseResult.data.venueAddress,
       notes: parseResult.data.notes || '',
@@ -198,37 +206,9 @@ export const RequestPage: React.FC = () => {
     navigate('/contact')
   }
 
-  // Date parsing & Panchanga alignment calculation
+  // Date parsing calculation
   const selectedDateObj = eventDate ? parseISO(eventDate) : undefined
   const isDateValid = selectedDateObj && isValid(selectedDateObj)
-
-  const getPanchangaDetails = (dateStr: string) => {
-    if (!dateStr) return { display: '18 Nov 2025', tithi: 'Karthika Somavara' }
-    try {
-      const d = parseISO(dateStr)
-      if (!isValid(d)) return { display: dateStr, tithi: 'Muhurtham Aligned' }
-      const display = format(d, 'dd MMM yyyy')
-      const dayName = format(d, 'EEEE')
-      const dayKannadaMap: Record<string, string> = {
-        Monday: 'Somavara',
-        Tuesday: 'Mangalavara',
-        Wednesday: 'Budhavara',
-        Thursday: 'Guruvara',
-        Friday: 'Shukravara',
-        Saturday: 'Shanivara',
-        Sunday: 'Bhanuvara'
-      }
-      const kannadaDay = dayKannadaMap[dayName] || dayName
-      return {
-        display,
-        tithi: `Karthika ${kannadaDay}`
-      }
-    } catch {
-      return { display: dateStr, tithi: 'Panchanga Aligned' }
-    }
-  }
-
-  const panchanga = getPanchangaDetails(eventDate)
 
   return (
     <div className="min-h-screen bg-[#fff8f6] text-[#281714] flex flex-col font-sans selection:bg-primary-fixed selection:text-primary">
@@ -491,14 +471,14 @@ export const RequestPage: React.FC = () => {
                 )}
               </div>
 
-              {/* 2. AUSPICIOUS DATE & TITHI */}
+              {/* 2. EVENT DATE */}
               <div id="field-eventDate" className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-slate-800">
-                    Auspicious Date &amp; Tithi <span className="text-primary">*</span>
+                    Event Date <span className="text-primary">*</span>
                   </label>
                   <span className="text-[11px] font-medium text-outline">
-                    Mysuru Panchanga Aligned
+                    Advance Booking Desk
                   </span>
                 </div>
 
@@ -559,7 +539,7 @@ export const RequestPage: React.FC = () => {
                         <DrawerContent className="p-4 max-w-md mx-auto rounded-t-[24px] bg-white">
                           <DrawerHeader className="text-left pb-1">
                             <DrawerTitle className="font-headline font-black text-lg text-primary">
-                              Select Auspicious Muhurtham Date
+                              Select Event Date
                             </DrawerTitle>
                             <DrawerDescription className="text-xs text-outline">
                               Choose the catering banquet date.
@@ -611,22 +591,19 @@ export const RequestPage: React.FC = () => {
                     />
                   </div>
 
-                  {/* Right: Mysuru Panchanga Info Box from screenshot */}
+                  {/* Right: Date Selection Status Card */}
                   <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/20 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-secondary-container/30 text-secondary border border-secondary/20 flex items-center justify-center shrink-0">
                       <span className="material-symbols-outlined text-[20px]">calendar_month</span>
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-headline font-bold text-xs sm:text-sm text-primary">
-                          {panchanga.display}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full bg-secondary-container/60 text-on-secondary-fixed text-[10px] font-bold border border-secondary/30">
-                          {panchanga.tithi}
-                        </span>
-                      </div>
+                      <span className="font-headline font-bold text-xs sm:text-sm text-primary block truncate">
+                        {eventDate && isDateValid ? format(parseISO(eventDate), 'EEEE, dd MMMM yyyy') : 'No Date Chosen Yet'}
+                      </span>
                       <p className="text-[10px] text-outline mt-0.5 line-clamp-1">
-                        Dates confirmed 3 days in advance for fresh cold-press pressing.
+                        {eventDate && isDateValid 
+                          ? 'Early morning kitchen procurement scheduled for this date.' 
+                          : 'Select your banquet date from the calendar.'}
                       </p>
                     </div>
                   </div>
@@ -638,6 +615,160 @@ export const RequestPage: React.FC = () => {
                     <span>{errors.eventDate}</span>
                   </p>
                 )}
+              </div>
+
+              {/* 2B. TIME OPTION SELECTION & SPECIFIC TIME */}
+              <div id="field-eventTime" className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-800">
+                    Service Time Slot <span className="text-primary">*</span>
+                  </label>
+                  <span className="text-[11px] font-semibold text-secondary">
+                    {eventTime} Service {specificTime ? `• ${specificTime}` : ''}
+                  </span>
+                </div>
+
+                {/* 3 Time Option Cards: Morning, Afternoon, Evening */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {[
+                    {
+                      id: 'Morning' as const,
+                      title: 'Morning',
+                      kannada: 'ಬೆಳಗಿನ ಉಪಹಾರ / ಮುಹೂರ್ತ',
+                      subtitle: 'Breakfast & Muhurtham',
+                      window: '7:00 AM – 11:30 AM',
+                      icon: 'wb_sunny'
+                    },
+                    {
+                      id: 'Afternoon' as const,
+                      title: 'Afternoon',
+                      kannada: 'ಮಧ್ಯಾಹ್ನದ ಮಹಾ ಭೋಜನ',
+                      subtitle: 'Traditional Lunch Feast',
+                      window: '12:00 PM – 3:30 PM',
+                      icon: 'light_mode'
+                    },
+                    {
+                      id: 'Evening' as const,
+                      title: 'Evening',
+                      kannada: 'ಸಂಜೆ ಸ್ವಾಗತ ಭೋಜನ',
+                      subtitle: 'Reception Dinner',
+                      window: '6:30 PM – 10:30 PM',
+                      icon: 'nights_stay'
+                    }
+                  ].map((slot) => {
+                    const isSelected = eventTime === slot.id
+                    return (
+                      <button
+                        key={slot.id}
+                        type="button"
+                        onClick={() => setEventTime(slot.id)}
+                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${
+                          isSelected
+                            ? 'bg-surface-container-high border-primary ring-1 ring-primary shadow-2xs'
+                            : 'bg-surface-container-lowest border-outline-variant/30 hover:border-outline-variant hover:bg-surface-container-low'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className={`material-symbols-outlined text-[20px] ${isSelected ? 'text-primary' : 'text-outline'}`}>
+                            {slot.icon}
+                          </span>
+                          {isSelected && (
+                            <span className="material-symbols-outlined text-[16px] text-primary">
+                              check_circle
+                            </span>
+                          )}
+                        </div>
+                        <span className={`font-headline font-bold text-xs sm:text-sm block ${isSelected ? 'text-primary' : 'text-on-surface'}`}>
+                          {slot.title}
+                        </span>
+                        <span className="text-[10px] text-secondary font-medium block">
+                          {slot.subtitle}
+                        </span>
+                        <span className="text-[10px] text-outline block mt-0.5 font-mono">
+                          {slot.window}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* Specific Serving Time Selection ("and if they want to choose the specific time let them have that option too") */}
+                <div className="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 space-y-2.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                    <div>
+                      <span className="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-secondary text-[16px]">schedule</span>
+                        Specific Serving Time <span className="text-[10px] text-outline font-normal">(Optional)</span>
+                      </span>
+                      <p className="text-[10.5px] text-outline">
+                        Pick a recommended time or enter your exact muhurtham / dining time.
+                      </p>
+                    </div>
+                    {specificTime && (
+                      <button
+                        type="button"
+                        onClick={() => setSpecificTime('')}
+                        className="text-[11px] text-primary hover:underline font-semibold self-start sm:self-auto cursor-pointer"
+                      >
+                        Clear specific time
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Popular quick picks for the selected slot */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] uppercase font-bold text-outline tracking-wider mr-1">
+                      Quick Picks:
+                    </span>
+                    {(eventTime === 'Morning'
+                      ? ['07:30 AM', '08:30 AM (Muhurtham)', '09:30 AM', '10:30 AM']
+                      : eventTime === 'Afternoon'
+                      ? ['12:00 PM', '12:45 PM (Feast)', '01:30 PM', '02:15 PM']
+                      : ['06:30 PM', '07:30 PM (Reception)', '08:30 PM', '09:15 PM']
+                    ).map((timeOption) => {
+                      const isTimeActive = specificTime === timeOption
+                      return (
+                        <button
+                          key={timeOption}
+                          type="button"
+                          onClick={() => setSpecificTime(timeOption)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                            isTimeActive
+                              ? 'bg-primary text-white shadow-2xs font-bold'
+                              : 'bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/30'
+                          }`}
+                        >
+                          {timeOption}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Custom exact time input */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-1">
+                    <div className="relative flex-1 max-w-xs">
+                      <input
+                        type="text"
+                        value={specificTime}
+                        onChange={(e) => setSpecificTime(e.target.value)}
+                        placeholder={
+                          eventTime === 'Morning' 
+                            ? 'Or enter exact time e.g. 08:15 AM' 
+                            : eventTime === 'Afternoon' 
+                            ? 'Or enter exact time e.g. 01:15 PM' 
+                            : 'Or enter exact time e.g. 07:45 PM'
+                        }
+                        className="w-full px-3 py-1.5 rounded-lg border border-outline-variant/40 text-xs bg-surface-container-lowest focus:bg-white focus:border-primary outline-none transition-all"
+                      />
+                    </div>
+                    {specificTime && (
+                      <span className="text-[11px] font-bold text-secondary flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[15px]">done</span>
+                        Serving fixed at: {specificTime}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* 3. NUMBER OF BANQUETING PLATES */}

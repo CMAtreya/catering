@@ -197,6 +197,7 @@ export async function submitEnquiry(data: {
   customerPhone: string
   eventDate: string
   eventTime: 'Morning' | 'Afternoon' | 'Evening'
+  specificTime?: string
   eventType: string
   guestCount: number
   venueAddress?: string
@@ -225,6 +226,7 @@ export async function submitEnquiry(data: {
     customerPhone: data.customerPhone,
     eventDate: data.eventDate,
     eventTime: data.eventTime,
+    specificTime: data.specificTime,
     eventType: data.eventType,
     guestCount: data.guestCount,
     venueAddress: data.venueAddress,

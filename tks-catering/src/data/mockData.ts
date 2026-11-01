@@ -42,6 +42,7 @@ export interface Order {
   customerPhone: string
   eventDate: string // YYYY-MM-DD
   eventTime: 'Morning' | 'Afternoon' | 'Evening'
+  specificTime?: string
   eventType: string
   guestCount: number
   venueAddress?: string

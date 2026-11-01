@@ -15,6 +15,7 @@ export interface EventRequirements {
   guestCount: number
   eventDate: string
   eventTime: 'Morning' | 'Afternoon' | 'Evening'
+  specificTime?: string
   eventType: string
   venueAddress: string
   notes: string
@@ -63,6 +64,7 @@ const DEFAULT_REQUIREMENTS: EventRequirements = {
   guestCount: 100,
   eventDate: '',
   eventTime: 'Morning',
+  specificTime: '',
   eventType: 'Traditional Feast',
   venueAddress: '',
   notes: '',

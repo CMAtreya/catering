@@ -131,6 +131,7 @@ export const ContactPage: React.FC = () => {
         customerPhone: cleanedPhone,
         eventDate: requirements.eventDate || format(new Date(), 'yyyy-MM-dd'),
         eventTime: requirements.eventTime || 'Morning',
+        specificTime: requirements.specificTime,
         eventType: requirements.eventType || 'Griha Pravesh',
         guestCount: guestCount,
         venueAddress: requirements.venueAddress || 'Agrahara, Mysuru',
@@ -146,6 +147,7 @@ export const ContactPage: React.FC = () => {
         createdAt: newOrder.createdAt,
         eventDate: newOrder.eventDate,
         eventTime: newOrder.eventTime,
+        specificTime: newOrder.specificTime,
         eventType: newOrder.eventType,
         guestCount: newOrder.guestCount,
         totalAmount: newOrder.totalAmount,
@@ -170,34 +172,7 @@ export const ContactPage: React.FC = () => {
     }
   }
 
-  // Panchanga and Kannada helpers
-  const getPanchangaDetails = (dateStr: string) => {
-    if (!dateStr) return { display: '18 Nov 2025', tithi: 'Karthika Somavara (ಶುಭ ದಿನ)' }
-    try {
-      const d = parseISO(dateStr)
-      if (!isValid(d)) return { display: '18 Nov 2025', tithi: 'Karthika Somavara (ಶುಭ ದಿನ)' }
-      const display = format(d, 'dd MMM yyyy')
-      const dayName = format(d, 'EEEE')
-      const dayKannadaMap: Record<string, string> = {
-        Monday: 'Somavara',
-        Tuesday: 'Mangalavara',
-        Wednesday: 'Budhavara',
-        Thursday: 'Guruvara',
-        Friday: 'Shukravara',
-        Saturday: 'Shanivara',
-        Sunday: 'Bhanuvara'
-      }
-      const kannadaDay = dayKannadaMap[dayName] || dayName
-      return {
-        display,
-        tithi: `Karthika ${kannadaDay} (ಶುಭ ದಿನ)`
-      }
-    } catch {
-      return { display: dateStr || '18 Nov 2025', tithi: 'ಶುಭ ಮುಹೂರ್ತ ದಿನ' }
-    }
-  }
-
-  const getOccasionKannada = (eventType: string) => {
+  const getOccasionKannada = (eventType?: string) => {
     const normalized = (eventType || '').toLowerCase()
     if (normalized.includes('griha') || normalized.includes('housewarming')) return 'ಗೃಹ ಪ್ರವೇಶ ಸಮಾರಂಭ'
     if (normalized.includes('pooja') || normalized.includes('homa')) return 'ಪೂಜಾ / ಹೋಮ ಪ್ರಸಾದ'
@@ -207,7 +182,6 @@ export const ContactPage: React.FC = () => {
     return 'ಕುಟುಂಬ ಸಮಾರಂಭ'
   }
 
-  const panchanga = getPanchangaDetails(requirements.eventDate)
   const displayOccasion = requirements.eventType || 'Griha Pravesh'
   const occasionKannada = getOccasionKannada(displayOccasion)
 
@@ -659,15 +633,21 @@ export const ContactPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Auspicious Date */}
+                {/* Event Date & Service Time */}
                 <div className="flex items-start justify-between py-2 border-b border-surface-container">
                   <span className="text-on-surface-variant flex items-center gap-2">
                     <span className="material-symbols-outlined text-secondary text-[18px]">event</span>
-                    Auspicious Date:
+                    Event Date &amp; Time:
                   </span>
                   <div className="text-right">
-                    <span className="font-semibold text-on-surface block">{panchanga.display}</span>
-                    <span className="text-xs text-secondary font-medium">{panchanga.tithi}</span>
+                    <span className="font-semibold text-on-surface block">
+                      {requirements.eventDate && isValid(parseISO(requirements.eventDate))
+                        ? format(parseISO(requirements.eventDate), 'EEE, dd MMM yyyy')
+                        : (requirements.eventDate || 'Date Not Selected')}
+                    </span>
+                    <span className="text-xs text-secondary font-medium">
+                      {requirements.eventTime || 'Morning'} Service{requirements.specificTime ? ` • ${requirements.specificTime}` : ''}
+                    </span>
                   </div>
                 </div>
 
