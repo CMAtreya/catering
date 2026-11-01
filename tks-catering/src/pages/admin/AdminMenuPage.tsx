@@ -34,8 +34,8 @@ export const AdminMenuPage: React.FC = () => {
   const [items, setItems] = useState<MenuItem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  // Active Category Selection
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
+  // Active Category Selection ('cat-all' for All Dishes)
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('cat-all')
 
   // Search & Availability Filters
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -52,6 +52,7 @@ export const AdminMenuPage: React.FC = () => {
   const [drawerCategory, setDrawerCategory] = useState<string>('')
   const [drawerImage, setDrawerImage] = useState<string>(DEFAULT_DISH_IMAGE)
   const [drawerDescription, setDrawerDescription] = useState<string>('')
+  const [drawerHeritageTag, setDrawerHeritageTag] = useState<string>('Temple Heritage')
   const [drawerAvailable, setDrawerAvailable] = useState<boolean>(true)
   const [isCompressingImage, setIsCompressingImage] = useState<boolean>(false)
   const [isSavingItem, setIsSavingItem] = useState<boolean>(false)
@@ -87,8 +88,8 @@ export const AdminMenuPage: React.FC = () => {
       const res = await getCatalogue()
       setCategories(res.categories)
       setItems(res.items)
-      if (res.categories.length > 0 && !selectedCategoryId) {
-        setSelectedCategoryId(res.categories[0].id)
+      if (!selectedCategoryId) {
+        setSelectedCategoryId('cat-all')
       }
     } catch (err) {
       console.error('Failed to load menu catalogue:', err)
@@ -102,35 +103,57 @@ export const AdminMenuPage: React.FC = () => {
     loadMenuData()
   }, [])
 
-  // Active Category Object
-  const activeCategory = useMemo(() => {
-    return categories.find((c) => c.id === selectedCategoryId) || categories[0] || null
+  // Real Food Categories (excluding root 'All Dishes' pseudo-category)
+  const realCategories = useMemo(() => {
+    return categories.filter(
+      (c) => c.id !== 'cat-all' && c.name.toLowerCase() !== 'all dishes'
+    )
+  }, [categories])
+
+  // Is "All Dishes" view selected?
+  const isAllDishes = useMemo(() => {
+    if (!selectedCategoryId || selectedCategoryId === 'cat-all' || selectedCategoryId === 'all') return true
+    const found = categories.find((c) => c.id === selectedCategoryId)
+    return found ? found.name.toLowerCase() === 'all dishes' || found.id === 'cat-all' : false
   }, [categories, selectedCategoryId])
+
+  // Active Category Object (null if viewing all dishes)
+  const activeCategory = useMemo(() => {
+    if (isAllDishes) return null
+    return realCategories.find((c) => c.id === selectedCategoryId) || realCategories[0] || null
+  }, [realCategories, selectedCategoryId, isAllDishes])
 
   // Count items per category
   const categoryItemCounts = useMemo(() => {
     const counts: Record<string, number> = {}
-    categories.forEach((cat) => {
+    realCategories.forEach((cat) => {
       counts[cat.name] = items.filter((i) => i.category === cat.name).length
     })
     return counts
-  }, [categories, items])
+  }, [realCategories, items])
 
-  // Items for active category
+  // Items for active category (or all items if in All Dishes mode)
   const activeCategoryItems = useMemo(() => {
-    if (!activeCategory) return []
+    if (isAllDishes || !activeCategory) return items
     return items.filter((item) => item.category === activeCategory.name)
-  }, [items, activeCategory])
+  }, [items, activeCategory, isAllDishes])
 
   // Filtered Items (by Search & Availability Chip)
   const displayedItems = useMemo(() => {
     if (previewState === 'empty') return []
     let list = activeCategoryItems
 
-    // Search query
+    // Search query matches name, category, description, portion label, or tags
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim()
-      list = list.filter((i) => i.name.toLowerCase().includes(q))
+      list = list.filter((i) => 
+        i.name.toLowerCase().includes(q) ||
+        i.category.toLowerCase().includes(q) ||
+        (i.portionLabel && i.portionLabel.toLowerCase().includes(q)) ||
+        (i.description && i.description.toLowerCase().includes(q)) ||
+        (DISH_TAG_MAP[i.id] && DISH_TAG_MAP[i.id].toLowerCase().includes(q)) ||
+        (i.heritageTag && i.heritageTag.toLowerCase().includes(q))
+      )
     }
 
     // Availability Filter
@@ -143,7 +166,7 @@ export const AdminMenuPage: React.FC = () => {
     return list
   }, [activeCategoryItems, searchQuery, availabilityFilter, previewState])
 
-  // Available & Unavailable counts for current category
+  // Available & Unavailable counts for current category / all dishes
   const currentCategoryAvailableCount = useMemo(() => {
     return activeCategoryItems.filter((i) => i.available).length
   }, [activeCategoryItems])
@@ -161,9 +184,10 @@ export const AdminMenuPage: React.FC = () => {
     setEditingItem(null)
     setDrawerName('')
     setDrawerPrice('65')
-    setDrawerCategory(activeCategory ? activeCategory.name : categories[0]?.name || '')
+    setDrawerCategory(activeCategory ? activeCategory.name : realCategories[0]?.name || '')
     setDrawerImage(DEFAULT_DISH_IMAGE)
     setDrawerDescription('')
+    setDrawerHeritageTag('Temple Heritage')
     setDrawerAvailable(true)
     setIsDrawerOpen(true)
   }
@@ -177,8 +201,10 @@ export const AdminMenuPage: React.FC = () => {
     setDrawerImage(item.image || DEFAULT_DISH_IMAGE)
     setDrawerDescription(
       item.portionLabel ||
+        item.description ||
         `Authentic satvik preparation prepared with pure cow ghee and traditional temple spices.`
     )
+    setDrawerHeritageTag(item.heritageTag || DISH_TAG_MAP[item.id] || 'Temple Heritage')
     setDrawerAvailable(item.available)
     setIsDrawerOpen(true)
     setActiveDropdownId(null)
@@ -246,8 +272,8 @@ export const AdminMenuPage: React.FC = () => {
       toast.error('Please enter a valid price per plate')
       return
     }
-    if (!drawerCategory) {
-      toast.error('Please select a menu category')
+    if (!drawerCategory || drawerCategory === 'All Dishes') {
+      toast.error('Please select a valid menu category')
       return
     }
 
@@ -260,7 +286,10 @@ export const AdminMenuPage: React.FC = () => {
         category: drawerCategory,
         image: drawerImage || DEFAULT_DISH_IMAGE,
         emoji: getDefaultEmoji(drawerCategory),
-        available: drawerAvailable
+        available: drawerAvailable,
+        description: drawerDescription,
+        portionLabel: drawerDescription,
+        heritageTag: drawerHeritageTag
       })
 
       setItems(updated)
@@ -272,6 +301,30 @@ export const AdminMenuPage: React.FC = () => {
       toast.error('Failed to save dish')
     } finally {
       setIsSavingItem(false)
+    }
+  }
+
+  // Duplicate Dish Option
+  const handleDuplicateDish = async (item: MenuItem) => {
+    setActiveDropdownId(null)
+    try {
+      const copyName = `${item.name} (Copy)`
+      const updated = await saveItem({
+        name: copyName,
+        pricePerPlate: item.pricePerPlate,
+        category: item.category,
+        image: item.image || DEFAULT_DISH_IMAGE,
+        emoji: item.emoji || getDefaultEmoji(item.category),
+        available: item.available,
+        portionLabel: item.portionLabel,
+        description: item.description,
+        heritageTag: item.heritageTag || DISH_TAG_MAP[item.id] || 'Temple Heritage'
+      })
+      setItems(updated)
+      toast.success(`Duplicated '${item.name}'`)
+    } catch (err) {
+      console.error('Error duplicating dish:', err)
+      toast.error('Failed to duplicate dish')
     }
   }
 
@@ -351,8 +404,8 @@ export const AdminMenuPage: React.FC = () => {
       const res = await deleteCategory(id, { deleteItems: false })
       setCategories(res.categories)
       setItems(res.items)
-      if (selectedCategoryId === id && res.categories.length > 0) {
-        setSelectedCategoryId(res.categories[0].id)
+      if (selectedCategoryId === id) {
+        setSelectedCategoryId('cat-all')
       }
       toast.success(`Category '${name}' removed`)
     } catch (err) {
@@ -362,17 +415,22 @@ export const AdminMenuPage: React.FC = () => {
   }
 
   // Move Category Up / Down
-  const handleMoveCategory = async (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1
-    if (targetIndex < 0 || targetIndex >= categories.length) return
+  const handleMoveCategory = async (realIndex: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? realIndex - 1 : realIndex + 1
+    if (targetIndex < 0 || targetIndex >= realCategories.length) return
 
-    const newOrder = [...categories]
-    const [moved] = newOrder.splice(index, 1)
-    newOrder.splice(targetIndex, 0, moved)
+    const newReal = [...realCategories]
+    const [moved] = newReal.splice(realIndex, 1)
+    newReal.splice(targetIndex, 0, moved)
 
-    setCategories(newOrder)
+    const allCat = categories.find(
+      (c) => c.id === 'cat-all' || c.name.toLowerCase() === 'all dishes'
+    )
+    const finalOrder = allCat ? [allCat, ...newReal] : newReal
+
+    setCategories(finalOrder)
     try {
-      const saved = await reorderCategories(newOrder.map((c) => c.id))
+      const saved = await reorderCategories(finalOrder.map((c) => c.id))
       setCategories(saved)
       toast.success('Category reordered')
     } catch {
@@ -471,7 +529,7 @@ export const AdminMenuPage: React.FC = () => {
                     </p>
                   </div>
                   <span className="px-2.5 py-0.5 rounded-full text-xs bg-secondary-fixed text-on-secondary-fixed font-bold border border-secondary/20">
-                    {categories.length} Categories
+                    {realCategories.length} Categories
                   </span>
                 </div>
 
@@ -481,7 +539,7 @@ export const AdminMenuPage: React.FC = () => {
                     info
                   </span>
                   <span>
-                    Initial categories are a starting point — add, rename, or reorder anytime for banquet printing.
+                    Select &apos;All Dishes&apos; to view all items, or manage individual category order and items.
                   </span>
                 </div>
 
@@ -495,10 +553,65 @@ export const AdminMenuPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Reorderable Category List */}
+              {/* Category List */}
               <div className="p-3 space-y-1.5 flex-1 overflow-y-auto custom-scroll">
-                {categories.map((cat, idx) => {
-                  const isActive = activeCategory?.id === cat.id
+                {/* 1. All Dishes Master Option Button */}
+                <div
+                  id="category-all-dishes-btn"
+                  onClick={() => {
+                    setSelectedCategoryId('cat-all')
+                    setPreviewState('default')
+                  }}
+                  className={`group flex items-center justify-between p-3 rounded-xl transition-all cursor-pointer mb-2 ${
+                    isAllDishes
+                      ? 'bg-surface-container text-on-surface border-2 border-primary shadow-xs'
+                      : 'hover:bg-surface-container-low text-on-surface border border-outline-variant/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                        isAllDishes
+                          ? 'bg-primary text-on-primary'
+                          : 'bg-surface-container-high text-primary'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-lg">restaurant_menu</span>
+                    </div>
+                    <div className="truncate">
+                      <p
+                        className={`text-xs font-bold truncate ${
+                          isAllDishes ? 'text-primary' : 'text-on-surface'
+                        }`}
+                      >
+                        All Dishes
+                      </p>
+                      <p className="text-[10px] text-on-surface-variant font-medium">
+                        {isAllDishes ? 'Viewing full menu catalogue' : 'Browse all preparations'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                      isAllDishes
+                        ? 'bg-primary text-on-primary'
+                        : 'bg-surface-container text-on-surface-variant'
+                    }`}
+                  >
+                    {items.length} items
+                  </span>
+                </div>
+
+                {/* Section Divider */}
+                <div className="flex items-center gap-2 px-1 py-1 text-[10px] font-bold text-on-surface-variant/70 uppercase tracking-wider">
+                  <span>Categories</span>
+                  <div className="flex-1 h-px bg-outline-variant/40"></div>
+                </div>
+
+                {/* 2. Real Food Categories List */}
+                {realCategories.map((cat, idx) => {
+                  const isActive = !isAllDishes && activeCategory?.id === cat.id
                   const count = categoryItemCounts[cat.name] || 0
 
                   return (
@@ -530,7 +643,7 @@ export const AdminMenuPage: React.FC = () => {
                               <span className="material-symbols-outlined text-[13px]">expand_less</span>
                             </button>
                           )}
-                          {idx < categories.length - 1 && (
+                          {idx < realCategories.length - 1 && (
                             <button
                               type="button"
                               onClick={(e) => {
@@ -582,7 +695,7 @@ export const AdminMenuPage: React.FC = () => {
                           >
                             <span className="material-symbols-outlined text-sm">edit</span>
                           </button>
-                          {categories.length > 1 && (
+                          {realCategories.length > 1 && (
                             <button
                               type="button"
                               onClick={(e) => {
@@ -619,18 +732,22 @@ export const AdminMenuPage: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-2.5">
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-fixed text-on-primary-fixed">
-                      Active Category
+                      {isAllDishes ? 'Full Catalogue' : 'Active Category'}
                     </span>
                     <span className="text-xs text-outline font-semibold">
-                      Order Rank #{categories.findIndex((c) => c.id === activeCategory?.id) + 1}
+                      {isAllDishes
+                        ? `All Categories (${realCategories.length})`
+                        : `Order Rank #${realCategories.findIndex((c) => c.id === activeCategory?.id) + 1}`}
                     </span>
                   </div>
 
                   <h2 className="font-serif text-2xl md:text-3xl text-primary mt-1 font-bold">
-                    {activeCategory ? activeCategory.name : 'All Preparations'}
+                    {isAllDishes ? 'All Dishes & Delicacies' : (activeCategory ? activeCategory.name : 'All Preparations')}
                   </h2>
                   <p className="text-xs text-on-surface-variant mt-0.5">
-                    Showing {displayedItems.length} authentic dishes curated for Banana Leaf Muhurtham Feasts
+                    {isAllDishes
+                      ? `Showing ${displayedItems.length} authentic dishes curated across all banquet categories`
+                      : `Showing ${displayedItems.length} authentic dishes curated for Banana Leaf Muhurtham Feasts`}
                   </p>
                 </div>
 
@@ -641,7 +758,7 @@ export const AdminMenuPage: React.FC = () => {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary-container transition-all shadow-xs cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-base">add</span>
-                    <span>Add Item to Category</span>
+                    <span>{isAllDishes ? '+ Add Food Item' : 'Add Item to Category'}</span>
                   </button>
                 </div>
               </div>
@@ -657,7 +774,11 @@ export const AdminMenuPage: React.FC = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search dishes in this category..."
+                    placeholder={
+                      isAllDishes
+                        ? 'Search all dishes by name, category, or tag...'
+                        : 'Search dishes in this category...'
+                    }
                     className="w-full pl-10 pr-4 py-2 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background placeholder:text-outline text-xs font-semibold focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                   />
                 </div>
@@ -716,7 +837,7 @@ export const AdminMenuPage: React.FC = () => {
                   className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-2 pb-12"
                 >
                   {displayedItems.map((item) => {
-                    const dishTag = DISH_TAG_MAP[item.id] || 'Temple Heritage'
+                    const dishTag = item.heritageTag || DISH_TAG_MAP[item.id] || 'Temple Heritage'
 
                     return (
                       <div
@@ -730,7 +851,7 @@ export const AdminMenuPage: React.FC = () => {
                         <div>
                           <div className="flex items-start justify-between gap-3">
                             {/* Veg Marker + Titles */}
-                            <div className="flex items-start gap-2.5">
+                            <div className="flex items-start gap-2.5 min-w-0">
                               <div
                                 className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center shrink-0 mt-1 ${
                                   item.available ? 'border-[#00753A]' : 'border-outline'
@@ -743,51 +864,90 @@ export const AdminMenuPage: React.FC = () => {
                                   }`}
                                 ></div>
                               </div>
-                              <div>
-                                <h4 className="text-sm font-bold text-on-surface leading-snug">
+                              <div className="min-w-0">
+                                <h4 className="text-sm font-bold text-on-surface leading-snug truncate">
                                   {item.name}
                                 </h4>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-[10px] font-semibold text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded-md border border-secondary/20 truncate">
+                                    {item.category}
+                                  </span>
+                                </div>
                               </div>
                             </div>
 
-                            {/* Kebab Action Menu */}
-                            <div className="relative" data-dropdown-container>
+                            {/* Direct Edit + Kebab Action Menu */}
+                            <div className="flex items-center gap-1 shrink-0">
                               <button
                                 type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setActiveDropdownId(
-                                    activeDropdownId === item.id ? null : item.id
-                                  )
-                                }}
-                                className="p-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
+                                onClick={() => handleOpenEditItem(item)}
+                                className="p-1 rounded-lg text-outline hover:text-primary hover:bg-surface-container transition-colors cursor-pointer"
+                                title="Edit dish"
                               >
-                                <span className="material-symbols-outlined text-lg">more_vert</span>
+                                <span className="material-symbols-outlined text-lg">edit</span>
                               </button>
 
-                              {activeDropdownId === item.id && (
-                                <div className="absolute right-0 mt-1 w-36 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-lg py-1 z-20 text-xs">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenEditItem(item)}
-                                    className="w-full px-3 py-1.5 text-left text-on-surface hover:bg-surface-container flex items-center gap-2 cursor-pointer font-medium"
-                                  >
-                                    <span className="material-symbols-outlined text-sm">edit</span>
-                                    <span>Edit dish</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setActiveDropdownId(null)
-                                      setItemToDelete(item)
-                                    }}
-                                    className="w-full px-3 py-1.5 text-left text-error hover:bg-error-container flex items-center gap-2 cursor-pointer font-medium"
-                                  >
-                                    <span className="material-symbols-outlined text-sm">delete</span>
-                                    <span>Delete dish</span>
-                                  </button>
-                                </div>
-                              )}
+                              <div className="relative" data-dropdown-container>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setActiveDropdownId(
+                                      activeDropdownId === item.id ? null : item.id
+                                    )
+                                  }}
+                                  className="p-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
+                                  title="More options"
+                                >
+                                  <span className="material-symbols-outlined text-lg">more_vert</span>
+                                </button>
+
+                                {activeDropdownId === item.id && (
+                                  <div className="absolute right-0 mt-1 w-44 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-lg py-1 z-30 text-xs">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenEditItem(item)}
+                                      className="w-full px-3 py-1.5 text-left text-on-surface hover:bg-surface-container flex items-center gap-2 cursor-pointer font-medium"
+                                    >
+                                      <span className="material-symbols-outlined text-sm">edit</span>
+                                      <span>Edit dish</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveDropdownId(null)
+                                        handleToggleItemAvailability(item, !item.available)
+                                      }}
+                                      className="w-full px-3 py-1.5 text-left text-on-surface hover:bg-surface-container flex items-center gap-2 cursor-pointer font-medium"
+                                    >
+                                      <span className="material-symbols-outlined text-sm">
+                                        {item.available ? 'pause_circle' : 'play_circle'}
+                                      </span>
+                                      <span>{item.available ? 'Pause dish' : 'Make available'}</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDuplicateDish(item)}
+                                      className="w-full px-3 py-1.5 text-left text-on-surface hover:bg-surface-container flex items-center gap-2 cursor-pointer font-medium"
+                                    >
+                                      <span className="material-symbols-outlined text-sm">content_copy</span>
+                                      <span>Duplicate dish</span>
+                                    </button>
+                                    <div className="h-px bg-outline-variant/50 my-1"></div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveDropdownId(null)
+                                        setItemToDelete(item)
+                                      }}
+                                      className="w-full px-3 py-1.5 text-left text-error hover:bg-error-container flex items-center gap-2 cursor-pointer font-medium"
+                                    >
+                                      <span className="material-symbols-outlined text-sm">delete</span>
+                                      <span>Delete dish</span>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
 
@@ -882,19 +1042,35 @@ export const AdminMenuPage: React.FC = () => {
                     <span className="material-symbols-outlined text-4xl">soup_kitchen</span>
                   </div>
                   <h3 className="font-serif text-xl text-on-surface font-bold">
-                    No dishes in this category yet
+                    {isAllDishes ? 'No dishes found in menu catalogue' : 'No dishes in this category yet'}
                   </h3>
                   <p className="text-xs text-on-surface-variant mt-2 mb-6 leading-relaxed">
-                    Click &apos;+ Add Item&apos; to introduce traditional preparations, set price per muhurtham leaf, and configure live kitchen availability.
+                    {searchQuery || availabilityFilter !== 'all'
+                      ? 'No dishes match your active search or availability filter. Try adjusting your search keywords or resetting filters.'
+                      : "Click '+ Add Food Item' to introduce traditional preparations, set price per muhurtham leaf, and configure live kitchen availability."}
                   </p>
-                  <button
-                    type="button"
-                    onClick={handleOpenAddItem}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-md hover:bg-primary-container transition-all cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-lg">add</span>
-                    <span>+ Add First Food Item</span>
-                  </button>
+                  {searchQuery || availabilityFilter !== 'all' ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('')
+                        setAvailabilityFilter('all')
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high text-on-surface text-xs font-bold hover:bg-surface-container transition-all cursor-pointer border border-outline-variant"
+                    >
+                      <span className="material-symbols-outlined text-base">restart_alt</span>
+                      <span>Clear Search &amp; Filters</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleOpenAddItem}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-md hover:bg-primary-container transition-all cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-lg">add</span>
+                      <span>+ Add First Food Item</span>
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -998,13 +1174,46 @@ export const AdminMenuPage: React.FC = () => {
                       onChange={(e) => setDrawerCategory(e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background text-xs font-semibold focus:border-primary focus:ring-1 focus:ring-primary outline-none cursor-pointer"
                     >
-                      {categories.map((cat, i) => (
+                      {realCategories.map((cat, i) => (
                         <option key={cat.id} value={cat.name}>
                           {i + 1}. {cat.name}
                         </option>
                       ))}
                     </select>
                   </div>
+                </div>
+
+                {/* Dish Tag / Speciality Badge */}
+                <div>
+                  <label htmlFor="dish-tag-input" className="block text-xs font-bold text-on-surface mb-1">
+                    Dish Tag / Speciality Badge
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      id="dish-tag-input"
+                      type="text"
+                      value={drawerHeritageTag}
+                      onChange={(e) => setDrawerHeritageTag(e.target.value)}
+                      placeholder="e.g. Temple Signature"
+                      className="flex-1 px-3.5 py-2 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background text-xs font-semibold focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    />
+                    <select
+                      value={drawerHeritageTag}
+                      onChange={(e) => setDrawerHeritageTag(e.target.value)}
+                      className="px-2.5 py-2 rounded-xl border border-outline-variant bg-surface-container text-xs font-medium focus:border-primary outline-none cursor-pointer text-on-surface"
+                    >
+                      <option value="Temple Heritage">Temple Heritage</option>
+                      <option value="Temple Signature">Temple Signature</option>
+                      <option value="Pure Ghee Special">Pure Ghee Special</option>
+                      <option value="Mysuru Classic">Mysuru Classic</option>
+                      <option value="Heritage Sweet">Heritage Sweet</option>
+                      <option value="Cooling Finish">Cooling Finish</option>
+                      <option value="Traditional Snack">Traditional Snack</option>
+                      <option value="Melkote Recipe">Melkote Recipe</option>
+                      <option value="Chef Special">Chef Special</option>
+                    </select>
+                  </div>
+                  <p className="text-[11px] text-outline mt-1">Highlighted badge displayed on the food photograph.</p>
                 </div>
 
                 {/* Pure Veg Guarantee Badge */}

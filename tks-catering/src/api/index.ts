@@ -618,7 +618,10 @@ export async function saveItem(
     image: itemData.image && itemData.image.trim() !== '' ? itemData.image : defaultImg,
     gradient: itemData.gradient || 'from-amber-100 to-yellow-200',
     emoji: itemData.emoji || defaultEmo,
-    available: itemData.available !== undefined ? itemData.available : true
+    available: itemData.available !== undefined ? itemData.available : true,
+    description: itemData.description,
+    portionLabel: itemData.portionLabel,
+    heritageTag: itemData.heritageTag
   }
 
   itemsStore.push(newItem)
