@@ -917,21 +917,21 @@ export const RequestPage: React.FC = () => {
                 )}
               </div>
 
-              {/* 5. MUHURTHAM INSTRUCTIONS & TIMINGS */}
+              {/* 5. SPECIAL INSTRUCTIONS */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-slate-800">
-                    Muhurtham Instructions &amp; Timings <span className="text-outline font-normal">(Optional)</span>
+                    Special Instructions <span className="text-outline font-normal">(Optional)</span>
                   </label>
                   <span className="text-[11px] font-medium text-outline">
-                    Batch timings
+                    Chef &amp; serving notes
                   </span>
                 </div>
 
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Muhurtham auspicious lagna concludes at 10:45 AM. Leaf laying out to start by 11:15 AM. Traditional brass Davarah coffee service required immediately after Sankalpa."
+                  placeholder="Enter any special dietary preferences, batch serving requests, leaf service notes, or timing instructions for our kitchen crew..."
                   rows={3}
                   className="w-full p-3.5 rounded-2xl border border-outline-variant/30 text-xs sm:text-sm font-medium bg-surface-container-lowest focus:ring-1 focus:ring-primary outline-none transition-all shadow-2xs resize-none"
                 />
