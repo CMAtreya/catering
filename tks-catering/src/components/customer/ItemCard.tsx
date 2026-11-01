@@ -165,13 +165,6 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           <h3 className="font-headline font-bold text-base sm:text-lg text-primary tracking-tight leading-snug group-hover:text-primary-container transition-colors line-clamp-1 min-h-[1.75rem]">
             {item.name}
           </h3>
-          {item.description ? (
-            <p className="text-xs text-on-surface-variant/80 font-normal mt-1 line-clamp-2 leading-relaxed min-h-[2.5rem]">
-              {item.description}
-            </p>
-          ) : (
-            <div className="min-h-[2.5rem]" />
-          )}
         </div>
 
         {/* Bottom portion price & Consistent Add to Feast CTA button strictly on a single line */}
