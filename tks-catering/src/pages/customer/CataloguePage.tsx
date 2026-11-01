@@ -782,36 +782,33 @@ export const CataloguePage: React.FC = () => {
         className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-6xl z-50 pointer-events-auto"
       >
         <div className="w-full bg-surface/95 backdrop-blur-md border border-outline-variant/20 rounded-2xl sm:rounded-full p-2.5 sm:p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 ring-1 ring-black/5">
-          {/* Left: Delicacies Count & Per Plate Rate */}
+          {/* Left: Delicacies Count & Service Info */}
           <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
               <span className="material-symbols-outlined text-[18px] sm:text-[20px]">soup_kitchen</span>
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-headline font-bold text-xs sm:text-sm text-primary truncate">
-                  {selectedCount} Delicacies Selected
-                </span>
-                <span className="text-[10px] sm:text-[11px] text-on-surface-variant font-medium shrink-0">
-                  • {guestCount} Guests
-                </span>
-              </div>
-              <div className="text-[9px] sm:text-[10px] text-outline flex items-center gap-1 truncate">
-                <span>Per-Plate: ₹{displayPerPlate}</span>
-                <span>• Includes Service &amp; Leaves</span>
-              </div>
+              <span className="font-headline font-bold text-xs sm:text-sm text-primary block truncate">
+                {selectedCount} Delicacies Selected
+              </span>
+              <span className="text-[9px] sm:text-[10px] text-outline block truncate">
+                Includes Banana Leaf Service &amp; Rasam
+              </span>
             </div>
           </div>
 
-          {/* Center / Right: Estimate, WhatsApp & Primary Proceed CTA */}
+          {/* Center / Right: Per Plate Price, WhatsApp & Primary Proceed CTA */}
           <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto border-t sm:border-t-0 border-outline-variant/10 pt-2 sm:pt-0">
             <div className="text-left sm:text-right shrink-0">
               <span className="text-[9px] uppercase font-bold text-outline tracking-wider block leading-none">
-                Estimate
+                Per Plate Price
               </span>
-              <span className="font-headline font-black text-xs sm:text-base text-primary leading-tight block">
-                ₹{estimatedBanquetTotal.toLocaleString('en-IN')}
-              </span>
+              <div className="flex items-baseline gap-0.5 justify-start sm:justify-end mt-0.5">
+                <span className="font-headline font-black text-xs sm:text-base text-primary leading-tight">
+                  ₹{displayPerPlate}
+                </span>
+                <span className="text-[10px] text-outline font-medium">/ plate</span>
+              </div>
             </div>
 
             {/* WhatsApp Share Button */}
