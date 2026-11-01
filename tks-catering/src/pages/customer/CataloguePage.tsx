@@ -736,14 +736,6 @@ export const CataloguePage: React.FC = () => {
               <span>Explore Catering Menus</span>
               <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
             </button>
-            <button
-              type="button"
-              onClick={() => setIsTastingModalOpen(true)}
-              className="px-5 py-2.5 rounded-full bg-surface-container-lowest text-primary border border-primary/25 text-xs font-bold hover:bg-surface-container-high transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[15px]">box</span>
-              <span>Request Private Tasting Box</span>
-            </button>
           </div>
         </section>
       </main>
