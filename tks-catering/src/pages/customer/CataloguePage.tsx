@@ -503,22 +503,6 @@ export const CataloguePage: React.FC = () => {
                 Handcrafted sacred heritage dishes for grand muhurthams, upanayanas, and household poojas. Pick delicacies to customize your plantain leaf feast.
               </p>
             </div>
-
-            {/* Feast Price Live Rate Card */}
-            <div className="bg-surface-container-low border border-outline-variant/15 rounded-2xl p-4 flex items-center gap-4 self-start md:self-auto shrink-0 shadow-xs">
-              <div className="p-2.5 bg-primary/10 rounded-xl text-primary flex items-center justify-center">
-                <span className="material-symbols-outlined text-2xl">restaurant</span>
-              </div>
-              <div>
-                <span className="text-[11px] font-bold text-outline block uppercase tracking-wider">Feast Price / Guest</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-headline font-black text-2xl text-primary">
-                    ₹{displayPerPlate}
-                  </span>
-                  <span className="text-xs text-on-surface-variant font-medium">/ plate</span>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
