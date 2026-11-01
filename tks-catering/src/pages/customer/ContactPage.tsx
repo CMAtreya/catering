@@ -364,21 +364,6 @@ export const ContactPage: React.FC = () => {
                 Our chief catering prabandhakar will connect directly to honor your muhurtham timings and traditional leaf-service traditions.
               </p>
 
-              {/* Direct Callback Guarantee Banner */}
-              <div className="mt-6 flex items-start gap-3.5 p-4 rounded-xl bg-surface-container border border-outline-variant/70">
-                <div className="w-9 h-9 rounded-lg bg-surface-container-lowest border border-secondary flex items-center justify-center text-secondary shrink-0 mt-0.5">
-                  <span className="material-symbols-outlined text-[20px]">support_agent</span>
-                </div>
-                <div>
-                  <h4 className="text-sm sm:text-base font-semibold text-on-surface mb-0.5">
-                    Direct Prabandhakar Callback
-                  </h4>
-                  <p className="text-xs sm:text-sm text-on-surface-variant">
-                    Direct Callback within 2 business hours to verify auspicious muhurtham timings and leaf-serving rituals.
-                  </p>
-                </div>
-              </div>
-
               {/* FORM CONTROLS */}
               <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 
