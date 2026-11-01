@@ -151,27 +151,27 @@ export const EnquiriesPage: React.FC = () => {
         {/* ==========================================================
             1. TOP NAVBAR (Shared Authentic Mysuru Heritage Header)
             ========================================================== */}
-        <header className="bg-surface/85 backdrop-blur-md border-b border-outline-variant/60 shadow-xs sticky top-0 z-40 w-full">
-          <div className="flex justify-between items-center w-full px-4 sm:px-6 md:px-8 max-w-7xl mx-auto h-20">
+        <header className="bg-surface/85 backdrop-blur-md border-b border-outline-variant/60 shadow-xs sticky top-0 z-40 w-full overflow-hidden">
+          <div className="flex justify-between items-center w-full px-3 sm:px-6 md:px-8 max-w-7xl mx-auto h-16 sm:h-20 gap-2">
             
             {/* Brand Logo & Identity */}
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="flex items-center gap-3.5 text-left group cursor-pointer"
+              className="flex items-center gap-2 sm:gap-3.5 text-left group cursor-pointer min-w-0 flex-1"
             >
               <img
                 alt="TKS Iyengar's Authentic Logo"
-                className="h-12 sm:h-14 w-auto object-contain transition-transform duration-200 group-hover:scale-105 rounded-md"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-105 rounded-md shrink-0"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6occrKYgf2RCe6-ZpsHHNSwBTZw3OIJCIu6JOOkQR-MmVOIiKZ7bUBYzMU1l09v4a7bX1aa5bfz0MQN5Gh1wPHBVRO7LGbM1E9Bko7oNR5cwbenpCKvUqkdjPSjrtKo9Dv1OlVn0VLfzhNsNmnyXZsER8N1zZKYj1hy1Z5QQB-5nt5D6OCeHk91zan3n3flKIP17cg5vuWoRorqja0dU2rPYG_7kXSD98DR2K5GVG8F_91Jgo9rr6"
               />
-              <div className="flex flex-col">
-                <span className="font-serif font-bold text-lg sm:text-xl text-primary tracking-wide leading-tight">
+              <div className="flex flex-col min-w-0">
+                <span className="font-serif font-bold text-base sm:text-xl text-primary tracking-wide leading-tight truncate">
                   TKS Iyengar's Catering
                 </span>
-                <span className="text-[11px] sm:text-xs font-semibold text-on-surface-variant flex items-center gap-1.5 pt-0.5">
-                  <span className="inline-block w-2 h-2 rounded-full bg-tertiary-container animate-pulse" />
-                  Mysuru Pure Vegetarian Sattvic Heritage
+                <span className="text-[10px] sm:text-xs font-semibold text-on-surface-variant flex items-center gap-1.5 pt-0.5 truncate">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse shrink-0" />
+                  <span className="truncate">Mysuru Sattvic Heritage</span>
                 </span>
               </div>
             </button>
@@ -210,7 +210,7 @@ export const EnquiriesPage: React.FC = () => {
             </nav>
 
             {/* Trailing Action Cluster & Search */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <div className="hidden lg:flex items-center bg-surface-container-low border border-outline-variant/50 rounded-xl px-3 py-1.5 gap-2 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
                 <span className="material-symbols-outlined text-outline text-[18px]">search</span>
                 <input
@@ -227,24 +227,24 @@ export const EnquiriesPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/request')}
-                className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-xl transition-all relative cursor-pointer"
+                className="p-1.5 sm:p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-xl transition-all relative cursor-pointer"
                 title="Event Muhurtham Calendar"
                 aria-label="Plan event date on calendar"
               >
-                <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">calendar_month</span>
               </button>
 
               {/* Saved Requests Cart */}
               <button
                 type="button"
                 onClick={() => navigate('/request')}
-                className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-xl transition-all relative cursor-pointer"
+                className="p-1.5 sm:p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-xl transition-all relative cursor-pointer"
                 title="Saved Feast Selection"
                 aria-label="View selected feast cart"
               >
-                <span className="material-symbols-outlined text-[20px]">shopping_bag</span>
+                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">shopping_bag</span>
                 {draftItemCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {draftItemCount}
                   </span>
                 )}
@@ -254,9 +254,10 @@ export const EnquiriesPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/request')}
-                className="crimson-gradient text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2.5 rounded-xl custom-cta-glow hover:opacity-95 active:scale-95 transition-all duration-150 flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
+                className="crimson-gradient text-white text-xs sm:text-sm font-bold px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl custom-cta-glow hover:opacity-95 active:scale-95 transition-all duration-150 flex items-center gap-1 sm:gap-1.5 shadow-sm cursor-pointer whitespace-nowrap shrink-0"
               >
-                <span>Plan Event Banquet</span>
+                <span className="hidden sm:inline">Plan Event Banquet</span>
+                <span className="sm:hidden">Plan Event</span>
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </button>
             </div>

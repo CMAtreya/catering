@@ -217,37 +217,38 @@ export const CataloguePage: React.FC = () => {
   return (
     <CustomerDesktopShell maxWidth="w-full">
       {/* 1. TOP ANNOUNCEMENT BANNER (Full Page Edge-to-Edge) */}
-      <header className="bg-primary text-on-primary py-2 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 text-xs font-medium tracking-wide border-b border-primary-container/40 w-full">
-        <div className="w-full flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[16px] text-secondary-container">local_fire_department</span>
-            <span className="truncate">Mysuru's Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic</span>
+      <header className="bg-primary text-on-primary py-2 px-3 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 text-xs font-medium tracking-wide border-b border-primary-container/40 w-full overflow-hidden">
+        <div className="w-full flex justify-between items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+            <span className="material-symbols-outlined text-[15px] sm:text-[16px] text-secondary-container shrink-0">local_fire_department</span>
+            <span className="truncate text-[10px] sm:text-xs">Mysuru's Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic</span>
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-primary-fixed shrink-0">
-            <a href="tel:+918212448920" className="hover:underline flex items-center gap-1">
-              <span className="material-symbols-outlined text-[13px]">phone_in_talk</span>
-              <span className="hidden sm:inline">Kitchen Hotline:</span> +91 821 244 8920
+          <div className="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] text-primary-fixed shrink-0">
+            <a href="tel:+918212448920" className="hover:underline flex items-center gap-1 whitespace-nowrap">
+              <span className="material-symbols-outlined text-[12px] sm:text-[13px]">phone_in_talk</span>
+              <span className="hidden sm:inline">Kitchen Hotline:</span>
+              <span>+91 821 244 8920</span>
             </a>
           </div>
         </div>
       </header>
 
       {/* 2. STICKY TOP NAVIGATION BAR (Full Page Edge-to-Edge) */}
-      <nav className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/15 py-3 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 w-full shadow-2xs">
-        <div className="w-full flex items-center justify-between">
+      <nav className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/15 py-2.5 sm:py-3 px-3 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 w-full shadow-2xs">
+        <div className="w-full flex items-center justify-between gap-2">
           {/* Brand Logo & Title */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <img 
               alt="TKS Iyengar's Logo" 
-              className="h-10 w-auto object-contain rounded-md" 
+              className="h-9 sm:h-10 w-auto object-contain rounded-md shrink-0" 
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6occrKYgf2RCe6-ZpsHHNSwBTZw3OIJCIu6JOOkQR-MmVOIiKZ7bUBYzMU1l09v4a7bX1aa5bfz0MQN5Gh1wPHBVRO7LGbM1E9Bko7oNR5cwbenpCKvUqkdjPSjrtKo9Dv1OlVn0VLfzhNsNmnyXZsER8N1zZKYj1hy1Z5QQB-5nt5D6OCeHk91zan3n3flKIP17cg5vuWoRorqja0dU2rPYG_7kXSD98DR2K5GVG8F_91Jgo9rr6"
             />
-            <div>
-              <h1 className="font-headline font-bold text-lg leading-tight text-primary">
-                TKS Iyengar's<br/>
-                <span className="text-xs uppercase font-sans tracking-widest text-on-surface-variant font-semibold">Catering</span>
+            <div className="min-w-0">
+              <h1 className="font-headline font-bold text-base sm:text-lg leading-tight text-primary truncate">
+                TKS Iyengar's<br className="hidden xs:inline" />
+                <span className="text-[10px] sm:text-xs uppercase font-sans tracking-widest text-on-surface-variant font-semibold ml-1 xs:ml-0">Catering</span>
               </h1>
-              <span className="inline-block text-[9px] bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 px-1.5 py-0.2 rounded-xs font-bold uppercase tracking-wider">
+              <span className="inline-block text-[8px] sm:text-[9px] bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 px-1.5 py-0.2 rounded-xs font-bold uppercase tracking-wider truncate max-w-[150px] xs:max-w-none">
                 ✦ 100% Mysuru Sattvic Heritage
               </span>
             </div>
@@ -315,7 +316,7 @@ export const CataloguePage: React.FC = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <a 
               className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-fixed/30 hover:bg-primary-fixed/50 px-3.5 py-1.5 rounded-full transition-colors border border-primary/10" 
               href="tel:+918212448920"
@@ -328,7 +329,7 @@ export const CataloguePage: React.FC = () => {
             <button 
               type="button"
               onClick={() => navigate('/enquiries')}
-              className="relative p-2 rounded-full hover:bg-surface-container-low transition-colors" 
+              className="relative p-1.5 sm:p-2 rounded-full hover:bg-surface-container-low transition-colors cursor-pointer" 
               title="My Enquiries"
               aria-label="View previous banquet enquiries"
             >
@@ -348,13 +349,13 @@ export const CataloguePage: React.FC = () => {
                   setIsLeafModalOpen(true)
                 }
               }}
-              className="relative p-2 rounded-full hover:bg-surface-container-low transition-colors" 
+              className="relative p-1.5 sm:p-2 rounded-full hover:bg-surface-container-low transition-colors cursor-pointer" 
               title="Selected Items"
               aria-label={`Selected delicacies: ${selectedCount}`}
             >
-              <span className="material-symbols-outlined text-[22px] text-on-surface">shopping_bag</span>
+              <span className="material-symbols-outlined text-[20px] sm:text-[22px] text-on-surface">shopping_bag</span>
               {selectedCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-on-primary rounded-full text-[10px] flex items-center justify-center font-bold">
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-on-primary rounded-full text-[10px] flex items-center justify-center font-bold">
                   {selectedCount}
                 </span>
               )}
@@ -372,10 +373,10 @@ export const CataloguePage: React.FC = () => {
                   navigate('/request')
                 }
               }}
-              className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold px-3.5 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap"
             >
               <span className="material-symbols-outlined text-[16px]">flatware</span>
-              Plan Event Banquet
+              <span>Plan Event Banquet</span>
             </button>
           </div>
         </div>
@@ -417,12 +418,12 @@ export const CataloguePage: React.FC = () => {
       <main className="w-full flex-1 flex flex-col">
         
         {/* SECTION A: INTERACTIVE EVENT CONTEXT BAR (Full Page Width) */}
-        <section id="context-bar" className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-6 pb-2">
-          <div className="w-full bg-surface-container-low rounded-2xl p-4 sm:p-5 border border-outline-variant/15 flex flex-wrap items-center justify-between gap-4 shadow-2xs">
+        <section id="context-bar" className="w-full px-3 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-4 sm:pt-6 pb-2">
+          <div className="w-full bg-surface-container-low rounded-2xl p-3.5 sm:p-5 border border-outline-variant/15 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 shadow-2xs items-center">
             {/* Auspicious Occasion */}
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl">celebration</span>
-              <div>
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl shrink-0">celebration</span>
+              <div className="min-w-0 flex-1">
                 <label 
                   htmlFor="catering-occasion-select" 
                   className="block text-[10px] uppercase font-bold text-outline tracking-wider"
@@ -434,21 +435,21 @@ export const CataloguePage: React.FC = () => {
                   aria-label="Catering occasion type"
                   value={requirements.eventType || 'Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)'}
                   onChange={(e) => setRequirements({ eventType: e.target.value })}
-                  className="bg-transparent font-headline font-bold text-sm sm:text-base lg:text-lg text-primary focus:outline-none cursor-pointer pr-4"
+                  className="bg-transparent font-headline font-bold text-sm sm:text-base text-primary focus:outline-none cursor-pointer pr-4 w-full truncate"
                 >
-                  <option value="Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)">Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)</option>
+                  <option value="Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)">Upanayana (ಉಪನಯನ)</option>
                   <option value="Traditional Muhurtham (ವಿವಾಹ)">Traditional Muhurtham (ವಿವಾಹ)</option>
                   <option value="Grihapravesham (ಗೃಹಪ್ರವೇಶ)">Grihapravesham (ಗೃಹಪ್ರವೇಶ)</option>
-                  <option value="Ayushya Homam (ಆಯುಷ್ಯ ಹೋಮ)">Ayushya Homam (ಆಯುಷ್ಯ ಹೋಮ)</option>
+                  <option value="Ayushya Homam (ಆಯುಷ್ಯ ಹೋಮ)">Ayushya Homam (ಆಯುಷ್ಯ)</option>
                   <option value="Seemantham (ಸೀಮಂತ)">Seemantham (ಸೀಮಂತ)</option>
-                  <option value="Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)">Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)</option>
+                  <option value="Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)">Satyanarayana Pooja (ಪೂಜೆ)</option>
                 </select>
               </div>
             </div>
 
             {/* Number of Guests */}
-            <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-2 sm:pt-0 sm:pl-6">
-              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl">groups</span>
+            <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-3 sm:pt-0 sm:pl-4 lg:pl-6 min-w-0">
+              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl shrink-0">groups</span>
               <div>
                 <span className="block text-[10px] uppercase font-bold text-outline tracking-wider">Number of Guests</span>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -479,9 +480,9 @@ export const CataloguePage: React.FC = () => {
             </div>
 
             {/* Muhurtham Date */}
-            <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-2 sm:pt-0 sm:pl-6">
-              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl">event</span>
-              <div>
+            <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-3 sm:pt-0 sm:pl-4 lg:pl-6 min-w-0">
+              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl shrink-0">event</span>
+              <div className="min-w-0 flex-1">
                 <label 
                   htmlFor="muhurtham-date-input"
                   className="block text-[10px] uppercase font-bold text-outline tracking-wider"
@@ -495,18 +496,18 @@ export const CataloguePage: React.FC = () => {
                     aria-label="Muhurtham event date"
                     value={requirements.eventDate || '2026-11-18'} 
                     onChange={(e) => setRequirements({ eventDate: e.target.value })}
-                    className="bg-transparent font-headline font-bold text-xs sm:text-sm lg:text-base text-primary focus:outline-none cursor-pointer"
+                    className="bg-transparent font-headline font-bold text-xs sm:text-sm lg:text-base text-primary focus:outline-none cursor-pointer w-full"
                   />
                 </div>
               </div>
             </div>
 
             {/* Traditional Plantain Leaf Service Tag */}
-            <div className="hidden lg:flex items-center gap-2.5 bg-surface-container-lowest px-4 py-2 rounded-xl border border-outline-variant/15 text-xs text-on-surface-variant font-medium shadow-2xs">
-              <span className="material-symbols-outlined text-tertiary-container text-lg">eco</span>
-              <div>
-                <span className="font-bold text-on-surface block text-xs">Traditional Plantain Leaf</span>
-                <span className="text-[11px] text-outline">Live hot counters &amp; Mysuru Rasam service included</span>
+            <div className="hidden xl:flex items-center gap-2.5 bg-surface-container-lowest px-4 py-2 rounded-xl border border-outline-variant/15 text-xs text-on-surface-variant font-medium shadow-2xs">
+              <span className="material-symbols-outlined text-tertiary-container text-lg shrink-0">eco</span>
+              <div className="min-w-0">
+                <span className="font-bold text-on-surface block text-xs truncate">Traditional Plantain Leaf</span>
+                <span className="text-[11px] text-outline truncate block">Live hot counters &amp; Mysuru Rasam service included</span>
               </div>
             </div>
           </div>
@@ -911,24 +912,24 @@ export const CataloguePage: React.FC = () => {
       {/* 10. FLOATING BOTTOM SUMMARY BAR (Generous Wide Layout) */}
       <aside 
         aria-label="Banquet feast selection summary" 
-        className="fixed bottom-4 left-4 right-4 sm:left-8 sm:right-8 lg:left-12 lg:right-12 xl:left-16 xl:right-16 2xl:left-24 2xl:right-24 z-50 pointer-events-auto"
+        className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-6xl z-50 pointer-events-auto"
       >
-        <div className="w-full max-w-6xl mx-auto bg-surface/90 backdrop-blur-md border border-outline-variant/20 rounded-full p-2.5 sm:p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 ring-1 ring-black/5">
+        <div className="w-full bg-surface/95 backdrop-blur-md border border-outline-variant/20 rounded-2xl sm:rounded-full p-2.5 sm:p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 ring-1 ring-black/5">
           {/* Left: Delicacies Count & Per Plate Rate */}
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
-              <span className="material-symbols-outlined text-[20px]">soup_kitchen</span>
+          <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">soup_kitchen</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-headline font-bold text-xs sm:text-sm text-primary">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-headline font-bold text-xs sm:text-sm text-primary truncate">
                   {selectedCount} Delicacies Selected
                 </span>
-                <span className="text-[11px] text-on-surface-variant font-medium">
+                <span className="text-[10px] sm:text-[11px] text-on-surface-variant font-medium shrink-0">
                   • {guestCount} Guests
                 </span>
               </div>
-              <div className="text-[10px] text-outline flex items-center gap-1">
+              <div className="text-[9px] sm:text-[10px] text-outline flex items-center gap-1 truncate">
                 <span>Per-Plate: ₹{displayPerPlate}</span>
                 <span>• Includes Service &amp; Leaves</span>
               </div>
@@ -936,16 +937,13 @@ export const CataloguePage: React.FC = () => {
           </div>
 
           {/* Center / Right: Estimate, WhatsApp & Primary Proceed CTA */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t sm:border-t-0 border-outline-variant/10 pt-2 sm:pt-0">
-            <div className="text-left sm:text-right">
-              <span className="text-[9px] uppercase font-bold text-outline tracking-wider block">
-                Banquet Estimate
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto border-t sm:border-t-0 border-outline-variant/10 pt-2 sm:pt-0">
+            <div className="text-left sm:text-right shrink-0">
+              <span className="text-[9px] uppercase font-bold text-outline tracking-wider block leading-none">
+                Estimate
               </span>
-              <span className="font-headline font-black text-sm sm:text-base text-primary">
+              <span className="font-headline font-black text-xs sm:text-base text-primary leading-tight block">
                 ₹{estimatedBanquetTotal.toLocaleString('en-IN')}
-              </span>
-              <span className="text-[9px] text-outline block -mt-0.5">
-                + applicable GST &amp; transport
               </span>
             </div>
 
@@ -955,10 +953,10 @@ export const CataloguePage: React.FC = () => {
               target="_blank" 
               rel="noopener noreferrer"
               aria-label="Share feast requirements on WhatsApp"
-              className="px-3 py-2 rounded-full bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-xs flex items-center gap-1 border border-[#25D366]/30 transition-colors shrink-0"
+              className="px-2.5 sm:px-3 py-2 rounded-full bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-xs flex items-center gap-1 border border-[#25D366]/30 transition-colors shrink-0 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[16px]">chat</span>
-              <span className="hidden md:inline">WhatsApp</span>
+              <span className="material-symbols-outlined text-[15px] sm:text-[16px]">chat</span>
+              <span className="hidden xs:inline">WhatsApp</span>
             </a>
 
             {/* Primary Proceed Button (Maintains strict Playwright test compatibility) */}
@@ -967,7 +965,7 @@ export const CataloguePage: React.FC = () => {
                 id="proceed-to-request-btn"
                 type="button"
                 disabled={true}
-                className="px-5 py-2.5 rounded-full bg-surface-container-high text-outline text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-75 shrink-0"
+                className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-surface-container-high text-outline text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-75 shrink-0"
               >
                 <span>Select at least one item</span>
               </button>
@@ -976,10 +974,10 @@ export const CataloguePage: React.FC = () => {
                 id="proceed-to-request-btn"
                 type="button"
                 onClick={() => navigate('/request')}
-                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg hover:scale-102 transition-all cursor-pointer shrink-0"
+                className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0"
               >
-                <span>Proceed to Muhurtham Quote</span>
-                <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+                <span>Proceed to Quote</span>
+                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
               </button>
             )}
           </div>
