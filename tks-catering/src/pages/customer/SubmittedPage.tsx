@@ -169,6 +169,10 @@ export const SubmittedPage: React.FC = () => {
               <span className="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold">
                 Request submitted! • Muhurtham Banqueting Desk
               </span>
+              <span className="px-3 py-1 rounded-full bg-tertiary/10 border border-tertiary/30 text-tertiary text-xs font-bold flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                No advance required
+              </span>
             </div>
             <div className="flex items-center gap-2 text-on-surface-variant text-xs sm:text-sm">
               <span className="material-symbols-outlined text-tertiary-container text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -204,12 +208,20 @@ export const SubmittedPage: React.FC = () => {
               Namaskara! Our catering team will contact you within 24 hours to curate your auspicious banquet feast.
             </p>
 
-            {/* SMS Notice Pill */}
-            <div className="inline-flex items-center gap-2.5 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/60 text-on-surface text-xs sm:text-sm">
-              <span className="material-symbols-outlined text-primary text-lg">sms</span>
-              <span>
-                SMS confirmation sent to registered mobile <strong className="font-semibold text-on-surface">{displayPhone}</strong>
-              </span>
+            {/* Pill Notices: SMS Confirmation & No Advance Policy */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
+              <div className="inline-flex items-center gap-2.5 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/60 text-on-surface text-xs sm:text-sm">
+                <span className="material-symbols-outlined text-primary text-lg">sms</span>
+                <span>
+                  SMS confirmation sent to registered mobile <strong className="font-semibold text-on-surface">{displayPhone}</strong>
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-2 bg-emerald-50/80 border border-emerald-600/30 text-emerald-800 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
+                <span className="material-symbols-outlined text-emerald-700 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  check_circle
+                </span>
+                <span>No advance required • Pay post-muhurtham feast</span>
+              </div>
             </div>
           </div>
 
@@ -288,7 +300,7 @@ export const SubmittedPage: React.FC = () => {
                     </span>
                     <div className="text-right">
                       <span className="font-headline font-bold text-lg sm:text-xl text-primary">₹{totalAmount.toLocaleString('en-IN')}</span>
-                      <span className="text-xs text-on-surface-variant block font-normal">(₹{perPlate}/leaf service • Zero advance needed)</span>
+                      <span className="text-xs text-on-surface-variant block font-normal">(₹{perPlate}/leaf service • No advance required)</span>
                     </div>
                   </li>
                 </ul>
