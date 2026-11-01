@@ -190,7 +190,7 @@ test.describe('Admin Flow & Controls QA', () => {
     await page.waitForLoadState('networkidle')
     await page.screenshot({ path: `test-results/screenshots/14-admin-customers.png` })
 
-    // On mobile (< 1024px), tap customer to see profile; on desktop, profile is in right pane
+    // On mobile (< 1024px), tap customer to see profile; on desktop, click View Profile
     const isMobile = (page.viewportSize()?.width || 1280) < 1024
     if (isMobile) {
       const customerCard = page.locator('text=+91').first()
@@ -200,9 +200,10 @@ test.describe('Admin Flow & Controls QA', () => {
       await expect(page).toHaveURL(/\/admin\/customers\/\d+/)
       await expect(page.locator('text=Total Enquiries')).toBeVisible()
     } else {
-      const customerTile = page.locator('text=Total Enquiries').first()
-      await expect(customerTile).toBeVisible()
-      await expect(page.locator('text=Mobile:').first()).toBeVisible()
+      const viewProfileBtn = page.locator('text=View Profile').first()
+      await expect(viewProfileBtn).toBeVisible()
+      await viewProfileBtn.click()
+      await expect(page.locator('text=Total Enquiries').first()).toBeVisible()
     }
   })
 })

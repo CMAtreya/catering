@@ -389,39 +389,6 @@ export const AdminCustomersPage: React.FC = () => {
                       </button>
                     </div>
 
-                    {/* Friendly Helpful Hint Callout & Desktop Quick Inspector */}
-                    <div className="p-4 rounded-2xl bg-surface-container-high/60 border border-outline-variant/70 flex flex-col gap-2.5 shadow-sm">
-                      <div className="flex items-start gap-3.5">
-                        <span className="text-2xl shrink-0">💡</span>
-                        <div className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                          <span className="font-semibold text-primary">How Customer Linking Works:</span>
-                          {' '}Patrons are identified solely by their 10-digit phone number. Whenever a desk enquiry or manual booking is logged with the same number, all Muhurtham menus, plate counts, and notes automatically associate with their history card below.
-                        </div>
-                      </div>
-
-                      {/* Desktop Active Patron Snapshot (Guarantees visible Total Enquiries & Mobile for Playwright Desktop QA) */}
-                      <div className="pt-2 border-t border-outline-variant/40 flex flex-wrap items-center justify-between gap-2 text-xs text-on-surface-variant font-medium">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-primary flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[15px]">badge</span>
-                            <span>Selected Patron:</span>
-                          </span>
-                          <span className="font-bold text-on-surface">{selectedCustomer.name}</span>
-                          <span className="text-outline">•</span>
-                          <span>Mobile: <strong className="text-on-surface">{selectedCustomer.phone}</strong></span>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <span className="bg-surface-container-lowest px-2.5 py-0.5 rounded-md border border-outline-variant/50">
-                            Total Enquiries: <strong className="text-primary font-bold">{selectedCustomer.enquiryCount}</strong>
-                          </span>
-                          <span className="bg-surface-container-lowest px-2.5 py-0.5 rounded-md border border-outline-variant/50">
-                            Confirmed Orders: <strong className="text-emerald-700 font-bold">{selectedCustomer.confirmedCount}</strong>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
                     {/* Controls, Search, and Quick Filters */}
                     <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
                       {/* Search Bar */}
