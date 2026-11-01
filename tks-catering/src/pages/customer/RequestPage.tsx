@@ -102,7 +102,7 @@ const requirementsSchema = z.object({
   venueAddress: z
     .string()
     .trim()
-    .min(5, 'Please provide the delivery / venue address in Mysuru'),
+    .min(5, 'Please provide the delivery address in Mysuru'),
   notes: z.string().optional()
 })
 
@@ -848,11 +848,11 @@ export const RequestPage: React.FC = () => {
                 )}
               </div>
 
-              {/* 4. BANQUETING VENUE ADDRESS */}
+              {/* 4. DELIVERY ADDRESS */}
               <div id="field-venueAddress" className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-slate-800">
-                    Banqueting Venue Address <span className="text-primary">*</span>
+                    Delivery Address <span className="text-primary">*</span>
                   </label>
                   <button
                     type="button"
