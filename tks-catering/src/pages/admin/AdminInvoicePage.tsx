@@ -19,6 +19,7 @@ import { formatRupees } from '@/lib/format'
 import { calculateOrderPricing } from '@/lib/pricing'
 import { buildInvoicePdf } from '@/lib/pdfInvoice'
 import { StatusChip } from '@/components/admin/StatusChip'
+import { AdminAppShell } from '@/components/admin/AdminAppShell'
 
 export const AdminInvoicePage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -197,12 +198,14 @@ export const AdminInvoicePage: React.FC = () => {
 
   if (isLoading || !order) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-        <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-3 border-[var(--brand)] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-bold text-slate-600">Loading invoice preview...</p>
+      <AdminAppShell hideBottomNav={true}>
+        <div className="w-full flex-1 flex items-center justify-center p-12">
+          <div className="text-center space-y-3">
+            <div className="w-10 h-10 border-3 border-[var(--brand)] border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm font-bold text-slate-600">Loading invoice preview...</p>
+          </div>
         </div>
-      </div>
+      </AdminAppShell>
     )
   }
 
@@ -211,46 +214,48 @@ export const AdminInvoicePage: React.FC = () => {
 
   if (!isConfirmedOrLater) {
     return (
-      <div className="min-h-screen bg-slate-100 py-12 px-4 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200 text-center space-y-5">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto text-2xl">
-            <AlertCircle className="w-8 h-8" />
-          </div>
+      <AdminAppShell hideBottomNav={true}>
+        <div className="w-full flex-1 py-12 px-4 flex items-center justify-center">
+          <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200 text-center space-y-5">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto text-2xl">
+              <AlertCircle className="w-8 h-8" />
+            </div>
 
-          <div className="space-y-2">
-            <h1 className="font-heading font-black text-xl text-slate-900">
-              Invoice Available After Confirmation
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Official tax invoices and formal banquet function sheets can only be generated once the order is <span className="font-bold text-slate-700">Confirmed</span> or completed.
-            </p>
-          </div>
+            <div className="space-y-2">
+              <h1 className="font-heading font-black text-xl text-slate-900">
+                Invoice Available After Confirmation
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                Official tax invoices and formal banquet function sheets can only be generated once the order is <span className="font-bold text-slate-700">Confirmed</span> or completed.
+              </p>
+            </div>
 
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">Current Status:</span>
-            <StatusChip status={order.status} size="sm" />
-          </div>
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs">
+              <span className="text-slate-500 font-medium">Current Status:</span>
+              <StatusChip status={order.status} size="sm" />
+            </div>
 
-          <div className="pt-2">
-            <Link
-              to={`/admin/orders/${order.id}`}
-              onClick={(e) => {
-                if (window.history.length > 1) {
-                  e.preventDefault()
-                  handleGoBack()
-                }
-              }}
-              className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-heading font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Order #{order.id}</span>
-              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-white/90 bg-white/20 border border-white/30 rounded ml-1">
-                Esc
-              </kbd>
-            </Link>
+            <div className="pt-2">
+              <Link
+                to={`/admin/orders/${order.id}`}
+                onClick={(e) => {
+                  if (window.history.length > 1) {
+                    e.preventDefault()
+                    handleGoBack()
+                  }
+                }}
+                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] text-white font-heading font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Order #{order.id}</span>
+                <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-white/90 bg-white/20 border border-white/30 rounded ml-1">
+                  Esc
+                </kbd>
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </AdminAppShell>
     )
   }
 
@@ -258,7 +263,8 @@ export const AdminInvoicePage: React.FC = () => {
   const guestPlates = order.guestCount || 1
 
   return (
-    <div className="min-h-screen bg-slate-100/90 py-6 px-4 pb-36 print:p-0 print:bg-white text-slate-800">
+    <AdminAppShell hideBottomNav={true}>
+      <div className="w-full flex-1 bg-slate-100/90 py-6 px-4 pb-36 print:p-0 print:bg-white text-slate-800">
       
       {/* Top action strip (Screen only) */}
       <div className="max-w-3xl mx-auto mb-5 flex items-center justify-between gap-3 print:hidden">
@@ -529,7 +535,8 @@ export const AdminInvoicePage: React.FC = () => {
         </div>
       </div>
 
-    </div>
+      </div>
+    </AdminAppShell>
   )
 }
 

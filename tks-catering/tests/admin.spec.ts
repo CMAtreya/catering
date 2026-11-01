@@ -123,7 +123,7 @@ test.describe('Admin Flow & Controls QA', () => {
     // 4. Confirmed order invoice page & Escape key back navigation
     await page.goto('/admin/orders/TKS-ORD-100')
     await page.waitForLoadState('networkidle')
-    const invoiceBtn = page.locator('button:has-text("Invoice"), a:has-text("Invoice")').first()
+    const invoiceBtn = page.locator('a[href*="/invoice"]').first()
     if (await invoiceBtn.isVisible()) {
       await invoiceBtn.click()
       await expect(page).toHaveURL(/\/admin\/orders\/TKS-ORD-100\/invoice/)
@@ -152,7 +152,7 @@ test.describe('Admin Flow & Controls QA', () => {
       // Entering valid passcode (1965) should authorize cancellation
       await passcodeInput.fill('1965')
       await page.locator('#confirm-cancel-order-btn').click()
-      await expect(page.locator('text=This catering request was cancelled.')).toBeVisible()
+      await expect(page.locator('text=This catering request was cancelled.').first()).toBeVisible()
     }
   })
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import imageCompression from 'browser-image-compression'
+import { AdminAppShell } from '@/components/admin/AdminAppShell'
 
 import { 
   getCatalogue, 
@@ -29,8 +29,6 @@ const DISH_TAG_MAP: Record<string, string> = {
 }
 
 export const AdminMenuPage: React.FC = () => {
-  const navigate = useNavigate()
-
   // Data State
   const [categories, setCategories] = useState<Category[]>([])
   const [items, setItems] = useState<MenuItem[]>([])
@@ -382,188 +380,33 @@ export const AdminMenuPage: React.FC = () => {
     }
   }
 
-  // Sign out
-  const handleSignOut = () => {
-    localStorage.removeItem('tks_admin_auth')
-    toast.success('Signed out successfully')
-    navigate('/admin/login')
-  }
-
   return (
-    <div className="w-full min-h-screen h-screen flex flex-col overflow-hidden bg-background text-on-background selection:bg-primary-fixed selection:text-on-primary-fixed">
-      <style>{`
-        .custom-scroll::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-          background: rgba(251, 219, 214, 0.3);
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-          background: rgba(144, 111, 106, 0.4);
-          border-radius: 9999px;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(136, 0, 0, 0.5);
-        }
-        .kannada-sub {
-          font-feature-settings: "kern" 1;
-        }
-      `}</style>
-
-      <div className="flex flex-1 overflow-hidden">
-        
-        {/* ============================================================== */}
-        {/* ADMIN SHELL: LEFT SIDEBAR                                      */}
-        {/* ============================================================== */}
-        <aside className="w-64 lg:w-72 bg-surface-container-low border-r border-outline-variant/50 flex flex-col justify-between shrink-0 select-none shadow-[2px_0_12px_rgba(40,23,20,0.03)] z-30 hidden md:flex">
-          
-          {/* Top Branding Section */}
-          <div className="p-5 border-b border-outline-variant/40">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-surface-container-lowest p-1.5 shadow-sm border border-outline-variant/40 flex items-center justify-center shrink-0">
-                <img
-                  alt="TKS Iyengar Catering Emblem"
-                  className="w-full h-full object-contain"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZrCYW6rlcBBo_dnQDXD91wH4PMqakS0jb1jKESNv0WUd1R45iYSYanVZiGzS-xfivczivxcdsTZJNOCz8oTzSii295NQQ4rZ9wcC17zlHuStkFB-Lvpmwrcva3wyomtgLl9j79af4re4SXQQOmD6cgMzXo-NV8vn854abSf2S5fna0uv1_EoemhhCWmo3F4HHQqd42p0xVWvry8nXZDDEAt1owU0-tRt_8Oj2wx46rPkOG3m1lj1F"
-                />
-              </div>
-              <div className="min-w-0">
-                <h1 className="font-serif text-lg text-primary font-bold leading-tight truncate">
-                  TKS Iyengar&apos;s
-                </h1>
-                <p className="text-xs text-on-surface-variant flex items-center gap-1 font-medium truncate">
-                  <span className="w-2 h-2 rounded-full bg-secondary shrink-0"></span>
-                  <span>Admin Desk · Mysuru</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Sacred Tradition Ribbon */}
-            <div className="mt-4 px-3 py-1.5 rounded-lg bg-surface-container text-on-surface-variant text-xs flex items-center gap-1.5 border border-outline-variant/50">
-              <span className="material-symbols-outlined text-secondary text-base">
-                temple_hindu
-              </span>
-              <span className="font-semibold tracking-wide">Pure Vegetarian Tradition</span>
-            </div>
-          </div>
-
-          {/* Main Navigation Menu */}
-          <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto custom-scroll">
-            <Link
-              to="/admin"
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group text-sm font-semibold"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-                  dashboard
-                </span>
-                <span>Dashboard</span>
-              </div>
-            </Link>
-
-            <Link
-              to="/admin/orders"
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group text-sm font-semibold"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-                  receipt_long
-                </span>
-                <span>All Orders</span>
-              </div>
-              <span className="px-2 py-0.5 rounded-full text-xs bg-secondary text-on-secondary font-bold">
-                14
-              </span>
-            </Link>
-
-            {/* ACTIVE ITEM: Catering Menu */}
-            <Link
-              to="/admin/menu"
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-primary-container text-on-primary font-bold shadow-sm text-sm"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[20px]">
-                  restaurant_menu
-                </span>
-                <span>Catering Menu</span>
-              </div>
-              <span className="w-1.5 h-4 rounded-full bg-secondary-fixed"></span>
-            </Link>
-
-            <Link
-              to="/admin/customers"
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group text-sm font-semibold"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-                  groups
-                </span>
-                <span>Customers</span>
-              </div>
-            </Link>
-
-            <div className="pt-4 pb-2 px-3 text-[11px] font-bold text-outline uppercase tracking-wider">
-              BANQUET CONFIG
-            </div>
-
-            <Link
-              to="/admin"
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group text-sm font-semibold"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-                  auto_awesome
-                </span>
-                <span>Feast Packages</span>
-              </div>
-            </Link>
-
-            <Link
-              to="/admin"
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group text-sm font-semibold"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-                  kitchen
-                </span>
-                <span>Kitchen Live Sync</span>
-              </div>
-            </Link>
-          </nav>
-
-          {/* Bottom Profile & Sign Out */}
-          <div className="p-3 border-t border-outline-variant/40 bg-surface-container-low/70">
-            <div className="p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/50 shadow-xs flex items-center justify-between">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs shrink-0 border border-outline-variant/60">
-                  KS
-                </div>
-                <div className="truncate">
-                  <p className="text-xs font-bold text-on-surface truncate">K. Seshadri</p>
-                  <p className="text-[11px] text-on-surface-variant flex items-center gap-1 truncate font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-700 shrink-0"></span>
-                    <span>Mysuru Main Kitchen</span>
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleSignOut}
-                aria-label="Sign Out"
-                className="p-1.5 rounded-lg text-outline hover:text-error hover:bg-surface-container-high transition-colors cursor-pointer"
-                title="Sign Out"
-              >
-                <span className="material-symbols-outlined text-[18px]">logout</span>
-              </button>
-            </div>
-          </div>
-        </aside>
+    <AdminAppShell>
+      <div className="w-full min-h-[calc(100vh-80px)] flex flex-col bg-background text-on-background selection:bg-primary-fixed selection:text-on-primary-fixed">
+        <style>{`
+          .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+          }
+          .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(251, 219, 214, 0.3);
+          }
+          .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(144, 111, 106, 0.4);
+            border-radius: 9999px;
+          }
+          .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(136, 0, 0, 0.5);
+          }
+          .kannada-sub {
+            font-feature-settings: "kern" 1;
+          }
+        `}</style>
 
         {/* ============================================================== */}
-        {/* RIGHT WORKSPACE: TOP BAR + DUAL-PANEL CONTENT                   */}
+        {/* WORKSPACE: TOP BAR + DUAL-PANEL CONTENT                         */}
         {/* ============================================================== */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-surface-bright min-w-0">
+        <div className="flex-1 flex flex-col h-full bg-surface-bright min-w-0">
           
           {/* TOP BAR */}
           <header className="h-20 bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/40 px-4 md:px-6 flex items-center justify-between gap-4 shrink-0 z-20">
@@ -1058,7 +901,6 @@ export const AdminMenuPage: React.FC = () => {
             </section>
           </main>
         </div>
-      </div>
 
       {/* ============================================================== */}
       {/* 3. ADD / EDIT ITEM SHEET (Interactive Drawer Overlay)           */}
@@ -1445,7 +1287,8 @@ export const AdminMenuPage: React.FC = () => {
         </div>
       )}
 
-    </div>
+      </div>
+    </AdminAppShell>
   )
 }
 

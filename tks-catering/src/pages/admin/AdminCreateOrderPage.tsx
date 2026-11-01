@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { saveOrder, getOrders, getCustomer } from '@/api'
+import { AdminAppShell } from '@/components/admin/AdminAppShell'
+import { saveOrder, getCustomer } from '@/api'
 import type { CustomerRecord, OrderItem } from '@/data/mockData'
 
 interface DelicacyItem {
@@ -131,9 +132,6 @@ const CATEGORIES = [
 export const AdminCreateOrderPage: React.FC = () => {
   const navigate = useNavigate()
 
-  // Sidebar badge order count
-  const [orderCount, setOrderCount] = useState<number>(14)
-
   // Section 1: Customer Details State
   const [customerMode, setCustomerMode] = useState<'existing' | 'new'>('existing')
   const [mobile, setMobile] = useState<string>('98450 23419')
@@ -173,21 +171,6 @@ export const AdminCreateOrderPage: React.FC = () => {
 
   // Saving state
   const [isSaving, setIsSaving] = useState<boolean>(false)
-
-  // Load orders count
-  useEffect(() => {
-    let isMounted = true
-    getOrders()
-      .then((res) => {
-        if (isMounted && res) {
-          setOrderCount(res.length)
-        }
-      })
-      .catch(() => {})
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   // Lookup customer when 10 digits entered
   useEffect(() => {
@@ -392,15 +375,9 @@ export const AdminCreateOrderPage: React.FC = () => {
     }
   }
 
-  // Sign out
-  const handleSignOut = () => {
-    localStorage.removeItem('tks_admin_auth')
-    toast.success('Signed out successfully')
-    navigate('/admin/login')
-  }
-
   return (
-    <div className="bg-background text-on-surface min-h-screen flex antialiased font-body-md text-body-md selection:bg-primary-fixed selection:text-on-primary-fixed">
+    <AdminAppShell hideBottomNav={true}>
+      <div className="w-full flex-1 flex flex-col min-w-0 bg-background text-on-surface antialiased font-body-md text-body-md selection:bg-primary-fixed selection:text-on-primary-fixed pb-32">
       <style>{`
         .glass-nav {
           background: rgba(255, 248, 246, 0.92);
@@ -422,138 +399,7 @@ export const AdminCreateOrderPage: React.FC = () => {
         }
       `}</style>
 
-      {/* ============================================================== */}
-      {/* ADMIN LEFT NAVIGATION SIDEBAR (Exact Continuity)               */}
-      {/* ============================================================== */}
-      <aside className="w-64 bg-surface-container-low flex flex-col shrink-0 min-h-screen sticky top-0 h-screen z-40 hidden md:flex border-r border-outline-variant/40">
-        
-        {/* Brand / Logo Anchor */}
-        <div className="p-6 flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <img
-              alt="TKS Iyengar's Logo"
-              className="h-12 w-auto object-contain drop-shadow-sm"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpkYFRG5nSur7PwqqYy0NLugmRAFXc9eqTcGWR-G_dZ6uQSvXalDwa8nOo2naIUy9L32uSH5x8a0z5RfCDTeaRaJO51Wy6z9J0XXU4F8rLRzmkv-iAgbNQnU3YoFOnQMy5tMUFmAMxmpi_qtbYaWRT-eQcHRn24cO_Ey5ZpkFDsMOlieDPe1SQ23rRDcE0XjQIel_xqScfo5T4G5Z_TVUjnNcXtL85OzBIw5sx7Kfi9qjd510eFGh1"
-            />
-            <div>
-              <span className="font-serif text-lg text-primary font-bold block leading-tight">
-                TKS Iyengar&apos;s
-              </span>
-              <span className="text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">
-                Admin Desk Mysuru
-              </span>
-            </div>
-          </div>
 
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-primary text-xs font-semibold mt-2 w-fit">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-            <span>Mysuru Main Kitchen Live</span>
-          </div>
-        </div>
-
-        {/* Navigation Items */}
-        <nav className="flex-1 px-4 space-y-1.5 mt-2">
-          <Link
-            to="/admin"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all group text-sm font-semibold"
-          >
-            <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-              dashboard
-            </span>
-            <span>Dashboard</span>
-          </Link>
-
-          {/* Active orders link with badge */}
-          <Link
-            to="/admin/orders"
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-surface-container text-primary text-sm font-bold group shadow-xs"
-          >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary text-[20px]">
-                receipt_long
-              </span>
-              <span>All Orders</span>
-            </div>
-            <span className="bg-primary text-on-primary text-xs font-bold px-2 py-0.5 rounded-full">
-              {orderCount}
-            </span>
-          </Link>
-
-          <Link
-            to="/admin/menu"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all group text-sm font-semibold"
-          >
-            <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-              restaurant_menu
-            </span>
-            <span>Catering Menu</span>
-          </Link>
-
-          <Link
-            to="/admin/customers"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all group text-sm font-semibold"
-          >
-            <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-              group
-            </span>
-            <span>Customers</span>
-          </Link>
-
-          <div className="pt-4 pb-2 px-3">
-            <span className="text-[11px] font-bold text-outline uppercase tracking-wider block">
-              Kitchen Logistics
-            </span>
-          </div>
-
-          <Link
-            to="/admin"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all group text-sm font-semibold"
-          >
-            <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-              soup_kitchen
-            </span>
-            <span>Uruli &amp; Master Cooks</span>
-          </Link>
-
-          <Link
-            to="/admin"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all group text-sm font-semibold"
-          >
-            <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
-              event_available
-            </span>
-            <span>Muhurtham Calendar</span>
-          </Link>
-        </nav>
-
-        {/* Bottom Admin Desk Profile & Sign Out */}
-        <div className="p-4 mt-auto">
-          <div className="p-3 bg-surface rounded-xl flex items-center justify-between mb-2 border border-outline-variant/40">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-xs">
-                KS
-              </div>
-              <div>
-                <p className="text-xs font-bold text-on-surface leading-snug">K. Seshadri</p>
-                <p className="text-[11px] text-on-surface-variant">Desk In-charge</p>
-              </div>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-on-surface-variant hover:text-error hover:bg-error-container/40 transition-colors text-xs font-bold cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[18px]">logout</span>
-            <span>Sign Out</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* ============================================================== */}
-      {/* MAIN DESK CANVAS                                               */}
-      {/* ============================================================== */}
-      <div className="flex-1 flex flex-col min-w-0 bg-background pb-32">
         
         {/* Top Admin Header Bar */}
         <header className="glass-nav sticky top-0 z-30 px-4 md:px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-outline-variant/50 shadow-xs">
@@ -1344,7 +1190,7 @@ export const AdminCreateOrderPage: React.FC = () => {
         {/* ============================================================== */}
         {/* BOTTOM STICKY ACTION BAR (Docked at Screen Bottom)             */}
         {/* ============================================================== */}
-        <footer className="fixed bottom-0 right-0 left-0 md:left-64 glass-nav px-4 sm:px-8 py-3.5 floating-tray-shadow z-50 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-outline-variant/50">
+        <footer className="fixed bottom-0 right-0 left-0 glass-nav px-4 sm:px-8 py-3.5 floating-tray-shadow z-50 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-outline-variant/50">
           
           {/* Left side: Status Indicator & Reassurance Reminder */}
           <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
@@ -1395,7 +1241,7 @@ export const AdminCreateOrderPage: React.FC = () => {
         </footer>
 
       </div>
-    </div>
+    </AdminAppShell>
   )
 }
 

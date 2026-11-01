@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { toast } from 'sonner'
+import { AdminAppShell } from '@/components/admin/AdminAppShell'
 
 import { getOrder, confirmOrder, setStatus, getCatalogue } from '@/api'
 import type { Order, OrderStatus, OrderItem } from '@/data/mockData'
 
 export const AdminOrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
 
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -261,197 +261,23 @@ export const AdminOrderDetailPage: React.FC = () => {
 
   if (isLoading || !order) {
     return (
-      <div className="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md text-body-md">
-        <header className="bg-surface/85 backdrop-blur-md border-b border-outline-variant/60 sticky top-0 z-50 py-4 px-4 sm:px-8 shadow-xs">
-          <div className="w-full flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-container-highest animate-pulse" />
-              <div>
-                <div className="h-4 w-36 bg-surface-container-highest rounded animate-pulse" />
-                <div className="h-3 w-24 bg-surface-container-highest rounded mt-1 animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </header>
-        <div className="flex-1 flex items-center justify-center p-6">
+      <AdminAppShell title="Order Details" subtitle={`Loading order #${id}...`}>
+        <div className="w-full flex-1 flex items-center justify-center p-12">
           <div className="text-center space-y-3">
             <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
             <p className="text-xs font-bold text-on-surface-variant font-mono">Loading order specification #{id}...</p>
           </div>
         </div>
-      </div>
+      </AdminAppShell>
     )
   }
 
   return (
-    <div className="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md text-body-md selection:bg-primary-fixed selection:text-on-primary-fixed">
-
-      {/* ========================================================
-           1. TOP APP BAR (Flagship Heritage Header)
-           ======================================================== */}
-      <header className="bg-surface/85 backdrop-blur-md text-primary docked full-width top-0 sticky z-50 border-b border-outline-variant/60 shadow-xs">
-        <div className="flex justify-between items-center w-full px-4 md:px-8 2xl:px-12 h-20">
-          
-          {/* Brand & Section Title */}
-          <div className="flex items-center gap-4">
-            <Link to="/admin" className="flex items-center gap-3 group">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpkBNPj4-1JNjKS6MW7bmxBj2ggTlPkACLO6d2iNNjbzSl79bObZAULQjZhSeiomQLyvgzTUhs2Od23ax4MDN0I9eNQYN1q_Hb1kSE_qxGZlDcWzoImM-8hmzWkJQ-Cjdy9gRuvLdPjC1cOYI9pBVfr0x3pFp2SOxLKEwb_0o-nZXSpDE26S3dJic0FC-XqXONgZ_NFTAdzHafQd3FUs6hU7gGVjoNUz1jJKLmy1mvgRW89hGwsPGY"
-                alt="TKS Iyengar's Logo"
-                className="h-11 w-auto object-contain drop-shadow-sm group-hover:scale-102 transition-transform"
-              />
-              <div className="hidden sm:block">
-                <span className="text-headline-md font-serif font-bold text-primary tracking-wide block leading-none">
-                  TKS Iyengar's Catering
-                </span>
-                <span className="text-[11px] font-bold text-secondary tracking-widest block mt-0.5">
-                  MYSURU TRADITION • DESK PORTAL
-                </span>
-              </div>
-            </Link>
-          </div>
-
-          {/* Quick Global Nav Links */}
-          <nav className="hidden md:flex items-center space-x-6 text-label-lg font-label-lg">
-            <Link to="/admin" className="text-on-surface-variant hover:text-primary transition-colors font-semibold">
-              Dashboard
-            </Link>
-            <Link to="/admin/orders" className="text-primary border-b-2 border-primary pb-1 font-bold">
-              All Orders
-            </Link>
-            <Link to="/admin/menu" className="text-on-surface-variant hover:text-primary transition-colors font-semibold">
-              Catering Menus
-            </Link>
-            <Link to="/admin/customers" className="text-on-surface-variant hover:text-primary transition-colors font-semibold">
-              Customers
-            </Link>
-          </nav>
-
-          {/* Trailing Action Cluster */}
-          <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant/50 text-xs font-semibold text-on-surface-variant">
-              <span className="material-symbols-outlined text-[18px] text-tertiary-container mr-1.5">
-                verified
-              </span>
-              100% Sattvic Iyengar Pure Ghee
-            </div>
-
-            <Link
-              to="/admin"
-              className="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all duration-200"
-              title="Calendar Schedule"
-            >
-              <span className="material-symbols-outlined">calendar_month</span>
-            </Link>
-
-            <Link
-              to="/admin/orders"
-              className="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all duration-200 relative"
-              title="All Orders"
-            >
-              <span className="material-symbols-outlined">receipt_long</span>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary"></span>
-            </Link>
-
-            <div className="h-8 w-px bg-outline-variant/60 mx-1"></div>
-
-            <div className="flex items-center gap-2 pl-1">
-              <div className="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xs">
-                TR
-              </div>
-              <div className="hidden xl:block text-left text-xs">
-                <p className="font-semibold text-on-surface leading-tight">T. Raghavan</p>
-                <p className="text-secondary text-[11px] leading-tight">Head Acharya</p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </header>
-
-      {/* ========================================================
-           2. MAIN CONTAINER WITH LEFT SIDEBAR & WORKSPACE
-           ======================================================== */}
-      <div className="flex-1 flex w-full">
-        
-        {/* LEFT SIDEBAR */}
-        <aside className="w-60 hidden md:flex flex-col border-r border-outline-variant/50 bg-surface-container-low/40 py-6 px-3 justify-between">
-          <div className="space-y-6">
-            
-            {/* Sub-brand Tag */}
-            <div className="px-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-outline">
-                MANAGEMENT CONSOLE
-              </p>
-              <p className="text-title-md font-serif font-bold text-primary mt-0.5">
-                Agrahara Branch
-              </p>
-            </div>
-
-            {/* Sidebar Navigation */}
-            <nav className="space-y-1">
-              <Link
-                to="/admin"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors font-semibold text-xs"
-              >
-                <span className="material-symbols-outlined text-[20px]">dashboard</span>
-                <span>Dashboard</span>
-              </Link>
-
-              <Link
-                to="/admin/orders"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary-fixed text-on-primary-fixed font-bold text-xs shadow-xs"
-              >
-                <span className="material-symbols-outlined text-[20px] text-primary">receipt_long</span>
-                <span>All Orders</span>
-                <span className="ml-auto bg-primary text-white text-[11px] px-2 py-0.5 rounded-full font-bold">
-                  12
-                </span>
-              </Link>
-
-              <Link
-                to="/admin/menu"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors font-semibold text-xs"
-              >
-                <span className="material-symbols-outlined text-[20px]">restaurant_menu</span>
-                <span>Catering Menu</span>
-              </Link>
-
-              <Link
-                to="/admin/customers"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors font-semibold text-xs"
-              >
-                <span className="material-symbols-outlined text-[20px]">group</span>
-                <span>Customers</span>
-              </Link>
-            </nav>
-
-            {/* Quick Status Metrics */}
-            <div className="bg-surface-container/60 p-3 rounded-xl border border-outline-variant/40 space-y-2">
-              <span className="text-xs text-secondary block font-bold">Today's Muhurthams</span>
-              <div className="flex items-baseline justify-between">
-                <span className="font-serif text-lg font-bold text-primary">3 Banquets</span>
-                <span className="text-xs text-tertiary font-bold">450 Leaves</span>
-              </div>
-              <p className="text-[11px] text-on-surface-variant">Melkote &amp; Mysore palace styles</p>
-            </div>
-          </div>
-
-          {/* Bottom Sign Out */}
-          <div className="border-t border-outline-variant/40 pt-4 px-2">
-            <button
-              type="button"
-              onClick={() => navigate('/admin/login')}
-              className="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-error hover:bg-error-container/40 rounded-lg transition-colors font-semibold text-xs cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[20px]">logout</span>
-              <span>Sign Out</span>
-            </button>
-          </div>
-        </aside>
+    <AdminAppShell hideBottomNav={true}>
+      <div className="w-full flex-1 flex flex-col font-body-md text-body-md selection:bg-primary-fixed selection:text-on-primary-fixed">
 
         {/* MAIN DESK WORKSPACE */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6">
+        <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 overflow-y-auto space-y-6">
           
           {/* PREVIEW DESK STATES INTERACTIVE SWITCHER BAR */}
           <div className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-3 shadow-xs">
@@ -1266,25 +1092,6 @@ export const AdminOrderDetailPage: React.FC = () => {
           </div>
 
         </main>
-      </div>
-
-      {/* FOOTER */}
-      <footer className="w-full bg-surface-container-low border-t border-outline-variant/50 mt-12">
-        <div className="w-full px-4 md:px-12 2xl:px-16 py-10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-center md:text-left">
-            <span className="font-serif text-lg font-bold text-primary block">TKS Iyengar's Catering</span>
-            <p className="text-xs text-on-surface-variant max-w-xl mt-1">
-              © 2025 TKS Iyengar's Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage Feasts. All rights reserved.
-            </p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-on-surface-variant font-medium">
-            <Link to="/#tradition" className="hover:text-primary transition-colors">Sacred Menu Heritage</Link>
-            <Link to="/#muhurtham" className="hover:text-primary transition-colors">Muhurtham Packages</Link>
-            <Link to="/#tradition" className="hover:text-primary transition-colors">Purity Guarantee</Link>
-            <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-          </div>
-        </div>
-      </footer>
 
       {/* MOBILE STICKY FLOATING ACTION BAR (< md screens) */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-surface/90 backdrop-blur-lg border-t border-outline-variant/60 flex items-center justify-between z-40">
@@ -1855,7 +1662,8 @@ export const AdminOrderDetailPage: React.FC = () => {
         </div>
       )}
 
-    </div>
+      </div>
+    </AdminAppShell>
   )
 }
 export default AdminOrderDetailPage

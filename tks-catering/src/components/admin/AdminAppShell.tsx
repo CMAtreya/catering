@@ -76,7 +76,7 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
       {/* ========================================================
            1. TOP NAVIGATION BAR (Consolidated from Left Sidebar)
            ======================================================== */}
-      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#EADBC8] shadow-xs select-none">
+      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#EADBC8] shadow-xs select-none print:hidden">
         <div className="w-full px-4 sm:px-6 lg:px-8 2xl:px-12 h-20 flex items-center justify-between gap-4">
           
           {/* Left: Brand Identity Logo */}
@@ -284,7 +284,7 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
            ======================================================== */}
       {!hideBottomNav && (
         <nav 
-          className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#EADBC8] py-2 px-3 flex items-center justify-around shadow-lg" 
+          className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#EADBC8] py-2 px-3 flex items-center justify-around shadow-lg print:hidden" 
           aria-label="Mobile Bottom Navigation"
         >
           <Link 
