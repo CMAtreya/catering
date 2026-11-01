@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
 import { AppFooter } from '@/components/common/AppFooter'
+import { BookingStepper } from '@/components/customer/BookingStepper'
 import { format, parseISO, isValid } from 'date-fns'
 
 import { useDraftStore } from '@/store/draftStore'
@@ -302,47 +303,7 @@ export const ContactPage: React.FC = () => {
           </div>
 
           {/* Progressive 3-Step Desktop Stepper */}
-          <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
-              {/* Step 1: Checked */}
-              <Link to="/" className="flex items-center gap-3.5 group hover:opacity-85 transition-opacity">
-                <div className="w-10 h-10 rounded-full bg-tertiary/10 border border-tertiary flex items-center justify-center text-tertiary shrink-0">
-                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
-                </div>
-                <div>
-                  <p className="text-xs text-on-surface-variant font-medium">Step 1</p>
-                  <h4 className="text-sm font-semibold text-on-surface">Menu Curated</h4>
-                  <p className="text-xs text-secondary">{displayItems.length} Traditional Delicacies</p>
-                </div>
-              </Link>
-
-              {/* Step 2: Checked */}
-              <Link to="/request" className="flex items-center gap-3.5 border-t md:border-t-0 md:border-l border-outline-variant/50 pt-3 md:pt-0 md:pl-6 group hover:opacity-85 transition-opacity">
-                <div className="w-10 h-10 rounded-full bg-tertiary/10 border border-tertiary flex items-center justify-center text-tertiary shrink-0">
-                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
-                </div>
-                <div>
-                  <p className="text-xs text-on-surface-variant font-medium">Step 2</p>
-                  <h4 className="text-sm font-semibold text-on-surface">Occasion Verified</h4>
-                  <p className="text-xs text-secondary">{displayOccasion} • {guestCount} Leaves</p>
-                </div>
-              </Link>
-
-              {/* Step 3: Active Focus */}
-              <div className="flex items-center gap-3.5 border-t md:border-t-0 md:border-l border-outline-variant/50 pt-3 md:pt-0 md:pl-6 bg-surface-container-low/60 rounded-xl px-3 py-2 -my-2 border border-primary/20">
-                <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
-                  <span>3</span>
-                </div>
-                <div>
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold">
-                    Current Step
-                  </span>
-                  <h4 className="text-sm font-bold text-primary">Contact &amp; Verification</h4>
-                  <p className="text-xs text-on-surface-variant">Prabandhakar Direct Connect</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <BookingStepper currentStep={3} />
         </div>
 
         {/* TWO COLUMN HIGH-FIDELITY LAYOUT (7 COLS / 5 COLS) */}

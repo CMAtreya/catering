@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { AppFooter } from '@/components/common/AppFooter'
+import { BookingStepper } from '@/components/customer/BookingStepper'
 import confetti from 'canvas-confetti'
 import { format, parseISO, isValid } from 'date-fns'
 
@@ -145,7 +146,12 @@ export const SubmittedPage: React.FC = () => {
       </header>
 
       {/* ================= MAIN CONTENT CANVAS ================= */}
-      <main className="flex-grow w-full py-10 md:py-12 px-4 sm:px-6 max-w-7xl mx-auto flex items-center justify-center">
+      <main className="flex-grow w-full py-10 md:py-12 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center justify-center">
+        {/* Progressive 3-Step Stepper (All Completed) */}
+        <div className="w-full max-w-4xl mx-auto mb-6">
+          <BookingStepper currentStep={4} />
+        </div>
+
         {/* Central High-Fidelity Confirmation Container (max-w-4xl) */}
         <div className="w-full max-w-4xl mx-auto bg-surface-container-lowest rounded-2xl border border-outline-variant/60 shadow-lg p-6 sm:p-8 md:p-12 relative overflow-hidden">
           

@@ -7,6 +7,7 @@ import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
 import { ItemCard } from '@/components/customer/ItemCard'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
+import { BookingStepper } from '@/components/customer/BookingStepper'
 import { AppFooter } from '@/components/common/AppFooter'
 import { CatalogueSkeleton } from '@/components/ui/skeletons'
 import { VirtualBananaLeafModal } from '@/components/customer/VirtualBananaLeafModal'
@@ -414,6 +415,12 @@ export const CataloguePage: React.FC = () => {
 
       {/* MAIN FULL-PAGE CONTAINER */}
       <main className="w-full flex-1 flex flex-col">
+        {/* PROGRESSIVE 3-STEP STEPPER */}
+        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-4 pb-2">
+          <div className="max-w-7xl mx-auto">
+            <BookingStepper currentStep={1} />
+          </div>
+        </div>
         
         {/* SECTION B: MUHURTHAM FEASTS PORTION (Portion 3 from Navbar, Full Page Width) */}
         <section 

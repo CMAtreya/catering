@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
 import { AppFooter } from '@/components/common/AppFooter'
+import { BookingStepper } from '@/components/customer/BookingStepper'
 import { z } from 'zod'
 import { format, parseISO, isValid } from 'date-fns'
 
@@ -288,45 +289,10 @@ export const RequestPage: React.FC = () => {
         </div>
       </nav>
 
-      {/* 3. STEP PROGRESS BREADCRUMB BAR */}
-      <div className="w-full bg-surface border-b border-outline-variant/15 py-3 px-4 sm:px-8">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          {/* Step 1: Menu Curated */}
-          <Link to="/" className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-6 h-6 rounded-full bg-[#004b23] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
-              ✓
-            </div>
-            <div className="text-left">
-              <span className="text-[10px] text-outline uppercase font-bold block leading-none">Step 1</span>
-              <span className="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">Menu Curated</span>
-            </div>
-          </Link>
-
-          <div className="flex-1 h-[2px] bg-primary/30 mx-2.5 sm:mx-6" />
-
-          {/* Step 2: Occasion Specifications (Active) */}
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shadow-xs ring-2 ring-primary/20">
-              2
-            </div>
-            <div className="text-left">
-              <span className="text-[10px] text-primary uppercase font-bold block leading-none">Step 2 • In Progress</span>
-              <span className="text-xs font-bold text-primary">Occasion Specifications</span>
-            </div>
-          </div>
-
-          <div className="flex-1 h-[2px] bg-outline-variant/30 mx-2.5 sm:mx-6" />
-
-          {/* Step 3: Contact & Quotation */}
-          <div className="flex items-center gap-2 opacity-60">
-            <div className="w-6 h-6 rounded-full bg-surface-container-high text-outline flex items-center justify-center text-xs font-bold border border-outline-variant/30">
-              3
-            </div>
-            <div className="text-left">
-              <span className="text-[10px] text-outline uppercase font-bold block leading-none">Step 3</span>
-              <span className="text-xs font-bold text-outline">Contact &amp; Quotation</span>
-            </div>
-          </div>
+      {/* 3. STEP PROGRESS STEPPER */}
+      <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-4 pb-2">
+        <div className="max-w-7xl mx-auto">
+          <BookingStepper currentStep={2} />
         </div>
       </div>
 
