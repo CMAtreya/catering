@@ -263,7 +263,7 @@ export const AdminOrderDetailPage: React.FC = () => {
     return (
       <div className="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md text-body-md">
         <header className="bg-surface/85 backdrop-blur-md border-b border-outline-variant/60 sticky top-0 z-50 py-4 px-4 sm:px-8 shadow-xs">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="w-full flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-surface-container-highest animate-pulse" />
               <div>
@@ -290,7 +290,7 @@ export const AdminOrderDetailPage: React.FC = () => {
            1. TOP APP BAR (Flagship Heritage Header)
            ======================================================== */}
       <header className="bg-surface/85 backdrop-blur-md text-primary docked full-width top-0 sticky z-50 border-b border-outline-variant/60 shadow-xs">
-        <div className="flex justify-between items-center w-full px-4 md:px-8 max-w-7xl mx-auto h-20">
+        <div className="flex justify-between items-center w-full px-4 md:px-8 2xl:px-12 h-20">
           
           {/* Brand & Section Title */}
           <div className="flex items-center gap-4">
@@ -372,7 +372,7 @@ export const AdminOrderDetailPage: React.FC = () => {
       {/* ========================================================
            2. MAIN CONTAINER WITH LEFT SIDEBAR & WORKSPACE
            ======================================================== */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex w-full">
         
         {/* LEFT SIDEBAR */}
         <aside className="w-60 hidden md:flex flex-col border-r border-outline-variant/50 bg-surface-container-low/40 py-6 px-3 justify-between">
@@ -1270,7 +1270,7 @@ export const AdminOrderDetailPage: React.FC = () => {
 
       {/* FOOTER */}
       <footer className="w-full bg-surface-container-low border-t border-outline-variant/50 mt-12">
-        <div className="w-full px-4 md:px-12 py-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="w-full px-4 md:px-12 2xl:px-16 py-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
             <span className="font-serif text-lg font-bold text-primary block">TKS Iyengar's Catering</span>
             <p className="text-xs text-on-surface-variant max-w-xl mt-1">

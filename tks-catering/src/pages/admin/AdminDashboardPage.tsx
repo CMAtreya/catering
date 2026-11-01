@@ -262,7 +262,7 @@ export const AdminDashboardPage: React.FC = () => {
 
   return (
     <AdminAppShell>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 space-y-6">
 
         {/* ========================================================
              TOP BAR (Greetings, Date, High-Visibility Action)
@@ -274,7 +274,7 @@ export const AdminDashboardPage: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2D1810] tracking-tight">
-                  Namaskara 🙏
+                  Namaskara
                 </h1>
                 <span className="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 border border-green-300">
                   <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span> Kitchen Live

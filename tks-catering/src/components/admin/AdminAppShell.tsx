@@ -77,7 +77,7 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
            1. TOP NAVIGATION BAR (Consolidated from Left Sidebar)
            ======================================================== */}
       <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#EADBC8] shadow-xs select-none">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+        <div className="w-full px-4 sm:px-6 lg:px-8 2xl:px-12 h-20 flex items-center justify-between gap-4">
           
           {/* Left: Brand Identity Logo */}
           <Link to="/admin" className="flex items-center gap-3 group transition-transform active:scale-95 duration-150 shrink-0">
@@ -251,8 +251,8 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
            2. CONTEXTUAL SUB-HEADER (For secondary pages)
            ======================================================== */}
       {(title || actions) && (
-        <section className="w-full bg-white/80 backdrop-blur-sm border-b border-[#EADBC8] px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 shrink-0 shadow-xs">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <section className="w-full bg-white/80 backdrop-blur-sm border-b border-[#EADBC8] px-4 sm:px-6 lg:px-8 2xl:px-12 py-3.5 sm:py-4 shrink-0 shadow-xs">
+          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h1 className="font-serif font-bold text-xl sm:text-2xl text-[#2D1810] leading-tight">
                 {title}

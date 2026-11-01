@@ -173,7 +173,7 @@ export const AdminCustomerDetailPage: React.FC = () => {
   if (isLoading || (!customer && orders.length === 0)) {
     return (
       <AdminAppShell title="Customer Profile" subtitle="Loading details...">
-        <div className="max-w-3xl mx-auto space-y-4 animate-pulse p-4">
+        <div className="w-full space-y-4 animate-pulse p-4">
           <div className="h-10 bg-slate-200/70 rounded-xl w-48" />
           <div className="h-44 bg-slate-100 rounded-2xl" />
           <div className="h-64 bg-slate-100 rounded-2xl" />
@@ -190,7 +190,7 @@ export const AdminCustomerDetailPage: React.FC = () => {
       title={customer?.name || `Customer (${cleanPhone})`} 
       subtitle="Customer history, enquiries and confirmed banquet bookings"
     >
-      <div className="max-w-3xl mx-auto space-y-6 pb-28">
+      <div className="w-full px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 space-y-6 pb-28">
 
         {/* Top Navigation & Action Strip */}
         <div className="flex items-center justify-between gap-3 pb-2 border-b border-slate-200/80">

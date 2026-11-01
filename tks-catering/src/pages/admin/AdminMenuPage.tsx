@@ -390,7 +390,7 @@ export const AdminMenuPage: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-background text-on-background selection:bg-primary-fixed selection:text-on-primary-fixed">
+    <div className="w-full min-h-screen h-screen flex flex-col overflow-hidden bg-background text-on-background selection:bg-primary-fixed selection:text-on-primary-fixed">
       <style>{`
         .custom-scroll::-webkit-scrollbar {
           width: 6px;
@@ -636,7 +636,7 @@ export const AdminMenuPage: React.FC = () => {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="font-serif text-xl md:text-2xl text-on-surface font-bold tracking-tight">
-                    Namaskara 🙏
+                    Namaskara
                   </h2>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-tertiary-fixed text-on-tertiary-fixed font-bold">
                     <span className="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></span>
@@ -862,7 +862,7 @@ export const AdminMenuPage: React.FC = () => {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary-container transition-all shadow-xs cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-base">add</span>
-                    <span>+ Add Item to Category</span>
+                    <span>Add Item to Category</span>
                   </button>
                 </div>
               </div>

@@ -406,7 +406,7 @@ export const AdminOrdersPage: React.FC = () => {
 
   return (
     <AdminAppShell>
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-6">
+      <div className="w-full px-3 sm:px-6 lg:px-8 2xl:px-12 py-5 space-y-6">
 
         {/* ========================================================
              1. TOP SHELL BAR (Namaskara, Pulse Badge, View Switcher, Hotline, Manual CTA)
@@ -418,7 +418,7 @@ export const AdminOrdersPage: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-serif text-2xl sm:text-3xl font-bold text-primary tracking-tight">
-                  Namaskara 🙏
+                  Namaskara
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>

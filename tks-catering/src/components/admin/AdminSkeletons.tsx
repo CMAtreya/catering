@@ -169,7 +169,7 @@ export const CustomerListSkeleton: React.FC<{ count?: number }> = ({ count = 5 }
  */
 export const CustomerDetailSkeleton: React.FC = () => {
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-20">
+    <div className="w-full px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 space-y-6 pb-20">
       <AdminShimmer className="h-6 w-36 rounded" />
 
       {/* Top Profile Card */}

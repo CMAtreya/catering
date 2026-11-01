@@ -354,8 +354,8 @@ export const AdminCustomersPage: React.FC = () => {
       {/* ============================================================== */}
       {/* TOP INTERACTIVE PREVIEW CONTROLLER BAR                         */}
       {/* ============================================================== */}
-      <header className="bg-surface-container-high border-b border-outline-variant/60 sticky top-0 z-50 px-4 py-2.5 shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <header className="bg-surface-container-high border-b border-outline-variant/60 sticky top-0 z-50 px-4 sm:px-6 lg:px-8 2xl:px-12 py-2.5 shadow-sm">
+        <div className="w-full flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-container text-white text-xs font-bold">
               CRM
@@ -569,14 +569,11 @@ export const AdminCustomersPage: React.FC = () => {
           {/* Top Status & Action Bar */}
           <div className="bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/60 px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🙏</span>
-                <div>
-                  <span className="font-serif text-lg text-primary font-bold">Namaskara</span>
-                  <span className="hidden sm:inline text-xs text-on-surface-variant ml-2 bg-surface-container px-2 py-0.5 rounded-full border border-outline-variant/40 font-medium">
-                    Tuesday, 18 Nov 2025 · Mysuru Central Unit
-                  </span>
-                </div>
+              <div>
+                <span className="font-serif text-lg text-primary font-bold">Namaskara</span>
+                <span className="hidden sm:inline text-xs text-on-surface-variant ml-2 bg-surface-container px-2 py-0.5 rounded-full border border-outline-variant/40 font-medium">
+                  Tuesday, 18 Nov 2025 · Mysuru Central Unit
+                </span>
               </div>
               <div className="hidden md:flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-100/60 px-2.5 py-1 rounded-full border border-emerald-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
@@ -609,8 +606,8 @@ export const AdminCustomersPage: React.FC = () => {
           {/* VIEW CANVAS WRAPPER */}
           <div
             id="content-canvas"
-            className={`p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full transition-all duration-300 ${
-              isMobileCardsSimulated ? 'max-w-md' : ''
+            className={`p-4 sm:p-6 lg:p-8 2xl:p-12 w-full transition-all duration-300 ${
+              isMobileCardsSimulated ? 'max-w-md mx-auto' : ''
             }`}
           >
             {/* Loading Indicator */}
@@ -1445,7 +1442,7 @@ export const AdminCustomersPage: React.FC = () => {
           {/* FOOTER COMPONENT                                             */}
           {/* ============================================================ */}
           <footer className="w-full bg-surface-container-low border-t border-outline-variant/50 mt-auto">
-            <div className="w-full px-4 md:px-12 py-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="w-full px-4 md:px-12 2xl:px-16 py-10 flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="flex flex-col items-center md:items-start">
                 <span className="font-serif text-xl text-primary font-bold">TKS Iyengar&apos;s Catering</span>
                 <p className="text-on-surface-variant text-center md:text-left mt-1 text-xs">

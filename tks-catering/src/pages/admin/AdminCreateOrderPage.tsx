@@ -590,7 +590,7 @@ export const AdminCreateOrderPage: React.FC = () => {
         </header>
 
         {/* Main Workspace Content */}
-        <main className="w-full max-w-6xl mx-auto px-4 md:px-6 py-8 space-y-8">
+        <main className="w-full px-4 md:px-8 2xl:px-12 py-8 space-y-8">
           
           {/* ========================================================== */}
           {/* SECTION 1: CUSTOMER DETAILS                                */}
