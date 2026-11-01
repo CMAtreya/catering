@@ -20,7 +20,6 @@ type NavTab = 'tradition' | 'menus' | 'muhurtham' | 'enquiry'
 interface PresetFeastPlan {
   id: string
   name: string
-  kannadaName: string
   subtitle: string
   tag: string
   icon: string
@@ -31,7 +30,6 @@ const PRESET_MUHURTHAM_FEASTS: PresetFeastPlan[] = [
   {
     id: 'kalyana-feast',
     name: 'Royal Mysore Kalyana Feast',
-    kannadaName: 'ರಾಜ ಮಹೋತ್ಸವ ಕಲ್ಯಾಣ ಊಟ',
     subtitle: 'Grand wedding banquet with pure cow ghee sweets, traditional saaru & live service.',
     tag: '👑 Most Popular',
     icon: 'crown',
@@ -40,7 +38,6 @@ const PRESET_MUHURTHAM_FEASTS: PresetFeastPlan[] = [
   {
     id: 'muhurtham-breakfast',
     name: 'Traditional Muhurtham Breakfast',
-    kannadaName: 'ಸಾಂಪ್ರದಾಯಿಕ ಮುಹೂರ್ತ ತಿಂಡಿ',
     subtitle: 'Fluffy idlis, crispy medu vadas, ghee ven pongal, and aromatic filter coffee.',
     tag: '🌅 Morning Feasts',
     icon: 'wb_sunny',
@@ -49,7 +46,6 @@ const PRESET_MUHURTHAM_FEASTS: PresetFeastPlan[] = [
   {
     id: 'satvik-homam',
     name: 'Satvik Ayushya Homam Feast',
-    kannadaName: 'ಸಾತ್ವಿಕ ಆಯುಷ್ಯ ಹೋಮ ಊಟ',
     subtitle: 'Pristine Vedic pooja spread, strictly no onion/garlic, temple-simmered dishes.',
     tag: '🌿 100% Satvik',
     icon: 'spa',
@@ -58,7 +54,6 @@ const PRESET_MUHURTHAM_FEASTS: PresetFeastPlan[] = [
   {
     id: 'grihapravesha-special',
     name: 'Grihapravesha Banquet',
-    kannadaName: 'ಗೃಹಪ್ರವೇಶ ಶುಭ ಸಮಾರಂಭ',
     subtitle: 'Auspicious housewarming feast with royal Mysore Pak and heritage gojju spread.',
     tag: '🏡 Housewarming',
     icon: 'cottage',
@@ -468,9 +463,6 @@ export const CataloguePage: React.FC = () => {
                   <h3 className="font-headline font-bold text-base sm:text-lg text-primary tracking-tight">
                     {feast.name}
                   </h3>
-                  <p className="text-[11px] font-kannada text-on-surface-variant/90 font-medium mt-0.5">
-                    {feast.kannadaName}
-                  </p>
                   <p className="text-xs text-on-surface-variant/80 mt-2 leading-relaxed">
                     {feast.subtitle}
                   </p>

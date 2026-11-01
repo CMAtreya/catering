@@ -16,7 +16,7 @@ export const AdminOrderDetailPage: React.FC = () => {
   // Form & calculations state
   const [customerName, setCustomerName] = useState<string>('Srinivas Raghavan')
   const [customerPhone, setCustomerPhone] = useState<string>('+91 98450 12345')
-  const [occasionType, setOccasionType] = useState<string>('Griha Pravesh (ಗೃಹ ಪ್ರವೇಶ)')
+  const [occasionType, setOccasionType] = useState<string>('Griha Pravesh')
   const [occasionDate, setOccasionDate] = useState<string>('18 Nov 2025 (Karthika Somavara Feast)')
   const [plateCount, setPlateCount] = useState<number>(100)
   const [deliveryAddress, setDeliveryAddress] = useState<string>(
@@ -31,11 +31,11 @@ export const AdminOrderDetailPage: React.FC = () => {
 
   // Delicacies list
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([
-    { id: 'item-1', name: 'Mysuru Puliyogare - ಮೈಸೂರು ಪುಳಿಯೋಗರೆ', pricePerPlate: 65, quantity: 1 },
-    { id: 'item-2', name: 'Bisi Bele Bath (Pure Ghee) - ಬಿಸಿಬೇಳೆ ಬಾತ್', pricePerPlate: 85, quantity: 1 },
-    { id: 'item-3', name: 'Melkote Majjige Huli - ಮಜ್ಜಿಗೆ ಹುಳಿ', pricePerPlate: 50, quantity: 1 },
-    { id: 'item-4', name: 'Royal Mysuru Pak (Pure Desi Ghee) - ಮೈಸೂರು ಪಾಕ್', pricePerPlate: 50, quantity: 1 },
-    { id: 'item-5', name: 'Mysuru Degree Filter Coffee - ಫಿಲ್ಟರ್ ಕಾಫಿ', pricePerPlate: 35, quantity: 1 }
+    { id: 'item-1', name: 'Mysuru Puliyogare', pricePerPlate: 65, quantity: 1 },
+    { id: 'item-2', name: 'Bisi Bele Bath (Pure Ghee)', pricePerPlate: 85, quantity: 1 },
+    { id: 'item-3', name: 'Melkote Majjige Huli', pricePerPlate: 50, quantity: 1 },
+    { id: 'item-4', name: 'Royal Mysuru Pak (Pure Desi Ghee)', pricePerPlate: 50, quantity: 1 },
+    { id: 'item-5', name: 'Mysuru Degree Filter Coffee', pricePerPlate: 35, quantity: 1 }
   ])
 
   // Logistics & service setup inputs
@@ -85,7 +85,7 @@ export const AdminOrderDetailPage: React.FC = () => {
             setOrder(found)
             setCustomerName(found.customerName || 'Srinivas Raghavan')
             setCustomerPhone(found.customerPhone || '+91 98450 12345')
-            setOccasionType(found.eventType || 'Griha Pravesh (ಗೃಹ ಪ್ರವೇಶ)')
+            setOccasionType(found.eventType || 'Griha Pravesh')
             setOccasionDate(found.eventDate ? `${found.eventDate} (Karthika Somavara Feast)` : '18 Nov 2025 (Karthika Somavara Feast)')
             setPlateCount(found.guestCount || 100)
             if (found.venueAddress) setDeliveryAddress(found.venueAddress)
@@ -772,10 +772,10 @@ export const AdminOrderDetailPage: React.FC = () => {
                       onChange={(e) => setOccasionType(e.target.value)}
                       className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl px-3.5 py-2 text-xs font-medium focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                     >
-                      <option>Griha Pravesh (ಗೃಹ ಪ್ರವೇಶ)</option>
-                      <option>Wedding Muhurtham (ಕಲ್ಯಾಣ ಮಹೋತ್ಸವ)</option>
-                      <option>Upanayana (ಉಪನಯನ)</option>
-                      <option>Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)</option>
+                      <option>Griha Pravesh</option>
+                      <option>Wedding Muhurtham</option>
+                      <option>Upanayana</option>
+                      <option>Satyanarayana Pooja</option>
                       <option>Sashtiapthapoorthi (60th Birthday)</option>
                     </select>
                   </div>
@@ -1647,12 +1647,12 @@ export const AdminOrderDetailPage: React.FC = () => {
             {/* Extra Delicacies List */}
             <div className="p-6 overflow-y-auto space-y-3">
               {[
-                { name: 'Gasagase Payasa (ಗಸಗಸೆ ಪಾಯಸ)', desc: 'Poppy seed & coconut milk pudding with pure jaggery', price: 45 },
+                { name: 'Gasagase Payasa', desc: 'Poppy seed & coconut milk pudding with pure jaggery', price: 45 },
                 { name: 'Ambode (Crispy Chana Dal Vada)', desc: 'Festive crunch vada with dill leaves & fresh ginger', price: 30 },
                 { name: 'Mysuru Menasina Saaru (Pepper Rasam)', desc: 'Piping hot black pepper & cumin digestive rasam', price: 25 },
-                { name: 'Temple Curd Rice (ಮೊಸರನ್ನ)', desc: 'Temple style tempered curd rice with grapes & pearls', price: 40 },
-                { name: 'Pineapple Gojju (ಅನಾನಸ್ ಗೊಜ್ಜು)', desc: 'Sweet, tangy & spiced fruit relish with mustard tempering', price: 35 },
-                { name: 'Dry Fruit Kashi Halwa (ಕಾಶಿ ಹಲ್ವಾ)', desc: 'Caramelized ash-gourd halwa roasted in Gir cow ghee', price: 55 }
+                { name: 'Temple Curd Rice', desc: 'Temple style tempered curd rice with grapes & pearls', price: 40 },
+                { name: 'Pineapple Gojju', desc: 'Sweet, tangy & spiced fruit relish with mustard tempering', price: 35 },
+                { name: 'Dry Fruit Kashi Halwa', desc: 'Caramelized ash-gourd halwa roasted in Gir cow ghee', price: 55 }
               ].map((extra, idx) => (
                 <div
                   key={idx}

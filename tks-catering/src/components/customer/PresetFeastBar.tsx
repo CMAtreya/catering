@@ -7,7 +7,6 @@ import { useDraftStore } from '@/store/draftStore'
 export interface PresetFeast {
   id: string
   name: string
-  kannadaName?: string
   subtitle: string
   tag: string
   accentColor: string
@@ -18,7 +17,6 @@ export const PRESET_FEASTS: PresetFeast[] = [
   {
     id: 'kalyana-feast',
     name: 'Royal Mysore Kalyana Feast',
-    kannadaName: 'ರಾಜ ಮಹೋತ್ಸವ ಕಲ್ಯಾಣ ಊಟ',
     subtitle: 'Grand 10-dish wedding banquet with Pure Cow Ghee',
     tag: '👑 Most Popular',
     accentColor: 'from-amber-600 via-[var(--brand)] to-[var(--brand-900)]',
@@ -38,7 +36,6 @@ export const PRESET_FEASTS: PresetFeast[] = [
   {
     id: 'muhurtham-breakfast',
     name: 'Traditional Muhurtham Breakfast',
-    kannadaName: 'ಸಾಂಪ್ರದಾಯಿಕ ಮುಹೂರ್ತ ತಿಂಡಿ',
     subtitle: 'Hot Malligai Idlis, crispy Vadas & steaming Filter Coffee',
     tag: '🌅 Morning Feasts',
     accentColor: 'from-orange-500 to-amber-700',
@@ -54,7 +51,6 @@ export const PRESET_FEASTS: PresetFeast[] = [
   {
     id: 'satvik-homam',
     name: 'Satvik Ayushya Homam',
-    kannadaName: 'ಸಾತ್ವಿಕ ಆಯುಷ್ಯ ಹೋಮ ಊಟ',
     subtitle: 'Pristine pooja spread, strictly no onion/garlic',
     tag: '🌿 100% Satvik',
     accentColor: 'from-emerald-700 to-teal-800',
@@ -70,7 +66,6 @@ export const PRESET_FEASTS: PresetFeast[] = [
   {
     id: 'grihapravesha-special',
     name: 'Grihapravesha Banquet',
-    kannadaName: 'ಗೃಹಪ್ರವೇಶ ಶುಭ ಸಮಾರಂಭ',
     subtitle: 'Auspicious housewarming spread with Mysore Pak',
     tag: '🏡 Housewarming',
     accentColor: 'from-rose-600 to-[var(--brand)]',
@@ -200,11 +195,6 @@ export const PresetFeastBar: React.FC<PresetFeastBarProps> = ({
                 <h4 className="font-heading font-black text-golden-sm sm:text-golden-base text-slate-900 group-hover:text-[var(--brand)] transition-colors leading-snug">
                   {preset.name}
                 </h4>
-                {preset.kannadaName && (
-                  <p className="text-golden-xs text-amber-800/80 font-kannada font-medium">
-                    {preset.kannadaName}
-                  </p>
-                )}
                 <p className="text-golden-xs text-slate-500 font-medium line-clamp-2 mt-[3px] leading-normal">
                   {preset.subtitle}
                 </p>

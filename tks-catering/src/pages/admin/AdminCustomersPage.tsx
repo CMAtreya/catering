@@ -5,7 +5,6 @@ import type { CustomerRecord, Order } from '@/data/mockData'
 import { toast } from 'sonner'
 
 interface CustomerMeta {
-  kannada: string
   area: string
   id: string
   designation?: string
@@ -14,63 +13,54 @@ interface CustomerMeta {
 
 const CUSTOMER_META_MAP: Record<string, CustomerMeta> = {
   '9845023419': {
-    kannada: 'ವೆಂಕಟೇಶ್ ಮೂರ್ತಿ',
     area: 'Jayalakshmipuram, Mysuru',
     id: '#CUST-4821',
     designation: 'Senior Govt Officer (Retd.)',
     tasteBadges: ['Strictly Satvik (Zero Onion/Garlic)', 'High Ghee Preference', 'Brass Uruli Required', 'Prefers Morning Calls']
   },
   '9845012345': {
-    kannada: 'ಶ್ರೀನಿವಾಸ ರಾಘವನ್',
     area: 'Agrahara, Mysuru',
     id: '#CUST-3914',
     designation: 'Temple Trustee & Patron',
     tasteBadges: ['Strictly Satvik (Zero Onion/Garlic)', 'Extra Roasted Copra', 'Prefers Evening Tasting']
   },
   '9448167890': {
-    kannada: 'ಸೌಮ್ಯ ಅನಂತರಾಮನ್',
     area: 'Gokulam 3rd Stage, Mysuru',
     id: '#CUST-2180',
     designation: 'Educator & Feast Host',
     tasteBadges: ['Strictly Satvik (Zero Onion/Garlic)', 'Live Filter Kaapi Counter', 'Plantain Leaf Required']
   },
   '9880199201': {
-    kannada: 'ಡಾ. ಸಿ. ಶ್ರೀನಿವಾಸ ವರದನ್',
     area: 'Kuvempunagar, Mysuru',
     id: '#CUST-1045',
     designation: 'Chief Physician (Apollo Mysuru)',
     tasteBadges: ['Strictly Satvik (Zero Onion/Garlic)', 'Less Sweet Payasa', 'Warm Kaapi Flasks']
   },
   '9900234812': {
-    kannada: 'ಪದ್ಮಾವತಿ ನರಸಿಂಹನ್',
     area: 'VV Mohalla, Mysuru',
     id: '#CUST-5290',
     designation: 'Classical Musician & Host',
     tasteBadges: ['Strictly Satvik (Zero Onion/Garlic)', 'Melkote Style Majjige Huli', 'Brass Uruli Required']
   },
   '9448067890': {
-    kannada: 'ಅನಂತ ಪದ್ಮನಾಭ',
     area: 'Agrahara, Mysuru',
     id: '#CUST-2290',
     designation: 'Heritage Feast Patron',
     tasteBadges: ['Strictly Satvik (Zero Onion/Garlic)', 'Pure Cow Ghee']
   },
   '9900123456': {
-    kannada: 'ಸುನಿಲ್ ಕುಮಾರ್ ವಿ',
     area: 'Gokulam, Mysuru',
     id: '#CUST-3104',
     designation: 'Software Executive',
     tasteBadges: ['Live Tiffin Counters', 'Satvik Mysore Pak']
   },
   '9740112233': {
-    kannada: 'ವಿದ್ಯಾ ಶಂಕರನ್',
     area: 'Jayalakshmipuram, Mysuru',
     id: '#CUST-1823',
     designation: 'Festive Host',
     tasteBadges: ['Traditional Sweets', 'Zero Onion/Garlic']
   },
   '9880223344': {
-    kannada: 'ರಾಘವೇಂದ್ರ ರಾವ್',
     area: 'Krishnamurthy Puram, Mysuru',
     id: '#CUST-4029',
     designation: 'Community Hall Trustee',
@@ -646,7 +636,7 @@ export const AdminCustomersPage: React.FC = () => {
                       <div>
                         <div className="flex items-center gap-2.5">
                           <h1 className="font-serif text-2xl sm:text-3xl text-primary font-bold">
-                            ಗ್ರಾಹಕರು · Customers
+                            Customers
                           </h1>
                           <span className="bg-secondary-fixed/50 text-on-secondary-fixed-variant text-xs font-semibold px-2.5 py-0.5 rounded-full border border-secondary/30">
                             {totalPatronsCount} Total Patrons
@@ -795,7 +785,6 @@ export const AdminCustomersPage: React.FC = () => {
                               const cleanMobile = c.phone.replace(/\D/g, '').slice(-10)
                               const meta = CUSTOMER_META_MAP[cleanMobile]
                               const custId = meta?.id || `#CUST-${cleanMobile.slice(-4)}`
-                              const kannadaSub = meta?.kannada || ''
                               const areaName = c.address || meta?.area || 'Mysuru Urban'
                               const initials = getInitials(c.name)
                               const isSelected = selectedCustomer.phone.replace(/\D/g, '').slice(-10) === cleanMobile
@@ -821,11 +810,6 @@ export const AdminCustomersPage: React.FC = () => {
                                         <span className="font-semibold text-on-surface group-hover:text-primary transition-colors block">
                                           {c.name}
                                         </span>
-                                        {kannadaSub && (
-                                          <span className="text-xs text-on-surface-variant kannada-sub">
-                                            {kannadaSub}
-                                          </span>
-                                        )}
                                       </div>
                                     </div>
                                   </td>
@@ -953,7 +937,6 @@ export const AdminCustomersPage: React.FC = () => {
                         const cleanMobile = c.phone.replace(/\D/g, '').slice(-10)
                         const meta = CUSTOMER_META_MAP[cleanMobile]
                         const custId = meta?.id || `#CUST-${cleanMobile.slice(-4)}`
-                        const kannadaSub = meta?.kannada || ''
                         const areaName = c.address || meta?.area || 'Mysuru Urban'
                         const isSelected = selectedCustomer.phone.replace(/\D/g, '').slice(-10) === cleanMobile
 
@@ -969,8 +952,8 @@ export const AdminCustomersPage: React.FC = () => {
                               <div>
                                 <span className="text-xs font-mono font-bold text-primary">{custId}</span>
                                 <h3 className="font-serif text-lg text-on-surface font-bold">{c.name}</h3>
-                                <p className="text-xs text-on-surface-variant kannada-sub">
-                                  {kannadaSub ? `${kannadaSub} · ` : ''}{areaName}
+                                <p className="text-xs text-on-surface-variant">
+                                  {areaName}
                                 </p>
                               </div>
                               <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
@@ -1062,8 +1045,8 @@ export const AdminCustomersPage: React.FC = () => {
                             <h2 className="font-serif text-2xl sm:text-3xl text-primary font-bold tracking-tight">
                               {selectedCustomer.name}
                             </h2>
-                            <div className="text-sm text-on-surface-variant kannada-sub">
-                              {CUSTOMER_META_MAP[selectedCustomer.phone.replace(/\D/g, '').slice(-10)]?.kannada || 'ವೆಂಕಟೇಶ್ ಮೂರ್ತಿ'} · {CUSTOMER_META_MAP[selectedCustomer.phone.replace(/\D/g, '').slice(-10)]?.designation || 'Senior Govt Officer (Retd.)'}
+                            <div className="text-sm text-on-surface-variant">
+                              {CUSTOMER_META_MAP[selectedCustomer.phone.replace(/\D/g, '').slice(-10)]?.designation || 'Senior Govt Officer (Retd.)'}
                             </div>
                             <div className="flex items-center gap-1.5 text-xs text-on-surface-variant mt-2">
                               <span className="material-symbols-outlined text-[16px] text-outline">location_on</span>
@@ -1172,7 +1155,7 @@ export const AdminCustomersPage: React.FC = () => {
                             <div className="flex items-start justify-between gap-4">
                               <div>
                                 <h4 className="font-serif text-lg text-on-surface font-bold">
-                                  Wedding Muhurtham (ಮದುವೆ ಮುಹೂರ್ತ)
+                                  Wedding Muhurtham
                                 </h4>
                                 <p className="text-xs text-secondary font-semibold">
                                   Daughter&apos;s Wedding · Shree Cauvery Kalyana Mantapa
@@ -1524,7 +1507,7 @@ export const AdminCustomersPage: React.FC = () => {
                 <div>
                   <span className="text-outline block text-[11px]">Matched Customer:</span>
                   <span className="font-bold text-on-surface text-sm">
-                    {selectedCustomer.name} ({CUSTOMER_META_MAP[selectedCustomer.phone.replace(/\D/g, '').slice(-10)]?.kannada || 'ವೆಂಕಟೇಶ್ ಮೂರ್ತಿ'})
+                    {selectedCustomer.name}
                   </span>
                 </div>
                 <span className="font-mono font-bold text-primary bg-surface-container-lowest px-2.5 py-1 rounded border border-outline-variant/60">

@@ -7,7 +7,6 @@ import type { CustomerRecord, OrderItem } from '@/data/mockData'
 interface DelicacyItem {
   id: string
   name: string
-  kannada: string
   tag: string
   category: string
   price: number
@@ -18,7 +17,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-1',
     name: 'Mysuru Puliyogare',
-    kannada: 'ಮೈಸೂರು ಪುಳಿಯೋಗರೆ',
     tag: 'Signature Iyengar',
     category: 'Traditional Rice & Bath',
     price: 65,
@@ -27,7 +25,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-2',
     name: 'Bisi Bele Bath & Boondi',
-    kannada: 'ಬಿಸಿ ಬೇಳೆ ಬಾತ್ ಮತ್ತು ಕಾರಾ ಬೂಂದಿ',
     tag: 'Rich Ghee Bath',
     category: 'Traditional Rice & Bath',
     price: 85,
@@ -36,7 +33,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-3',
     name: 'Melkote Majjige Huli',
-    kannada: 'ಮೇಲುಕೋಟೆ ಮಜ್ಜಿಗೆ ಹುಳಿ',
     tag: 'Temple Heritage',
     category: 'Accompaniments',
     price: 50,
@@ -45,7 +41,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-4',
     name: 'Royal Mysuru Pak',
-    kannada: 'ರಾಯಲ್ ಮೈಸೂರು ಪಾಕ್',
     tag: 'Heritage Sweet',
     category: 'Sweets & Payasa',
     price: 50,
@@ -54,7 +49,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-5',
     name: 'Degree Filter Coffee',
-    kannada: 'ಡಿಗ್ರಿ ಫಿಲ್ಟರ್ ಕಾಫಿ',
     tag: 'Chikmagalur Blend',
     category: 'Beverages / Filter Kaapi',
     price: 35,
@@ -63,7 +57,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-6',
     name: 'Gasagase Payasa',
-    kannada: 'ಗಸಗಸೆ ಪಾಯಸ',
     tag: 'Traditional Sweet',
     category: 'Sweets & Payasa',
     price: 45,
@@ -72,7 +65,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-7',
     name: 'Ven Pongal Ghee Roast',
-    kannada: 'ವೆನ್ ಪೊಂಗಲ್',
     tag: 'Temple Heritage',
     category: 'Traditional Rice & Bath',
     price: 75,
@@ -81,7 +73,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-8',
     name: 'Curd Rice & Pomegranate',
-    kannada: 'ಮೊಸರನ್ನ',
     tag: 'Sattvic Soother',
     category: 'Traditional Rice & Bath',
     price: 45,
@@ -90,7 +81,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-9',
     name: 'Akki Kadalebele Payasa',
-    kannada: 'ಅಕ್ಕಿ ಕಡಲೆಬೇಳೆ ಪಾಯಸ',
     tag: 'Heritage Sweet',
     category: 'Sweets & Payasa',
     price: 45,
@@ -99,7 +89,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-10',
     name: 'Mysuru Saaru (Rasam)',
-    kannada: 'ಮೈಸೂರು ಸಾರು',
     tag: 'Temple Heritage',
     category: 'Accompaniments',
     price: 40,
@@ -107,8 +96,7 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   },
   {
     id: 'item-11',
-    name: 'Banana Blossom Vada (ವಡೆ)',
-    kannada: 'ಬಾಳೆಹೂವು ವಡೆ',
+    name: 'Banana Blossom Vada',
     tag: 'Crisp Savoury',
     category: 'Accompaniments',
     price: 45,
@@ -117,7 +105,6 @@ const CURATED_DELICACIES: DelicacyItem[] = [
   {
     id: 'item-12',
     name: 'Spiced Neer Majjige',
-    kannada: 'ಮಜ್ಜಿಗೆ',
     tag: 'Herbal Cooler',
     category: 'Beverages / Filter Kaapi',
     price: 25,
@@ -150,7 +137,7 @@ export const AdminCreateOrderPage: React.FC = () => {
   // Section 1: Customer Details State
   const [customerMode, setCustomerMode] = useState<'existing' | 'new'>('existing')
   const [mobile, setMobile] = useState<string>('98450 23419')
-  const [customerName, setCustomerName] = useState<string>('Venkatesh Murthy (ವೆಂಕಟೇಶ್ ಮೂರ್ತಿ)')
+  const [customerName, setCustomerName] = useState<string>('Venkatesh Murthy')
   const [matchedCustomer, setMatchedCustomer] = useState<CustomerRecord | null>(null)
 
   // Section 2: Enquiry Notes & Context
@@ -164,7 +151,7 @@ export const AdminCreateOrderPage: React.FC = () => {
   ])
 
   // Section 3: Event Specifications & Food Menu Selection
-  const [occasion, setOccasion] = useState<string>('Wedding Muhurtham (ಮದುವೆ ಮುಹೂರ್ತ)')
+  const [occasion, setOccasion] = useState<string>('Wedding Muhurtham')
   const [eventDate, setEventDate] = useState<string>('2025-12-14')
   const [plates, setPlates] = useState<number>(100)
   const [address, setAddress] = useState<string>('Shree Cauvery Kalyana Mantapa, Saraswathipuram 8th Main, Mysuru')
@@ -307,7 +294,7 @@ export const AdminCreateOrderPage: React.FC = () => {
     try {
       const orderItems: OrderItem[] = selectedItemsList.map((item) => ({
         id: item.id,
-        name: `${item.name} (${item.kannada})`,
+        name: item.name,
         pricePerPlate: item.price,
         quantity: 1
       }))
@@ -366,7 +353,7 @@ export const AdminCreateOrderPage: React.FC = () => {
     try {
       const orderItems: OrderItem[] = selectedItemsList.map((item) => ({
         id: item.id,
-        name: `${item.name} (${item.kannada})`,
+        name: item.name,
         pricePerPlate: item.price,
         quantity: 1
       }))
@@ -645,7 +632,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                   type="button"
                   onClick={() => {
                     setCustomerMode('existing')
-                    if (!customerName) setCustomerName('Venkatesh Murthy (ವೆಂಕಟೇಶ್ ಮೂರ್ತಿ)')
+                    if (!customerName) setCustomerName('Venkatesh Murthy')
                   }}
                   className={`px-3.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
                     customerMode === 'existing'
@@ -868,10 +855,10 @@ export const AdminCreateOrderPage: React.FC = () => {
                     onChange={(e) => setOccasion(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-semibold focus:ring-2 focus:ring-primary focus:outline-none shadow-xs cursor-pointer"
                   >
-                    <option value="Wedding Muhurtham (ಮದುವೆ ಮುಹೂರ್ತ)">Wedding Muhurtham (ಮದುವೆ ಮುಹೂರ್ತ)</option>
-                    <option value="Griha Pravesh (ಗೃಹ ಪ್ರವೇಶ)">Griha Pravesh (ಗೃಹ ಪ್ರವೇಶ)</option>
-                    <option value="Upanayana Brahmopadesha (ಉಪನಯನ)">Upanayana Brahmopadesha (ಉಪನಯನ)</option>
-                    <option value="Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)">Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)</option>
+                    <option value="Wedding Muhurtham">Wedding Muhurtham</option>
+                    <option value="Griha Pravesh">Griha Pravesh</option>
+                    <option value="Upanayana Brahmopadesha">Upanayana Brahmopadesha</option>
+                    <option value="Satyanarayana Pooja">Satyanarayana Pooja</option>
                     <option value="Sashtiapthapoorthi (60th Birthday)">Sashtiapthapoorthi (60th Birthday)</option>
                     <option value="Seemantham Feast">Seemantham Feast</option>
                     <option value="Other Traditional Feast">Other Traditional Feast</option>
@@ -901,7 +888,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                 {/* Number of Plates */}
                 <div>
                   <label htmlFor="plates-count" className="block text-xs font-bold text-on-surface mb-2">
-                    Number of Plates (ಎಲೆಗಳ ಸಂಖ್ಯೆ) <span className="text-primary font-bold">*For Confirmation</span>
+                    Number of Plates <span className="text-primary font-bold">*For Confirmation</span>
                   </label>
                   <div className="relative">
                     <input
@@ -1039,9 +1026,6 @@ export const AdminCreateOrderPage: React.FC = () => {
                           <h4 className="text-sm text-on-surface font-bold leading-snug">
                             {item.name}
                           </h4>
-                          <p className="text-[11px] text-on-surface-variant kannada-sub font-semibold">
-                            {item.kannada}
-                          </p>
                           <p className="text-xs text-on-surface-variant mt-1.5 line-clamp-2 leading-relaxed">
                             {item.description}
                           </p>
@@ -1112,9 +1096,6 @@ export const AdminCreateOrderPage: React.FC = () => {
                         <div className="pr-2 min-w-0">
                           <p className="font-bold text-on-surface leading-tight truncate">
                             {item.name}
-                          </p>
-                          <p className="text-[11px] text-on-surface-variant kannada-sub">
-                            {item.kannada}
                           </p>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">

@@ -173,18 +173,7 @@ export const ContactPage: React.FC = () => {
     }
   }
 
-  const getOccasionKannada = (eventType?: string) => {
-    const normalized = (eventType || '').toLowerCase()
-    if (normalized.includes('griha') || normalized.includes('housewarming')) return 'ಗೃಹ ಪ್ರವೇಶ ಸಮಾರಂಭ'
-    if (normalized.includes('pooja') || normalized.includes('homa')) return 'ಪೂಜಾ / ಹೋಮ ಪ್ರಸಾದ'
-    if (normalized.includes('wed') || normalized.includes('kalyana') || normalized.includes('muhurtham')) return 'ಕಲ್ಯಾಣ ಮಹೋತ್ಸವ'
-    if (normalized.includes('upanayana') || normalized.includes('thread')) return 'ಉಪನಯನ ಮಹೋತ್ಸವ'
-    if (normalized.includes('birth') || normalized.includes('seemantha') || normalized.includes('shower')) return 'ಸೀಮಂತ & ಆಯುಷ್ಯ'
-    return 'ಕುಟುಂಬ ಸಮಾರಂಭ'
-  }
-
   const displayOccasion = requirements.eventType || 'Griha Pravesh'
-  const occasionKannada = getOccasionKannada(displayOccasion)
 
   const dotColors = [
     'bg-[#815500]',
@@ -335,7 +324,6 @@ export const ContactPage: React.FC = () => {
                       Host / Elder Full Name
                       <span className="text-primary font-bold">*</span>
                     </label>
-                    <span className="text-xs font-medium text-secondary">ಯಜಮಾನರ ಹೆಸರು</span>
                   </div>
                   <div className="relative rounded-xl shadow-xs">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
@@ -361,7 +349,7 @@ export const ContactPage: React.FC = () => {
                     </p>
                   ) : (
                     <p className="text-xs text-on-surface-variant">
-                      Enter the host or family elder's name for communication (ಸಂವಹನಕ್ಕಾಗಿ ಕುಟುಂಬದ ಹಿರಿಯರ ಹೆಸರನ್ನು ನಮೂದಿಸಿ).
+                      Enter the host or family elder's name for communication.
                     </p>
                   )}
                 </div>
@@ -412,7 +400,6 @@ export const ContactPage: React.FC = () => {
                       Special Requests / Venue Landmark
                       <span className="text-xs text-on-surface-variant font-normal">(Optional)</span>
                     </label>
-                    <span className="text-xs text-outline">ವಿಶೇಷ ವಿನಂತಿಗಳು</span>
                   </div>
                   <div className="relative">
                     <textarea
@@ -570,7 +557,6 @@ export const ContactPage: React.FC = () => {
                   </span>
                   <div className="text-right">
                     <span className="font-semibold text-on-surface block">{displayOccasion}</span>
-                    <span className="text-xs text-secondary font-medium">{occasionKannada}</span>
                   </div>
                 </div>
 

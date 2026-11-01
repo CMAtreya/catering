@@ -589,7 +589,6 @@ export const RequestPage: React.FC = () => {
                     {
                       id: 'Morning' as const,
                       title: 'Morning',
-                      kannada: 'ಬೆಳಗಿನ ಉಪಹಾರ / ಮುಹೂರ್ತ',
                       subtitle: 'Breakfast & Muhurtham',
                       window: '7:00 AM – 11:30 AM',
                       icon: 'wb_sunny'
@@ -597,7 +596,6 @@ export const RequestPage: React.FC = () => {
                     {
                       id: 'Afternoon' as const,
                       title: 'Afternoon',
-                      kannada: 'ಮಧ್ಯಾಹ್ನದ ಮಹಾ ಭೋಜನ',
                       subtitle: 'Traditional Lunch Feast',
                       window: '12:00 PM – 3:30 PM',
                       icon: 'light_mode'
@@ -605,7 +603,6 @@ export const RequestPage: React.FC = () => {
                     {
                       id: 'Evening' as const,
                       title: 'Evening',
-                      kannada: 'ಸಂಜೆ ಸ್ವಾಗತ ಭೋಜನ',
                       subtitle: 'Reception Dinner',
                       window: '6:30 PM – 10:30 PM',
                       icon: 'nights_stay'

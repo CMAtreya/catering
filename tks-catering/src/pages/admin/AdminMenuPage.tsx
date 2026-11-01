@@ -16,29 +16,6 @@ import {
 } from '@/api'
 import type { Category, MenuItem } from '@/data/mockData'
 
-const KANNADA_DISH_MAP: Record<string, string> = {
-  'Mysuru Puliyogare': 'ಮೈಸೂರು ಪುಳಿಯೋಗರೆ',
-  'Bisi Bele Bath & Boondi': 'ಬಿಸಿ ಬೇಳೆ ಬಾತ್ ಮತ್ತು ಬೂಂದಿ',
-  'Bisi Bele Bath': 'ಬಿಸಿ ಬೇಳೆ ಬಾತ್ ಮತ್ತು ಬೂಂದಿ',
-  'Classic Mysuru Pak': 'ರಾಯಲ್ ಮೈಸೂರು ಪಾಕ್',
-  'Royal Mysuru Pak': 'ರಾಯಲ್ ಮೈಸೂರು ಪಾಕ್',
-  'Mysore Pak': 'ಮೈಸೂರು ಪಾಕ್',
-  'Melkote Majjige Huli': 'ಮೇಲುಕೋಟೆ ಮಜ್ಜಿಗೆ ಹುಳಿ',
-  'Vangi Bath': 'ವಾಂಗಿ ಬಾತ್',
-  'Chitranna (Melkote Nimbe)': 'ನಿಂಬೆಹಣ್ಣಿನ ಚಿತ್ರಾನ್ನ',
-  'Chitranna': 'ಚಿತ್ರಾನ್ನ',
-  'Curd Rice & Pomegranate': 'ಮೊಸರನ್ನ',
-  'Curd Rice': 'ಮೊಸರನ್ನ',
-  'Kadamba Bath': 'ಕದಂಬ ಬಾತ್ - ಸಾಂಬಾರ್ ಸಾದಂ',
-  'Degree Filter Coffee': 'ಡಿಗ್ರಿ ಫಿಲ್ಟರ್ ಕಾಫಿ',
-  'Filter Coffee': 'ಫಿಲ್ಟರ್ ಕಾಫಿ',
-  'Gasagase Payasa': 'ಗಸಗಸೆ ಪಾಯಸ',
-  'Ven Pongal Ghee Roast': 'ವೆನ್ ಪೊಂಗಲ್',
-  'Mysuru Saaru (Rasam)': 'ಮೈಸೂರು ಸಾರು',
-  'Medu Vada': 'ಮೆದು ವಡೆ',
-  'Kesari Bath': 'ಕೇಸರಿ ಬಾತ್'
-}
-
 const DISH_TAG_MAP: Record<string, string> = {
   'item-1': 'Temple Signature',
   'item-2': 'Pure Ghee Special',
@@ -73,7 +50,6 @@ export const AdminMenuPage: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
   const [drawerName, setDrawerName] = useState<string>('')
-  const [drawerKannada, setDrawerKannada] = useState<string>('')
   const [drawerPrice, setDrawerPrice] = useState<string>('65')
   const [drawerCategory, setDrawerCategory] = useState<string>('')
   const [drawerImage, setDrawerImage] = useState<string>(DEFAULT_DISH_IMAGE)
@@ -156,11 +132,7 @@ export const AdminMenuPage: React.FC = () => {
     // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim()
-      list = list.filter(
-        (i) =>
-          i.name.toLowerCase().includes(q) ||
-          (KANNADA_DISH_MAP[i.name] && KANNADA_DISH_MAP[i.name].includes(q))
-      )
+      list = list.filter((i) => i.name.toLowerCase().includes(q))
     }
 
     // Availability Filter
@@ -190,7 +162,6 @@ export const AdminMenuPage: React.FC = () => {
   const handleOpenAddItem = () => {
     setEditingItem(null)
     setDrawerName('')
-    setDrawerKannada('')
     setDrawerPrice('65')
     setDrawerCategory(activeCategory ? activeCategory.name : categories[0]?.name || '')
     setDrawerImage(DEFAULT_DISH_IMAGE)
@@ -203,7 +174,6 @@ export const AdminMenuPage: React.FC = () => {
   const handleOpenEditItem = (item: MenuItem) => {
     setEditingItem(item)
     setDrawerName(item.name)
-    setDrawerKannada(KANNADA_DISH_MAP[item.name] || '')
     setDrawerPrice(String(item.pricePerPlate))
     setDrawerCategory(item.category)
     setDrawerImage(item.image || DEFAULT_DISH_IMAGE)
@@ -296,9 +266,6 @@ export const AdminMenuPage: React.FC = () => {
       })
 
       setItems(updated)
-      if (drawerKannada.trim()) {
-        KANNADA_DISH_MAP[cleanName] = drawerKannada.trim()
-      }
 
       toast.success(editingItem ? 'Dish updated successfully' : 'New dish added to menu')
       setIsDrawerOpen(false)
@@ -970,7 +937,6 @@ export const AdminMenuPage: React.FC = () => {
                   className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-2 pb-12"
                 >
                   {displayedItems.map((item) => {
-                    const kannadaTitle = KANNADA_DISH_MAP[item.name] || ''
                     const dishTag = DISH_TAG_MAP[item.id] || 'Temple Heritage'
 
                     return (
@@ -1002,11 +968,6 @@ export const AdminMenuPage: React.FC = () => {
                                 <h4 className="text-sm font-bold text-on-surface leading-snug">
                                   {item.name}
                                 </h4>
-                                {kannadaTitle && (
-                                  <p className="text-xs text-primary font-semibold kannada-sub mt-0.5">
-                                    {kannadaTitle}
-                                  </p>
-                                )}
                               </div>
                             </div>
 
@@ -1223,22 +1184,7 @@ export const AdminMenuPage: React.FC = () => {
                     placeholder="e.g. Mysuru Puliyogare"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background text-xs font-semibold focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   />
-                  <p className="text-[11px] text-outline mt-1">Official English name printed on wedding quotes.</p>
-                </div>
-
-                <div>
-                  <label htmlFor="dish-kannada-input" className="block text-xs font-bold text-on-surface mb-1">
-                    Regional Title (Kannada Script)
-                  </label>
-                  <input
-                    id="dish-kannada-input"
-                    type="text"
-                    value={drawerKannada}
-                    onChange={(e) => setDrawerKannada(e.target.value)}
-                    placeholder="e.g. ಮೈಸೂರು ಪುಳಿಯೋಗರೆ"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background text-xs font-semibold focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                  />
-                  <p className="text-[11px] text-outline mt-1">Appears on traditional printed Banana Leaf menu cards.</p>
+                  <p className="text-[11px] text-outline mt-1">Official dish name printed on wedding quotes.</p>
                 </div>
 
                 {/* Price & Category Grid */}

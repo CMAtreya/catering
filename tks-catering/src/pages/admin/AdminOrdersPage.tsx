@@ -32,31 +32,8 @@ const getOccasionDotColor = (occasion: string): string => {
   return 'bg-amber-600'
 }
 
-// Auspicious Tithi and Kannada name mappings
-const KANNADA_NAMES: Record<string, string> = {
-  'Venkatesh Murthy': 'ವೆಂಕಟೇಶ್ ಮೂರ್ತಿ',
-  'Sowmya Anantharaman': 'ಸೌಮ್ಯ ಅನಂತರಾಮನ್',
-  'K. S. Raghavachar': 'ಕೆ. ಎಸ್. ರಾಘವಾಚಾರ್',
-  'Prasanna Kumar B.': 'ಪ್ರಸನ್ನ ಕುಮಾರ್',
-  'Padmavathi Narasimhan': 'ಪದ್ಮಾವತಿ ನರಸಿಂಹನ್',
-  'Dr. C. Srinivasa Varadan': 'ಡಾ. ಸಿ. ಶ್ರೀನಿವಾಸ ವರದನ್',
-  'Geetha Thirunarayanan': 'ಗೀತಾ ತಿರುನಾರಾಯಣನ್',
-  'Srinivasa Raghavan': 'ಶ್ರೀನಿವಾಸ ರಾಘವನ್',
-  'Lakshminarasimha Bhat': 'ಲಕ್ಷ್ಮೀನರಸಿಂಹ ಭಟ್',
-  'Kasturi Rangan': 'ಕಸ್ತೂರಿ ರಂಗನ್',
-  'Sampath Kumaran': 'ಸಂಪತ್ ಕುಮಾರನ್',
-  'H.V. Seshadri': 'ಎಚ್.ವಿ. ಶೇಷಾದ್ರಿ',
-  'Anand Deshikachar': 'ಆನಂದ್ ದೇಶಿಕಾಚಾರ್',
-  'Vidya Varadarajan': 'ವಿದ್ಯಾ ವರದರಾಜನ್',
-  'Harish Belavadi': 'ಹರೀಶ್ ಬೆಳವಡಿ',
-  'Deepa Narayan': 'ದೀಪಾ ನಾರಾಯಣ್',
-  'Kalyan Ramanathan': 'ಕಲ್ಯಾಣ್ ರಾಮನಾಥನ್'
-}
-
 function getKannadaSubtext(order: Order): string {
-  const kn = KANNADA_NAMES[order.customerName] || order.customerName
-  const loc = order.venueAddress ? order.venueAddress.split(',')[0].trim() : 'Mysuru'
-  return `${kn} • ${loc}`
+  return order.venueAddress ? order.venueAddress.split(',')[0].trim() : 'Mysuru Urban'
 }
 
 function getAuspiciousTithi(dateStr: string): string {
@@ -540,7 +517,7 @@ export const AdminOrdersPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-primary">
-                All Orders (ಎಲ್ಲಾ ಆರ್ಡರ್ಗಳು)
+                All Orders
               </h2>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#ffdad4] text-[#410000] border border-primary/20">
                 {orders.length} Total
@@ -1243,7 +1220,7 @@ export const AdminOrdersPage: React.FC = () => {
                             <span className="w-3.5 h-3.5 border border-emerald-600 flex items-center justify-center rounded-xs">
                               <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
                             </span>
-                            <span className="font-semibold text-on-surface">Mysuru Traditional Puliyogare (ತಂಬುಳ ಸಹಿತ)</span>
+                            <span className="font-semibold text-on-surface">Mysuru Traditional Puliyogare</span>
                           </div>
                           <span className="text-outline font-medium">Included</span>
                         </div>
@@ -1412,7 +1389,7 @@ export const AdminOrdersPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-semibold text-on-surface mb-1">
-                      Customer Name (ಶ್ರೀ/ಶ್ರೀಮತಿ)
+                      Customer Name
                     </label>
                     <input
                       type="text"

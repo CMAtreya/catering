@@ -91,18 +91,6 @@ export const AdminDashboardPage: React.FC = () => {
     }
   }
 
-  const getOccasionKannada = (eventType?: string) => {
-    const normalized = (eventType || '').toLowerCase()
-    if (normalized.includes('griha') || normalized.includes('housewarming')) return 'ಗೃಹ ಪ್ರವೇಶ'
-    if (normalized.includes('pooja') || normalized.includes('homa') || normalized.includes('satyanarayana')) return 'ಪೂಜೆ'
-    if (normalized.includes('wed') || normalized.includes('kalyana') || normalized.includes('muhurtham')) return 'ಮದುವೆ'
-    if (normalized.includes('upanayana') || normalized.includes('thread')) return 'ಉಪನಯನ'
-    if (normalized.includes('shasti') || normalized.includes('sashti')) return "60th B'day"
-    if (normalized.includes('namakarana') || normalized.includes('naming')) return 'ನಾಮಕರಣ'
-    if (normalized.includes('birth') || normalized.includes('seemantha') || normalized.includes('shower')) return 'ಸೀಮಂತ & ಆಯುಷ್ಯ'
-    return 'ಶುಭ ಸಮಾರಂಭ'
-  }
-
   // 1. Group confirmed orders by date string YYYY-MM-DD
   const confirmedOrdersByDate = useMemo(() => {
     const map: Record<string, Order[]> = {}
@@ -603,7 +591,7 @@ export const AdminDashboardPage: React.FC = () => {
                             <span className="material-symbols-outlined text-sm text-green-700">verified</span>
                           </h4>
                           <p className="text-xs font-medium text-[#785A48] mt-0.5">
-                            {ord.eventType} ({getOccasionKannada(ord.eventType)})
+                            {ord.eventType}
                           </p>
                         </div>
                         <span className="status-badge-confirmed text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 shrink-0">
@@ -732,7 +720,7 @@ export const AdminDashboardPage: React.FC = () => {
                           </a>
                           <span>·</span>
                           <span className="text-[#2D1810] font-medium">
-                            {req.eventType} ({getOccasionKannada(req.eventType)})
+                            {req.eventType}
                           </span>
                         </div>
                       </div>
@@ -933,10 +921,10 @@ export const AdminDashboardPage: React.FC = () => {
                     onChange={(e) => setManualOccasion(e.target.value)}
                     className="w-full h-14 px-4 rounded-xl border-2 border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-base font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
                   >
-                    <option value="Griha Pravesh">Griha Pravesh (ಗೃಹ ಪ್ರವೇಶ)</option>
-                    <option value="Muhurtham Wedding">Muhurtham Wedding (ಮದುವೆ)</option>
-                    <option value="Satyanarayana Pooja">Satyanarayana Pooja (ಪೂಜೆ)</option>
-                    <option value="Upanayana">Upanayana (ಉಪನಯನ)</option>
+                    <option value="Griha Pravesh">Griha Pravesh</option>
+                    <option value="Muhurtham Wedding">Muhurtham Wedding</option>
+                    <option value="Satyanarayana Pooja">Satyanarayana Pooja</option>
+                    <option value="Upanayana">Upanayana</option>
                     <option value="Sashti Poorthi">Sashti Poorthi (60th B'day)</option>
                     <option value="Other Feast">Other Feast</option>
                   </select>

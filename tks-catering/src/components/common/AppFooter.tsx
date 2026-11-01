@@ -83,7 +83,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                   TKS Iyengar's Catering
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full bg-secondary-container/40 text-on-secondary-fixed border border-secondary/30 text-[10px] font-bold tracking-wide uppercase">
-                  ಮೈಸೂರು ಸಂಪ್ರದಾಯ • Estd. 1984
+                  Mysuru Heritage • Estd. 1984
                 </span>
               </div>
 

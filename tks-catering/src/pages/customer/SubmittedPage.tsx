@@ -44,20 +44,9 @@ export const SubmittedPage: React.FC = () => {
     navigate('/enquiries')
   }
 
-  const getOccasionKannada = (eventType?: string) => {
-    const normalized = (eventType || '').toLowerCase()
-    if (normalized.includes('griha') || normalized.includes('housewarming')) return 'ಗೃಹ ಪ್ರವೇಶ'
-    if (normalized.includes('pooja') || normalized.includes('homa')) return 'ಪೂಜಾ / ಹೋಮ'
-    if (normalized.includes('wed') || normalized.includes('kalyana') || normalized.includes('muhurtham')) return 'ಕಲ್ಯಾಣ ಮಹೋತ್ಸವ'
-    if (normalized.includes('upanayana') || normalized.includes('thread')) return 'ಉಪನಯನ'
-    if (normalized.includes('birth') || normalized.includes('seemantha') || normalized.includes('shower')) return 'ಸೀಮಂತ & ಆಯುಷ್ಯ'
-    return 'ಕುಟುಂಬ ಸಮಾರಂಭ'
-  }
-
   // Display details resolved from store or fallback
   const displayId = storeOrder?.orderId ? storeOrder.orderId.replace(/^#/, '') : 'TKS-84920'
   const displayOccasion = storeOrder?.eventType || 'Griha Pravesh'
-  const occasionKannada = getOccasionKannada(displayOccasion)
   const guestCount = storeOrder?.guestCount || 100
   const itemCount = storeOrder?.itemsCount || storeOrder?.itemsList?.length || 5
   const itemSummary = storeOrder?.itemsSummary || 'Puliyogare, Bisi Bele Bath, Melkote Huli, Mysore Pak, Filter Coffee'
@@ -250,7 +239,6 @@ export const SubmittedPage: React.FC = () => {
                     </span>
                     <div className="text-right">
                       <span className="font-semibold text-on-surface block">{displayOccasion}</span>
-                      <span className="text-secondary font-medium text-xs block">({occasionKannada})</span>
                     </div>
                   </li>
 
