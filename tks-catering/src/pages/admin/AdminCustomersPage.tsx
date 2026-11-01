@@ -340,51 +340,6 @@ export const AdminCustomersPage: React.FC = () => {
     <AdminAppShell>
       <div className="w-full px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 space-y-6">
 
-        {/* ========================================================
-             1. TOP SHELL BAR (Namaskara, Live Pulse Badge, Action CTAs)
-             ======================================================== */}
-        <header className="w-full bg-white/90 backdrop-blur-md rounded-2xl border border-outline-variant/60 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-primary tracking-tight">
-                  Namaskara
-                </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Live Kitchen &amp; CRM Synced
-                </span>
-              </div>
-              <p className="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
-                <span className="material-symbols-outlined text-[15px] text-amber-700">calendar_today</span>
-                <span>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })} • Mysuru Central Unit</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
-            <button
-              type="button"
-              onClick={() => setIsEnquiryModalOpen(true)}
-              className="p-2.5 px-3.5 rounded-xl border border-outline-variant/60 bg-white text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 text-xs font-semibold shadow-xs cursor-pointer active:scale-95"
-            >
-              <span className="material-symbols-outlined text-[16px] text-primary">edit_note</span>
-              <span>Record Enquiry</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigate('/admin/orders/new')}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-xs shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer"
-              style={{ background: 'linear-gradient(90deg, #8B0A00 0%, #E0000F 50%, #8B0A00 100%)' }}
-            >
-              <span className="material-symbols-outlined text-[18px]">add_circle</span>
-              <span className="whitespace-nowrap">Create Manual Order</span>
-            </button>
-          </div>
-        </header>
-
         {/* VIEW CANVAS WRAPPER */}
         <div
           id="content-canvas"
