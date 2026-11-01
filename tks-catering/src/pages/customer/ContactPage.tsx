@@ -397,15 +397,10 @@ export const ContactPage: React.FC = () => {
                       } rounded-r-xl text-on-surface font-sans text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-primary transition-all tracking-wider placeholder:text-outline`}
                     />
                   </div>
-                  {phoneError ? (
+                  {phoneError && (
                     <p className="text-xs text-red-600 font-medium flex items-center gap-1">
                       <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>{phoneError}</span>
-                    </p>
-                  ) : (
-                    <p className="text-xs text-on-surface-variant flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[15px] text-secondary">sms</span>
-                      You will receive an instant booking enquiry reference via SMS.
                     </p>
                   )}
                 </div>
