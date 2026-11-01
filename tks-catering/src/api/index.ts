@@ -368,6 +368,8 @@ export async function saveOrder(orderData: Partial<Order> & { customerPhone: str
     venueAddress: orderData.venueAddress || '',
     notes: orderData.notes || '',
     items: orderData.items || [],
+    deliveryCharges: orderData.deliveryCharges ?? 1500,
+    customizationCharges: orderData.customizationCharges ?? 1000,
     perPlateTotal: calculatedPerPlate,
     totalAmount: calculatedTotal,
     createdAt: nowIso,
