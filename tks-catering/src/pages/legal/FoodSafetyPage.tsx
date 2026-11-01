@@ -7,7 +7,7 @@ export const FoodSafetyPage: React.FC = () => {
   const navigate = useNavigate()
 
   return (
-    <CustomerDesktopShell maxWidth="w-full">
+    <CustomerDesktopShell maxWidth="w-full" showFooter={true}>
       <div className="w-full min-h-screen bg-transparent pb-16">
         
         {/* Top Header Navigation */}
@@ -163,7 +163,7 @@ export const FoodSafetyPage: React.FC = () => {
               Central Kitchen: 142/A, Krishnamurthy Puram, Mysuru, Karnataka 570004
             </p>
             <p className="text-slate-500 pt-1">
-              For kitchen inspection appointments or banquet food safety inquiries, call <a href="tel:+919000000000" className="font-semibold text-slate-800 hover:underline">+91 90000 00000</a> or email <a href="mailto:orders@tksiyengarscatering.com" className="font-semibold text-[var(--brand)] hover:underline">orders@tksiyengarscatering.com</a>.
+              For kitchen inspection appointments or banquet food safety inquiries, call <a href="tel:+918212448920" className="font-semibold text-slate-800 hover:underline">+91 821 244 8920</a> or email <a href="mailto:orders@tksiyengarscatering.com" className="font-semibold text-[var(--brand)] hover:underline">orders@tksiyengarscatering.com</a>.
             </p>
           </section>
 

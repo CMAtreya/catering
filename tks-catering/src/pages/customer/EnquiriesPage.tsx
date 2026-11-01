@@ -8,6 +8,7 @@ import { useEnquiryStore, type LocalEnquiryRecord } from '@/store/enquiryStore'
 import { useDraftStore } from '@/store/draftStore'
 import { formatRupees, formatEventDate } from '@/lib/format'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
+import { AppFooter } from '@/components/common/AppFooter'
 import { PageTransition } from '@/components/motion/PageTransition'
 import { useMotionTier } from '@/motion/MotionProvider'
 import { getItemEntranceVariants } from '@/motion/tokens'
@@ -713,36 +714,7 @@ export const EnquiriesPage: React.FC = () => {
         {/* ==========================================================
             4. SHARED TRADITIONAL HERITAGE FOOTER
             ========================================================== */}
-        <footer className="bg-surface-container-low border-t border-outline-variant/50 w-full mt-16">
-          <div className="w-full px-4 md:px-12 py-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="space-y-2 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-3">
-                <span className="font-serif font-bold text-base sm:text-lg text-primary">
-                  TKS Iyengar's Catering
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-outline-variant" />
-                <span className="text-xs font-semibold text-secondary">Mysuru Heritage Kitchens</span>
-              </div>
-              <p className="text-xs text-on-surface-variant">
-                © 2025 TKS Iyengar's Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage Feasts. All rights reserved.
-              </p>
-            </div>
-            <nav className="flex flex-wrap justify-center md:justify-end gap-x-5 gap-y-2 text-xs font-semibold" aria-label="Footer Navigation">
-              <button type="button" onClick={() => navigate('/#tradition')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                Sacred Menu Heritage
-              </button>
-              <button type="button" onClick={() => navigate('/#muhurtham')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                Muhurtham Packages
-              </button>
-              <button type="button" onClick={() => navigate('/#menus')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                Purity Guarantee
-              </button>
-              <button type="button" onClick={() => navigate('/enquiries')} className="text-primary font-bold transition-colors cursor-pointer">
-                Enquire for Banquets
-              </button>
-            </nav>
-          </div>
-        </footer>
+        <AppFooter />
 
         {/* ==========================================================
             5. DETAIL SHEET (Desktop: Right Panel, Mobile: Bottom Drawer)

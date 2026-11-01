@@ -7,7 +7,7 @@ export const AllergyDietaryPage: React.FC = () => {
   const navigate = useNavigate()
 
   return (
-    <CustomerDesktopShell maxWidth="w-full">
+    <CustomerDesktopShell maxWidth="w-full" showFooter={true}>
       <div className="w-full min-h-screen bg-transparent pb-16">
         
         {/* Top Header Navigation */}
@@ -176,7 +176,7 @@ export const AllergyDietaryPage: React.FC = () => {
               <li>Coordinate with our on-site banquet captain to designate segregated plating for guests with certified dietary requirements.</li>
             </ol>
             <div className="pt-2 text-xs text-slate-500">
-              For specific dietary inquiries, contact our Master Chef & Diet Desk at <a href="mailto:orders@tksiyengarscatering.com" className="font-semibold text-[var(--brand)] hover:underline">orders@tksiyengarscatering.com</a> or call <a href="tel:+919000000000" className="font-semibold text-slate-700 hover:underline">+91 90000 00000</a>.
+              For specific dietary inquiries, contact our Master Chef & Diet Desk at <a href="mailto:orders@tksiyengarscatering.com" className="font-semibold text-[var(--brand)] hover:underline">orders@tksiyengarscatering.com</a> or call <a href="tel:+918212448920" className="font-semibold text-slate-700 hover:underline">+91 821 244 8920</a>.
             </div>
           </section>
 

@@ -7,7 +7,7 @@ export const PrivacyPolicyPage: React.FC = () => {
   const navigate = useNavigate()
 
   return (
-    <CustomerDesktopShell maxWidth="w-full">
+    <CustomerDesktopShell maxWidth="w-full" showFooter={true}>
       <div className="w-full min-h-screen bg-transparent pb-16">
         
         {/* Top Header Navigation */}
@@ -153,8 +153,8 @@ export const PrivacyPolicyPage: React.FC = () => {
               </p>
               <p className="flex items-center gap-2 text-slate-700">
                 <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                <a href="tel:+919000000000" className="hover:underline font-semibold">
-                  +91 90000 00000 (Mon–Sun: 8:00 AM – 9:00 PM IST)
+                <a href="tel:+918212448920" className="hover:underline font-semibold">
+                  +91 821 244 8920 / +91 98450 12345 (Mon–Sun: 8:00 AM – 9:00 PM IST)
                 </a>
               </p>
               <p className="text-slate-500 pt-1 text-[11px]">

@@ -7,6 +7,7 @@ import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
 import { ItemCard } from '@/components/customer/ItemCard'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
+import { AppFooter } from '@/components/common/AppFooter'
 import { CatalogueSkeleton } from '@/components/ui/skeletons'
 import { VirtualBananaLeafModal } from '@/components/customer/VirtualBananaLeafModal'
 import { TastingSessionModal } from '@/components/customer/TastingSessionModal'
@@ -743,41 +744,8 @@ export const CataloguePage: React.FC = () => {
         </section>
       </main>
 
-      {/* 9. TRADITIONAL HERITAGE FOOTER (Full Page Width) */}
-      <footer className="bg-surface-container-low border-t border-outline-variant/15 py-10 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 mt-12 pb-32 text-xs text-on-surface-variant w-full">
-        <div className="w-full flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <h3 className="font-headline font-bold text-primary text-base">TKS Iyengar's Catering</h3>
-            <span className="text-[10px] bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 px-1.5 py-0.5 rounded font-bold">
-              Mysuru Estd. 1984
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-semibold text-outline">
-            <button type="button" onClick={() => scrollToSection('tradition')} className="hover:text-primary transition-colors cursor-pointer">
-              Sacred Menu Heritage
-            </button>
-            <button type="button" onClick={() => scrollToSection('muhurtham')} className="hover:text-primary transition-colors cursor-pointer">
-              Muhurtham Packages
-            </button>
-            <button type="button" onClick={() => scrollToSection('tradition')} className="hover:text-primary transition-colors cursor-pointer">
-              Purity Guarantee
-            </button>
-            <button type="button" onClick={() => setIsTastingModalOpen(true)} className="hover:text-primary transition-colors cursor-pointer">
-              Tasting Box Session
-            </button>
-            <button type="button" onClick={() => navigate('/enquiries')} className="hover:text-primary transition-colors cursor-pointer">
-              Enquiry for Banquets
-            </button>
-          </div>
-        </div>
-        <div className="w-full border-t border-outline-variant/10 mt-6 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-outline">
-          <p>© 2026 TKS Iyengar's Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage.</p>
-          <div className="flex items-center gap-4">
-            <span>Head Kitchen: 142/A Krishnamurthy Puram, Mysuru 570004</span>
-            <a href="#privacy" className="hover:text-primary">Privacy Policy</a>
-          </div>
-        </div>
-      </footer>
+      {/* 9. TRADITIONAL HERITAGE FOOTER (Full Page Width with all 10 legal and dietary details) */}
+      <AppFooter hasFloatingBar={true} onTastingModalOpen={() => setIsTastingModalOpen(true)} />
 
       {/* 10. FLOATING BOTTOM SUMMARY BAR (Generous Wide Layout) */}
       <aside 

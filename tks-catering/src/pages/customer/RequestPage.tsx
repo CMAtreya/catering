@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
+import { AppFooter } from '@/components/common/AppFooter'
 import { z } from 'zod'
 import { format, parseISO, isValid } from 'date-fns'
 
@@ -948,39 +949,7 @@ export const RequestPage: React.FC = () => {
       </main>
 
       {/* 5. HERITAGE FOOTER */}
-      <footer className="bg-surface-container-low border-t border-outline-variant/15 py-10 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 mt-12 text-xs text-on-surface-variant w-full">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <h3 className="font-headline font-bold text-primary text-base">TKS Iyengar's Catering Services</h3>
-            <span className="text-[10px] bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 px-1.5 py-0.5 rounded font-bold">
-              Mysuru Estd. 1984
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-semibold text-outline">
-            <Link to="/#tradition" className="hover:text-primary transition-colors">
-              Sacred Menu Heritage
-            </Link>
-            <Link to="/#muhurtham" className="hover:text-primary transition-colors">
-              Muhurtham Packages
-            </Link>
-            <Link to="/#tradition" className="hover:text-primary transition-colors">
-              Purity Guarantee
-            </Link>
-            <Link to="/#tradition" className="hover:text-primary transition-colors">
-              Temple Tradition
-            </Link>
-            <Link to="/contact" className="hover:text-primary transition-colors">
-              Enquire for Banquets
-            </Link>
-            <Link to="/privacy" className="hover:text-primary transition-colors">
-              Privacy Policy
-            </Link>
-          </div>
-        </div>
-        <p className="max-w-7xl mx-auto text-center md:text-left text-[11px] text-outline mt-4">
-          © 2025 TKS Iyengar's Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage Feasts. All rights reserved.
-        </p>
-      </footer>
+      <AppFooter />
     </div>
   )
 }

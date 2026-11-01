@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
+import { AppFooter } from '@/components/common/AppFooter'
 import { format, parseISO, isValid } from 'date-fns'
 
 import { useDraftStore } from '@/store/draftStore'
@@ -790,40 +791,7 @@ export const ContactPage: React.FC = () => {
       </main>
 
       {/* 4. FOOTER */}
-      <footer className="w-full bg-surface-container-low border-t border-outline-variant/50 mt-16 transition-colors duration-150">
-        <div className="w-full px-4 md:px-8 py-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          {/* Left: Logo & Copyright */}
-          <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <span className="font-headline text-xl text-primary font-semibold mb-1">
-              TKS Iyengar's Catering
-            </span>
-            <p className="text-xs text-on-surface-variant max-w-xl">
-              © 2025 TKS Iyengar's Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage Feasts. All rights reserved.
-            </p>
-          </div>
-          {/* Right: Footer Links */}
-          <nav className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 text-xs font-medium">
-            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors">
-              Sacred Menu Heritage
-            </Link>
-            <Link to="/#muhurtham" className="text-on-surface-variant hover:text-primary transition-colors">
-              Muhurtham Packages
-            </Link>
-            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors">
-              Purity Guarantee
-            </Link>
-            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors">
-              Temple Tradition
-            </Link>
-            <Link to="/enquiries" className="text-primary font-semibold hover:underline transition-colors">
-              Enquire for Banquets
-            </Link>
-            <Link to="/privacy-policy" className="text-on-surface-variant hover:text-primary transition-colors">
-              Privacy Policy
-            </Link>
-          </nav>
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   )
 }
