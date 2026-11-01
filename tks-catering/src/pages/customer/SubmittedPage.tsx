@@ -198,7 +198,7 @@ export const SubmittedPage: React.FC = () => {
 
             {/* Headline & Warm Copy */}
             <h1 className="font-headline text-3xl sm:text-4xl text-primary text-center font-bold tracking-tight mb-3">
-              Request received 🙏
+              Request received
             </h1>
             <p className="text-sm sm:text-base text-on-surface-variant max-w-2xl text-center leading-relaxed mb-4">
               Namaskara! Our catering team will contact you within 24 hours to curate your auspicious banquet feast.
