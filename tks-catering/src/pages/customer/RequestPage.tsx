@@ -594,11 +594,6 @@ export const RequestPage: React.FC = () => {
                       <span className="font-headline font-bold text-xs sm:text-sm text-primary block truncate">
                         {eventDate && isDateValid ? format(parseISO(eventDate), 'EEEE, dd MMMM yyyy') : 'No Date Chosen Yet'}
                       </span>
-                      <p className="text-[10px] text-outline mt-0.5 line-clamp-1">
-                        {eventDate && isDateValid 
-                          ? 'Early morning kitchen procurement scheduled for this date.' 
-                          : 'Select your banquet date from the calendar.'}
-                      </p>
                     </div>
                   </div>
                 </div>
