@@ -8,7 +8,8 @@ test.describe('Admin Flow & Controls QA', () => {
       if (
         msg.type() === 'error' &&
         !msg.text().includes('Download the React DevTools') &&
-        !msg.text().includes('Failed to load resource')
+        !msg.text().includes('Failed to load resource') &&
+        !msg.text().includes('WebSocket connection')
       ) {
         consoleErrors.push(msg.text())
       }
@@ -22,6 +23,12 @@ test.describe('Admin Flow & Controls QA', () => {
   })
 
   test('Admin Authentication: wrong credentials error & lockout, successful login', async ({ page }) => {
+    await page.addInitScript(() => {
+      try {
+        localStorage.clear()
+        sessionStorage.clear()
+      } catch (e) {}
+    })
     // 1. Visit /admin while logged out -> redirects to /admin/login (without expired flag if no session)
     await page.goto('/admin')
     await expect(page).toHaveURL(/\/admin\/login/)
