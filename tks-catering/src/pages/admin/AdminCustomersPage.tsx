@@ -374,9 +374,6 @@ export const AdminCustomersPage: React.FC = () => {
                             {totalPatronsCount} Total Patrons
                           </span>
                         </div>
-                        <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
-                          Simple phone &amp; walk-in patron directory. Customers are matched automatically by 10-digit mobile number.
-                        </p>
                       </div>
 
                       <button
