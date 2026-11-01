@@ -496,10 +496,6 @@ export const CataloguePage: React.FC = () => {
         >
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed/40 text-primary border border-primary/20 text-xs font-bold mb-2">
-                <span className="material-symbols-outlined text-[14px]">verified</span>
-                100% Pure Ghee &amp; Authentic Mysuru Temple Recipes
-              </div>
               <h2 className="font-headline font-black text-3xl sm:text-4xl text-primary tracking-tight">
                 Catering Menu Catalogue
               </h2>
