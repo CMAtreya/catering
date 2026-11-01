@@ -711,7 +711,7 @@ export const CataloguePage: React.FC = () => {
               <div>
                 <h3 className="font-headline font-bold text-base text-primary">Traditional Banana Leaf Protocol</h3>
                 <p className="text-xs text-on-surface-variant mt-1.5 leading-relaxed">
-                  Full seated traditional serving protocol with trained Mysuru servers strictly adhering to Vedic Panchanga dish serving order.
+                  Full seated traditional serving protocol with trained Mysuru servers strictly adhering to traditional authentic dish serving order.
                 </p>
               </div>
             </div>

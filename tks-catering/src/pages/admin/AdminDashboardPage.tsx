@@ -64,30 +64,16 @@ export const AdminDashboardPage: React.FC = () => {
     }
   }, [])
 
-  // Today formatted string e.g. "Tuesday, 18 Nov 2025 · Karthika Somavara"
-  const getPanchangaDetails = (dateStr?: string) => {
-    if (!dateStr) return { display: '18 Nov 2025', tithi: 'Karthika Somavara' }
+  // Formatted date string e.g. "Tuesday, 18 Nov 2025"
+  const getDateDisplayDetails = (dateStr?: string) => {
+    if (!dateStr) return { display: '18 Nov 2025' }
     try {
       const d = parseISO(dateStr)
-      if (!isValid(d)) return { display: dateStr, tithi: 'Karthika Somavara' }
+      if (!isValid(d)) return { display: dateStr }
       const display = format(d, 'EEEE, d MMM yyyy')
-      const dayName = format(d, 'EEEE')
-      const dayKannadaMap: Record<string, string> = {
-        Monday: 'Somavara',
-        Tuesday: 'Mangalavara',
-        Wednesday: 'Budhavara',
-        Thursday: 'Guruvara',
-        Friday: 'Shukravara',
-        Saturday: 'Shanivara',
-        Sunday: 'Bhanuvara'
-      }
-      const kannadaDay = dayKannadaMap[dayName] || dayName
-      return {
-        display,
-        tithi: `Karthika ${kannadaDay}`
-      }
+      return { display }
     } catch {
-      return { display: dateStr, tithi: 'Karthika Somavara' }
+      return { display: dateStr }
     }
   }
 
@@ -169,7 +155,7 @@ export const AdminDashboardPage: React.FC = () => {
   // Selected date orders list
   const selectedDateOrders = confirmedOrdersByDate[selectedDateKey] || []
   const selectedDateCombinedPlates = selectedDateOrders.reduce((sum, o) => sum + (o.guestCount || 0), 0)
-  const selectedDatePanchanga = getPanchangaDetails(selectedDateKey)
+  const selectedDateDetails = getDateDisplayDetails(selectedDateKey)
 
   // Open manual order modal with specific date pre-filled
   const handleOpenManualOrderWithDate = (dStr: string) => {
@@ -283,7 +269,6 @@ export const AdminDashboardPage: React.FC = () => {
               <p className="text-xs sm:text-sm font-medium text-[#785A48] mt-1 flex items-center gap-1.5 flex-wrap">
                 <span className="material-symbols-outlined text-base text-amber-700">calendar_today</span>
                 <span className="font-semibold text-[#2D1810]">{todayStr}</span>
-                <span>· Karthika Somavara</span>
               </p>
             </div>
           </div>
@@ -556,10 +541,10 @@ export const AdminDashboardPage: React.FC = () => {
                     Selected Feast Date
                   </span>
                   <h3 className="font-serif text-2xl font-bold text-[#2D1810] mt-1">
-                    {selectedDatePanchanga.display}
+                    {selectedDateDetails.display}
                   </h3>
                   <p className="text-xs text-[#785A48]">
-                    {selectedDatePanchanga.tithi} · Auspicious Muhurtham
+                    Auspicious Muhurtham
                   </p>
                 </div>
 

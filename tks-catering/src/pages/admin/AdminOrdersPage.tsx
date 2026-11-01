@@ -36,27 +36,6 @@ function getKannadaSubtext(order: Order): string {
   return order.venueAddress ? order.venueAddress.split(',')[0].trim() : 'Mysuru Urban'
 }
 
-function getAuspiciousTithi(dateStr: string): string {
-  const tithis = [
-    'Karthika Shuddha Dashami',
-    'Karthika Ekadashi • Morning Feast',
-    'Karthika Dwadashi',
-    'Margashirsha Pratipada',
-    'Margashirsha Dwitiya',
-    'Margashirsha Chaturthi',
-    'Karthika Ashtami • Finished',
-    'Karthika Somavara Feast',
-    'Karthika Purnima',
-    'Shukla Paksha Trayodashi'
-  ]
-  if (!dateStr) return 'Karthika Somavara'
-  let sum = 0
-  for (let i = 0; i < dateStr.length; i++) {
-    sum += dateStr.charCodeAt(i)
-  }
-  return tithis[sum % tithis.length]
-}
-
 function formatDisplayDate(dateStr: string): string {
   if (!dateStr) return 'Date Pending'
   try {
@@ -427,7 +406,7 @@ export const AdminOrdersPage: React.FC = () => {
               </div>
               <p className="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
                 <span className="material-symbols-outlined text-[15px] text-amber-700">calendar_today</span>
-                <span>Karthika Maasa • Friday, 21 November 2025 • Mysuru Heritage Kitchens</span>
+                <span>Friday, 21 November 2025 • Mysuru Heritage Kitchens</span>
               </p>
             </div>
           </div>
@@ -884,9 +863,6 @@ export const AdminOrdersPage: React.FC = () => {
                           <td className="py-4 px-4">
                             <div className="text-xs font-semibold text-on-surface">
                               {formatDisplayDate(order.eventDate)}
-                            </div>
-                            <div className="text-[11px] text-secondary">
-                              {getAuspiciousTithi(order.eventDate)}
                             </div>
                           </td>
 

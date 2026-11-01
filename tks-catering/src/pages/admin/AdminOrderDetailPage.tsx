@@ -17,7 +17,7 @@ export const AdminOrderDetailPage: React.FC = () => {
   const [customerName, setCustomerName] = useState<string>('Srinivas Raghavan')
   const [customerPhone, setCustomerPhone] = useState<string>('+91 98450 12345')
   const [occasionType, setOccasionType] = useState<string>('Griha Pravesh')
-  const [occasionDate, setOccasionDate] = useState<string>('18 Nov 2025 (Karthika Somavara Feast)')
+  const [occasionDate, setOccasionDate] = useState<string>('18 Nov 2025')
   const [plateCount, setPlateCount] = useState<number>(100)
   const [deliveryAddress, setDeliveryAddress] = useState<string>(
     'No. 42, 3rd Main, Vani Vilas Mohalla, Agrahara, Mysuru - 570004'
@@ -86,7 +86,7 @@ export const AdminOrderDetailPage: React.FC = () => {
             setCustomerName(found.customerName || 'Srinivas Raghavan')
             setCustomerPhone(found.customerPhone || '+91 98450 12345')
             setOccasionType(found.eventType || 'Griha Pravesh')
-            setOccasionDate(found.eventDate ? `${found.eventDate} (Karthika Somavara Feast)` : '18 Nov 2025 (Karthika Somavara Feast)')
+            setOccasionDate(found.eventDate ? found.eventDate : '18 Nov 2025')
             setPlateCount(found.guestCount || 100)
             if (found.venueAddress) setDeliveryAddress(found.venueAddress)
             if (found.notes) setSpecialInstructions(found.notes)
