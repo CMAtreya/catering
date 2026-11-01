@@ -677,10 +677,6 @@ export const CataloguePage: React.FC = () => {
           className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 scroll-mt-20 border-t border-outline-variant/15 bg-surface-container-low/50"
         >
           <div className="w-full mb-8">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed/40 text-primary border border-primary/20 text-xs font-bold mb-2">
-              <span className="material-symbols-outlined text-[14px]">temple_hindu</span>
-              ✦ 40+ Years of Sacred Culinary Mastery
-            </div>
             <h2 className="font-headline font-black text-2xl sm:text-3xl lg:text-4xl text-primary tracking-tight">
               Mysuru Brahmin Tradition &amp; Sacred Sattvic Heritage
             </h2>
