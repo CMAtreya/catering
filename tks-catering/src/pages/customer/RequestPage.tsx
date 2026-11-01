@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
 import { AppFooter } from '@/components/common/AppFooter'
 import { BookingStepper } from '@/components/customer/BookingStepper'
+import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
 import { z } from 'zod'
 import { format, parseISO, isValid } from 'date-fns'
 
@@ -207,87 +208,8 @@ export const RequestPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fff8f6] text-[#281714] flex flex-col font-sans selection:bg-primary-fixed selection:text-primary">
-      {/* 1. TOP ANNOUNCEMENT TICKER */}
-      <header className="w-full bg-[#880000] text-[#fff8f6] py-1.5 px-3 sm:px-8 text-center text-[10px] sm:text-xs font-medium tracking-wide flex items-center justify-between border-b border-primary/20">
-        <span className="truncate flex-1 text-left sm:text-center">
-          Mysuru's Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic
-        </span>
-        <span className="hidden md:inline-flex items-center gap-1 text-[11px] font-bold shrink-0 ml-4">
-          <span className="material-symbols-outlined text-[14px]">call</span>
-          Kitchen Hotline: +91 821 244 8920
-        </span>
-      </header>
-
-      {/* 2. STICKY TOP NAVIGATION BAR */}
-      <nav 
-        aria-label="Main Navigation"
-        className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/15 py-2.5 sm:py-3 px-3 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 w-full shadow-2xs"
-      >
-        <div className="w-full flex items-center justify-between gap-2">
-          {/* Brand Logo & Title */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 min-w-0 group">
-            <img 
-              alt="TKS Iyengar's Logo" 
-              className="h-9 sm:h-10 w-auto object-contain rounded-md shrink-0 transition-transform group-hover:scale-105" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6occrKYgf2RCe6-ZpsHHNSwBTZw3OIJCIu6JOOkQR-MmVOIiKZ7bUBYzMU1l09v4a7bX1aa5bfz0MQN5Gh1wPHBVRO7LGbM1E9Bko7oNR5cwbenpCKvUqkdjPSjrtKo9Dv1OlVn0VLfzhNsNmnyXZsER8N1zZKYj1hy1Z5QQB-5nt5D6OCeHk91zan3n3flKIP17cg5vuWoRorqja0dU2rPYG_7kXSD98DR2K5GVG8F_91Jgo9rr6"
-            />
-            <div className="min-w-0">
-              <h1 className="font-headline font-bold text-base sm:text-lg leading-tight text-primary truncate">
-                TKS Iyengar's<br className="hidden xs:inline" />
-                <span className="text-[10px] sm:text-xs uppercase font-sans tracking-widest text-on-surface-variant font-semibold ml-1 xs:ml-0">Catering</span>
-              </h1>
-            </div>
-          </Link>
-
-          {/* Nav Links */}
-          <div className="hidden md:flex items-center space-x-8 text-sm font-semibold">
-            <Link to="/#tradition" className="pb-1 transition-all text-on-surface-variant hover:text-primary">
-              Tradition
-            </Link>
-            <Link to="/#menus" className="pb-1 transition-all text-on-surface-variant hover:text-primary">
-              Catering Menus
-            </Link>
-            <Link to="/#muhurtham" className="pb-1 transition-all text-primary font-bold border-b-2 border-primary">
-              Feast Packages
-            </Link>
-            <Link to="/enquiries" className="pb-1 transition-all text-on-surface-variant hover:text-primary">
-              Enquiry
-            </Link>
-          </div>
-
-          {/* Right Action Icons */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsCalendarOpen(true)}
-              className="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-primary transition-colors cursor-pointer"
-              title="Auspicious Muhurtham Dates"
-            >
-              <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-            </button>
-            <Link
-              to="/"
-              className="relative w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-primary transition-colors"
-              title="Selected delicacies"
-            >
-              <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
-              {selectedCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
-                  {selectedCount}
-                </span>
-              )}
-            </Link>
-            <Link
-              to="/#menus"
-              className="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary hover:bg-primary-container text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 shrink-0"
-            >
-              <span className="hidden xs:inline">Plan Event Banquet</span>
-              <span className="xs:hidden">Plan Event</span>
-              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      {/* UNIFIED STICKY TOP NAVIGATION BAR */}
+      <CustomerTopNav activeNavTab="muhurtham" />
 
       {/* 3. STEP PROGRESS STEPPER */}
       <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-4 pb-2">

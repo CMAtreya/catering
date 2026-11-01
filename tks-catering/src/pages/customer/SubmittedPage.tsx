@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
-import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AppFooter } from '@/components/common/AppFooter'
 import { BookingStepper } from '@/components/customer/BookingStepper'
+import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
 import confetti from 'canvas-confetti'
 import { format, parseISO, isValid } from 'date-fns'
 
@@ -58,81 +59,8 @@ export const SubmittedPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fff8f6] text-[#281714] font-sans antialiased flex flex-col justify-between selection:bg-primary selection:text-white">
-      
-      {/* ================= TOP APP BAR (Shared Component) ================= */}
-      <header className="bg-surface/85 backdrop-blur-md text-primary sticky top-0 z-50 shadow-xs border-b border-outline-variant/60">
-        <div className="flex justify-between items-center w-full px-4 md:px-8 max-w-7xl mx-auto h-20">
-          {/* Brand Logo & Monogram */}
-          <Link to="/" className="flex items-center gap-3.5 group transition-transform active:scale-95 duration-150">
-            <img 
-              alt="TKS Iyengar's Authentic Iyengar Catering Logo" 
-              className="h-12 sm:h-14 w-auto object-contain drop-shadow-xs group-hover:scale-102 transition-transform duration-200" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqhyrR75tNmAhWEsCEMO6QDlHs95Ugrby715Ri87TvgLaNrFo-wxt2PpETGVHM9uxS2K854cOt0YSuYJ2cT8RGwuaeX2gEvZtBt-I7yrSTrHHlYDmHVZ45RQa80lUJhHLWHMcjxcflJrEF37nvVsi8Me6QkzJSi6Miq-0YZsavv62Xx4DKPgkTpMv3V-VXVoy0cG7LV-AJY99CmZATrtbakjp9uXhivZ2Ol_8mROH2n3f-a1vRayyr"
-            />
-            <div className="flex flex-col">
-              <span className="font-headline font-semibold text-lg sm:text-xl text-primary tracking-wide leading-none">
-                TKS Iyengar's Catering
-              </span>
-              <span className="text-[11px] font-medium text-on-surface-variant flex items-center gap-1.5 mt-1 tracking-tight">
-                <span className="inline-block w-2.5 h-2.5 rounded-xs border border-tertiary-container flex items-center justify-center p-[1px]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-tertiary-container block"></span>
-                </span>
-                Mysuru Tradition • Estd. 1984
-              </span>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low px-2 py-1 rounded-lg">
-              Tradition
-            </Link>
-            <Link to="/#menus" className="text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low px-2 py-1 rounded-lg">
-              Catering Menus
-            </Link>
-            <Link to="/#muhurtham" className="text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low px-2 py-1 rounded-lg">
-              Feast Packages
-            </Link>
-            <Link to="/enquiries" className="text-primary border-b-2 border-primary pb-1 font-semibold">
-              Enquiry
-            </Link>
-          </nav>
-
-          {/* Trailing Action Cluster */}
-          <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center bg-surface-container-low rounded-full px-3.5 py-1.5 border border-outline-variant/50 focus-within:border-primary transition-colors">
-              <span className="material-symbols-outlined text-outline text-lg mr-2">search</span>
-              <input 
-                className="bg-transparent border-none text-xs sm:text-sm focus:outline-none focus:ring-0 p-0 placeholder-on-surface-variant/70 text-on-surface w-40" 
-                placeholder="Search Muhurtham menus..." 
-                type="text"
-              />
-            </div>
-            <Link 
-              to="/request" 
-              aria-label="Auspicious Calendar" 
-              className="p-2.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200 active:scale-95 flex items-center justify-center"
-            >
-              <span className="material-symbols-outlined">calendar_month</span>
-            </Link>
-            <Link 
-              to="/" 
-              aria-label="Banqueting Bag" 
-              className="relative p-2.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200 active:scale-95 flex items-center justify-center"
-            >
-              <span className="material-symbols-outlined">shopping_bag</span>
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-primary rounded-full ring-2 ring-surface"></span>
-            </Link>
-            <Link 
-              to="/request" 
-              className="ml-2 bg-gradient-to-r from-[#8B0A00] via-[#E0000F] to-[#8B0A00] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md active:scale-95 transition-transform duration-150 flex items-center gap-2"
-            >
-              <span>Plan Event Banquet</span>
-              <span className="material-symbols-outlined text-base">arrow_forward</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* UNIFIED STICKY TOP NAVIGATION BAR */}
+      <CustomerTopNav activeNavTab="enquiry" />
 
       {/* ================= MAIN CONTENT CANVAS ================= */}
       <main className="flex-grow w-full py-10 md:py-12 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center justify-center">

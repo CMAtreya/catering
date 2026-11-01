@@ -8,6 +8,7 @@ import { useEnquiryStore, type LocalEnquiryRecord } from '@/store/enquiryStore'
 import { useDraftStore } from '@/store/draftStore'
 import { formatRupees, formatEventDate } from '@/lib/format'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
+import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
 import { AppFooter } from '@/components/common/AppFooter'
 import { PageTransition } from '@/components/motion/PageTransition'
 import { useMotionTier } from '@/motion/MotionProvider'
@@ -52,7 +53,6 @@ export const EnquiriesPage: React.FC = () => {
 
   // Draft store integration for reordering
   const setRequirements = useDraftStore((state) => state.setRequirements)
-  const draftItemCount = useDraftStore((state) => Object.keys(state.items).length)
 
   // View mode switcher: 'active' or 'empty'
   const [activeTab, setActiveTab] = useState<'active' | 'empty'>('active')
@@ -149,122 +149,8 @@ export const EnquiriesPage: React.FC = () => {
       <Toaster position="bottom-center" richColors />
       <div className="w-full flex flex-col bg-surface text-on-surface min-h-screen relative font-sans">
 
-        {/* ==========================================================
-            1. TOP NAVBAR (Shared Authentic Mysuru Heritage Header)
-            ========================================================== */}
-        <header className="bg-surface/85 backdrop-blur-md border-b border-outline-variant/60 shadow-xs sticky top-0 z-40 w-full overflow-hidden">
-          <div className="flex justify-between items-center w-full px-3 sm:px-6 md:px-8 max-w-7xl mx-auto h-16 sm:h-20 gap-2">
-            
-            {/* Brand Logo & Identity */}
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 sm:gap-3.5 text-left group cursor-pointer min-w-0 flex-1"
-            >
-              <img
-                alt="TKS Iyengar's Authentic Logo"
-                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-105 rounded-md shrink-0"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6occrKYgf2RCe6-ZpsHHNSwBTZw3OIJCIu6JOOkQR-MmVOIiKZ7bUBYzMU1l09v4a7bX1aa5bfz0MQN5Gh1wPHBVRO7LGbM1E9Bko7oNR5cwbenpCKvUqkdjPSjrtKo9Dv1OlVn0VLfzhNsNmnyXZsER8N1zZKYj1hy1Z5QQB-5nt5D6OCeHk91zan3n3flKIP17cg5vuWoRorqja0dU2rPYG_7kXSD98DR2K5GVG8F_91Jgo9rr6"
-              />
-              <div className="flex flex-col min-w-0">
-                <span className="font-serif font-bold text-base sm:text-xl text-primary tracking-wide leading-tight truncate">
-                  TKS Iyengar's Catering
-                </span>
-                <span className="text-[10px] sm:text-xs font-semibold text-on-surface-variant flex items-center gap-1.5 pt-0.5 truncate">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse shrink-0" />
-                  <span className="truncate">Mysuru Sattvic Heritage</span>
-                </span>
-              </div>
-            </button>
-
-            {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold" aria-label="Main Navigation">
-              <button
-                type="button"
-                onClick={() => navigate('/#tradition')}
-                className="text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low px-2.5 py-1 rounded cursor-pointer"
-              >
-                Tradition
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/#menus')}
-                className="text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low px-2.5 py-1 rounded cursor-pointer"
-              >
-                Catering Menus
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/#muhurtham')}
-                className="text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low px-2.5 py-1 rounded cursor-pointer flex items-center gap-1"
-              >
-                <span className="material-symbols-outlined text-[16px] text-tertiary-container">eco</span>
-                <span>Feast Packages</span>
-              </button>
-              <button
-                type="button"
-                className="text-primary border-b-2 border-primary pb-0.5 font-bold cursor-pointer"
-                aria-current="page"
-              >
-                Enquiry
-              </button>
-            </nav>
-
-            {/* Trailing Action Cluster & Search */}
-            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-              <div className="hidden lg:flex items-center bg-surface-container-low border border-outline-variant/50 rounded-xl px-3 py-1.5 gap-2 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
-                <span className="material-symbols-outlined text-outline text-[18px]">search</span>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search past requests..."
-                  className="bg-transparent border-0 p-0 text-xs sm:text-sm text-on-surface placeholder:text-outline focus:ring-0 w-36 outline-none"
-                  aria-label="Search past requests"
-                />
-              </div>
-
-              {/* Event Muhurtham Calendar Button */}
-              <button
-                type="button"
-                onClick={() => navigate('/request')}
-                className="p-1.5 sm:p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-xl transition-all relative cursor-pointer"
-                title="Event Muhurtham Calendar"
-                aria-label="Plan event date on calendar"
-              >
-                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">calendar_month</span>
-              </button>
-
-              {/* Saved Requests Cart */}
-              <button
-                type="button"
-                onClick={() => navigate('/request')}
-                className="p-1.5 sm:p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-xl transition-all relative cursor-pointer"
-                title="Saved Feast Selection"
-                aria-label="View selected feast cart"
-              >
-                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">shopping_bag</span>
-                {draftItemCount > 0 && (
-                  <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {draftItemCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Plan Event Banquet CTA */}
-              <button
-                type="button"
-                onClick={() => navigate('/request')}
-                className="crimson-gradient text-white text-xs sm:text-sm font-bold px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl custom-cta-glow hover:opacity-95 active:scale-95 transition-all duration-150 flex items-center gap-1 sm:gap-1.5 shadow-sm cursor-pointer whitespace-nowrap shrink-0"
-              >
-                <span className="hidden sm:inline">Plan Event Banquet</span>
-                <span className="sm:hidden">Plan Event</span>
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </button>
-            </div>
-
-          </div>
-        </header>
+        {/* UNIFIED STICKY TOP NAVIGATION BAR */}
+        <CustomerTopNav activeNavTab="enquiry" />
 
         {/* ==========================================================
             2. MAIN CANVAS CONTAINER
@@ -373,8 +259,19 @@ export const EnquiriesPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Action Cluster: Clear History & Place New Request */}
-              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+              {/* Action Cluster: Search, Clear History & Place New Request */}
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+                <div className="flex items-center bg-surface-container-low border border-outline-variant/60 rounded-xl px-3 py-1.5 gap-2 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
+                  <span className="material-symbols-outlined text-outline text-[18px]">search</span>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search past requests..."
+                    className="bg-transparent border-0 p-0 text-xs sm:text-sm text-on-surface placeholder:text-outline focus:ring-0 w-32 sm:w-44 outline-none"
+                    aria-label="Search past requests"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => setIsClearDialogOpen(true)}
@@ -389,7 +286,7 @@ export const EnquiriesPage: React.FC = () => {
                   className="crimson-gradient text-white px-4 sm:px-5 py-2 rounded-xl custom-cta-glow text-xs sm:text-sm font-bold hover:opacity-95 active:scale-95 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
                 >
                   <span className="material-symbols-outlined text-base">add</span>
-                  <span>+ Place New Catering Request</span>
+                  <span>Place New Catering Request</span>
                 </button>
               </div>
 

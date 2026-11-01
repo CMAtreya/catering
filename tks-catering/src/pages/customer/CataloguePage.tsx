@@ -4,9 +4,9 @@ import { toast } from 'sonner'
 import { getCatalogue, type CatalogueResponse } from '@/api'
 import type { MenuItem } from '@/data/mockData'
 import { useDraftStore } from '@/store/draftStore'
-import { useEnquiryStore } from '@/store/enquiryStore'
 import { ItemCard } from '@/components/customer/ItemCard'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
+import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
 import { BookingStepper } from '@/components/customer/BookingStepper'
 import { AppFooter } from '@/components/common/AppFooter'
 import { CatalogueSkeleton } from '@/components/ui/skeletons'
@@ -89,7 +89,6 @@ export const CataloguePage: React.FC = () => {
   const selectedCount = Object.keys(selectedItems).length
   const perPlateTotal = useDraftStore((state) => state.getPerPlateTotal())
   const guestCount = requirements.guestCount || 150
-  const enquiriesCount = useEnquiryStore((state) => state.enquiries.length)
 
   // Load catalogue data
   const loadCatalogue = async () => {
@@ -213,200 +212,21 @@ export const CataloguePage: React.FC = () => {
 
   return (
     <CustomerDesktopShell maxWidth="w-full">
-      {/* 1. TOP ANNOUNCEMENT BANNER (Full Page Edge-to-Edge) */}
-      <header className="bg-primary text-on-primary py-2 px-3 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 text-xs font-medium tracking-wide border-b border-primary-container/40 w-full overflow-hidden">
-        <div className="w-full flex justify-between items-center gap-2">
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
-            <span className="material-symbols-outlined text-[15px] sm:text-[16px] text-secondary-container shrink-0">local_fire_department</span>
-            <span className="truncate text-[10px] sm:text-xs">Mysuru's Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic</span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] text-primary-fixed shrink-0">
-            <a href="tel:+918212448920" className="hover:underline flex items-center gap-1 whitespace-nowrap">
-              <span className="material-symbols-outlined text-[12px] sm:text-[13px]">phone_in_talk</span>
-              <span className="hidden sm:inline">Kitchen Hotline:</span>
-              <span>+91 821 244 8920</span>
-            </a>
-          </div>
-        </div>
-      </header>
-
-      {/* 2. STICKY TOP NAVIGATION BAR (Full Page Edge-to-Edge) */}
-      <nav className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/15 py-2.5 sm:py-3 px-3 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 w-full shadow-2xs">
-        <div className="w-full flex items-center justify-between gap-2">
-          {/* Brand Logo & Title */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <img 
-              alt="TKS Iyengar's Logo" 
-              className="h-9 sm:h-10 w-auto object-contain rounded-md shrink-0" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6occrKYgf2RCe6-ZpsHHNSwBTZw3OIJCIu6JOOkQR-MmVOIiKZ7bUBYzMU1l09v4a7bX1aa5bfz0MQN5Gh1wPHBVRO7LGbM1E9Bko7oNR5cwbenpCKvUqkdjPSjrtKo9Dv1OlVn0VLfzhNsNmnyXZsER8N1zZKYj1hy1Z5QQB-5nt5D6OCeHk91zan3n3flKIP17cg5vuWoRorqja0dU2rPYG_7kXSD98DR2K5GVG8F_91Jgo9rr6"
-            />
-            <div className="min-w-0">
-              <h1 className="font-headline font-bold text-base sm:text-lg leading-tight text-primary truncate">
-                TKS Iyengar's<br className="hidden xs:inline" />
-                <span className="text-[10px] sm:text-xs uppercase font-sans tracking-widest text-on-surface-variant font-semibold ml-1 xs:ml-0">Catering</span>
-              </h1>
-            </div>
-          </div>
-
-          {/* 4 Working Middle Nav Links */}
-          <div className="hidden md:flex items-center space-x-8 text-sm font-semibold">
-            {/* 1. Tradition */}
-            <button
-              type="button"
-              onClick={() => handleNavClick('tradition')}
-              className={`pb-1 transition-all cursor-pointer select-none ${
-                activeNavTab === 'tradition'
-                  ? 'text-primary font-bold border-b-2 border-primary'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              Tradition
-            </button>
-
-            {/* 2. Catering Menus */}
-            <button
-              type="button"
-              onClick={() => handleNavClick('menus')}
-              className={`pb-1 transition-all cursor-pointer select-none ${
-                activeNavTab === 'menus'
-                  ? 'text-primary font-bold border-b-2 border-primary'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              Catering Menus
-            </button>
-
-            {/* 3. Feast Packages */}
-            <button
-              type="button"
-              onClick={() => handleNavClick('muhurtham')}
-              className={`pb-1 transition-all cursor-pointer select-none flex items-center gap-1.5 ${
-                activeNavTab === 'muhurtham'
-                  ? 'text-primary font-bold border-b-2 border-primary'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px] text-tertiary-container">eco</span>
-              <span>Feast Packages</span>
-            </button>
-
-            {/* 4. Enquiry */}
-            <button
-              type="button"
-              onClick={() => handleNavClick('enquiry')}
-              className={`pb-1 transition-all cursor-pointer select-none flex items-center gap-1.5 ${
-                activeNavTab === 'enquiry'
-                  ? 'text-primary font-bold border-b-2 border-primary'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              <span>Enquiry</span>
-              {enquiriesCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
-                  {enquiriesCount}
-                </span>
-              )}
-            </button>
-          </div>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <a 
-              className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-fixed/30 hover:bg-primary-fixed/50 px-3.5 py-1.5 rounded-full transition-colors border border-primary/10" 
-              href="tel:+918212448920"
-            >
-              <span className="material-symbols-outlined text-[16px]">call</span>
-              +91 821 244 8920
-            </a>
-
-            {/* Enquiries Button */}
-            <button 
-              type="button"
-              onClick={() => navigate('/enquiries')}
-              className="relative p-1.5 sm:p-2 rounded-full hover:bg-surface-container-low transition-colors cursor-pointer" 
-              title="My Enquiries"
-              aria-label="View previous banquet enquiries"
-            >
-              <span className="material-symbols-outlined text-[20px] text-on-surface">calendar_month</span>
-              {enquiriesCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
-              )}
-            </button>
-
-            {/* Shopping Bag Button */}
-            <button 
-              type="button"
-              onClick={() => {
-                if (selectedCount > 0) {
-                  navigate('/request')
-                } else {
-                  setIsLeafModalOpen(true)
-                }
-              }}
-              className="relative p-1.5 sm:p-2 rounded-full hover:bg-surface-container-low transition-colors cursor-pointer" 
-              title="Selected Items"
-              aria-label={`Selected delicacies: ${selectedCount}`}
-            >
-              <span className="material-symbols-outlined text-[20px] sm:text-[22px] text-on-surface">shopping_bag</span>
-              {selectedCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-on-primary rounded-full text-[10px] flex items-center justify-center font-bold">
-                  {selectedCount}
-                </span>
-              )}
-            </button>
-
-            {/* Plan Event Banquet Button */}
-            <button 
-              type="button"
-              onClick={() => {
-                if (selectedCount > 0) {
-                  navigate('/request')
-                } else {
-                  const firstItem = data?.items?.[0]
-                  if (firstItem) toggleItem(firstItem)
-                  navigate('/request')
-                }
-              }}
-              className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold px-3.5 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap"
-            >
-              <span className="material-symbols-outlined text-[16px]">flatware</span>
-              <span>Plan Event Banquet</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Sub-Navigation Bar for 4 Options */}
-        <div className="flex md:hidden items-center justify-around border-t border-outline-variant/10 pt-2.5 mt-2.5 text-xs font-bold">
-          <button
-            type="button"
-            onClick={() => handleNavClick('tradition')}
-            className={`px-2 py-1 ${activeNavTab === 'tradition' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
-          >
-            Tradition
-          </button>
-          <button
-            type="button"
-            onClick={() => handleNavClick('menus')}
-            className={`px-2 py-1 ${activeNavTab === 'menus' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
-          >
-            Menus
-          </button>
-          <button
-            type="button"
-            onClick={() => handleNavClick('muhurtham')}
-            className={`px-2 py-1 ${activeNavTab === 'muhurtham' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
-          >
-            Packages
-          </button>
-          <button
-            type="button"
-            onClick={() => handleNavClick('enquiry')}
-            className={`px-2 py-1 ${activeNavTab === 'enquiry' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
-          >
-            Enquiry {enquiriesCount > 0 ? `(${enquiriesCount})` : ''}
-          </button>
-        </div>
-      </nav>
+      {/* UNIFIED STICKY TOP NAVIGATION BAR */}
+      <CustomerTopNav
+        activeNavTab={activeNavTab}
+        onNavClick={handleNavClick}
+        onOpenLeafModal={() => setIsLeafModalOpen(true)}
+        onPlanEvent={() => {
+          if (selectedCount > 0) {
+            navigate('/request')
+          } else {
+            const firstItem = data?.items?.[0]
+            if (firstItem) toggleItem(firstItem)
+            navigate('/request')
+          }
+        }}
+      />
 
       {/* MAIN FULL-PAGE CONTAINER */}
       <main className="w-full flex-1 flex flex-col">

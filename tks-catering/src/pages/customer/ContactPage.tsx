@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
 import { AppFooter } from '@/components/common/AppFooter'
 import { BookingStepper } from '@/components/customer/BookingStepper'
+import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
 import { format, parseISO, isValid } from 'date-fns'
 
 import { useDraftStore } from '@/store/draftStore'
@@ -198,85 +199,8 @@ export const ContactPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fff8f6] text-[#281714] flex flex-col font-sans selection:bg-primary-fixed selection:text-primary">
-      {/* 1. TOP ANNOUNCEMENT TICKER */}
-      <header className="w-full bg-[#880000] text-[#fff8f6] py-1.5 px-3 sm:px-8 text-center text-[10px] sm:text-xs font-medium tracking-wide flex items-center justify-between border-b border-primary/20">
-        <span className="truncate flex-1 text-left sm:text-center">
-          Mysuru's Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic
-        </span>
-        <span className="hidden md:inline-flex items-center gap-1 text-[11px] font-bold shrink-0 ml-4">
-          <span className="material-symbols-outlined text-[14px]">call</span>
-          Kitchen Hotline: +91 821 244 8920
-        </span>
-      </header>
-
-      {/* 2. STICKY TOP NAVIGATION BAR */}
-      <nav 
-        aria-label="Main Navigation"
-        className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/60 py-2.5 sm:py-3 px-4 md:px-8 w-full shadow-xs"
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          {/* Brand Logo & Title */}
-          <Link to="/" className="flex items-center gap-3.5 group">
-            <img 
-              alt="TKS Iyengar's Logo" 
-              className="h-11 sm:h-12 w-auto max-h-14 object-contain drop-shadow-xs" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqhyrR75tNmAhWEsCEMO6QDlHs95Ugrby715Ri87TvgLaNrFo-wxt2PpETGVHM9uxS2K854cOt0YSuYJ2cT8RGwuaeX2gEvZtBt-I7yrSTrHHlYDmHVZ45RQa80lUJhHLWHMcjxcflJrEF37nvVsi8Me6QkzJSi6Miq-0YZsavv62Xx4DKPgkTpMv3V-VXVoy0cG7LV-AJY99CmZATrtbakjp9uXhivZ2Ol_8mROH2n3f-a1vRayyr"
-            />
-            <div className="flex flex-col">
-              <span className="font-headline font-semibold text-lg sm:text-xl text-primary tracking-wide leading-tight">
-                TKS Iyengar's Catering
-              </span>
-              <span className="text-[11px] font-medium text-secondary tracking-widest uppercase">
-                Mysuru Heritage • Pure Vegetarian
-              </span>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors py-2 px-3 rounded-lg">
-              Tradition
-            </Link>
-            <Link to="/#menus" className="text-on-surface-variant hover:text-primary transition-colors py-2 px-3 rounded-lg">
-              Catering Menus
-            </Link>
-            <Link to="/#muhurtham" className="text-on-surface-variant hover:text-primary transition-colors py-2 px-3 rounded-lg">
-              Feast Packages
-            </Link>
-            <Link to="/enquiries" className="text-primary border-b-2 border-primary pb-1 font-semibold py-2 px-1">
-              Enquiry
-            </Link>
-          </div>
-
-          {/* Trailing Action Icons and CTA */}
-          <div className="flex items-center gap-3">
-            <Link 
-              to="/request" 
-              className="p-2.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all"
-              title="Event Specifications"
-            >
-              <span className="material-symbols-outlined text-primary">calendar_month</span>
-            </Link>
-            <Link 
-              to="/" 
-              className="p-2.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all relative"
-              title="Curated Menu"
-            >
-              <span className="material-symbols-outlined text-primary">shopping_bag</span>
-              {selectedCount > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-primary rounded-full"></span>
-              )}
-            </Link>
-            <Link 
-              to="/request" 
-              className="hidden lg:inline-flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-container transition-all shadow-md"
-            >
-              <span>Plan Event Banquet</span>
-              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      {/* UNIFIED STICKY TOP NAVIGATION BAR */}
+      <CustomerTopNav activeNavTab="enquiry" />
 
       {/* 3. MAIN CANVAS */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-10">
