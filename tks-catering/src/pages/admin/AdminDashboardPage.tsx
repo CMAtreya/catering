@@ -628,7 +628,7 @@ export const AdminDashboardPage: React.FC = () => {
                     onClick={() => handleOpenManualOrderWithDate(selectedDateKey)}
                     className="mt-2 px-4 py-2 rounded-xl bg-[#8B0A00] text-white text-xs font-bold shadow-xs hover:bg-[#5C0500] cursor-pointer"
                   >
-                    + Book Event on this Date
+                    Book Event on this Date
                   </button>
                 </div>
               )}

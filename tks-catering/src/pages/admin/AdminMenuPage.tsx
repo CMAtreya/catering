@@ -725,7 +725,7 @@ export const AdminMenuPage: React.FC = () => {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary-container transition-all shadow-xs cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-base">add</span>
-                    <span>{isAllDishes ? '+ Add Food Item' : 'Add Item to Category'}</span>
+                    <span>{isAllDishes ? 'Add Food Item' : 'Add Item to Category'}</span>
                   </button>
                 </div>
               </div>
@@ -1014,7 +1014,7 @@ export const AdminMenuPage: React.FC = () => {
                   <p className="text-xs text-on-surface-variant mt-2 mb-6 leading-relaxed">
                     {searchQuery || availabilityFilter !== 'all'
                       ? 'No dishes match your active search or availability filter. Try adjusting your search keywords or resetting filters.'
-                      : "Click '+ Add Food Item' to introduce traditional preparations, set price per muhurtham leaf, and configure live kitchen availability."}
+                      : "Click 'Add Food Item' to introduce traditional preparations, set price per muhurtham leaf, and configure live kitchen availability."}
                   </p>
                   {searchQuery || availabilityFilter !== 'all' ? (
                     <button
@@ -1035,7 +1035,7 @@ export const AdminMenuPage: React.FC = () => {
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-md hover:bg-primary-container transition-all cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-lg">add</span>
-                      <span>+ Add First Food Item</span>
+                      <span>Add First Food Item</span>
                     </button>
                   )}
                 </div>

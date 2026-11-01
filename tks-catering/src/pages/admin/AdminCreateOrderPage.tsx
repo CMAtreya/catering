@@ -904,7 +904,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                                 className="px-3.5 py-1 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary hover:text-on-primary text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                               >
                                 <span className="material-symbols-outlined text-[14px]">add</span>
-                                <span>+ Add</span>
+                                <span>Add</span>
                               </button>
                             </>
                           )}
@@ -960,7 +960,7 @@ export const AdminCreateOrderPage: React.FC = () => {
 
                     {selectedItemsList.length === 0 && (
                       <div className="py-6 text-center text-xs text-on-surface-variant">
-                        No dishes selected yet. Click &quot;+ Add&quot; on dishes from the catalogue.
+                        No dishes selected yet. Click &quot;Add&quot; on dishes from the catalogue.
                       </div>
                     )}
                   </div>

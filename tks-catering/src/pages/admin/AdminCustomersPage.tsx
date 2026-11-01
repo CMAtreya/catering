@@ -773,7 +773,7 @@ export const AdminCustomersPage: React.FC = () => {
                             className="px-4 py-2.5 rounded-xl bg-primary-container text-white font-semibold text-xs flex items-center gap-2 shadow-md shadow-primary/25 hover:bg-primary transition-all cursor-pointer"
                           >
                             <span className="material-symbols-outlined text-[17px]">note_add</span>
-                            <span>+ Record General Enquiry</span>
+                            <span>Record General Enquiry</span>
                           </button>
                         </div>
                       </div>
@@ -1072,21 +1072,21 @@ export const AdminCustomersPage: React.FC = () => {
                               onClick={() => handleAppendTag('Strictly Satvik')}
                               className="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors cursor-pointer"
                             >
-                              + Strictly Satvik
+                              Strictly Satvik
                             </button>
                             <button
                               type="button"
                               onClick={() => handleAppendTag('Extra Ghee')}
                               className="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors cursor-pointer"
                             >
-                              + Extra Ghee
+                              Extra Ghee
                             </button>
                             <button
                               type="button"
                               onClick={() => handleAppendTag('Melkote Style')}
                               className="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors cursor-pointer"
                             >
-                              + Melkote Style
+                              Melkote Style
                             </button>
                           </div>
 
@@ -1147,10 +1147,10 @@ export const AdminCustomersPage: React.FC = () => {
             <div className="bg-surface-container-low px-6 py-4 border-b border-outline-variant/60 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm">
-                  +
+                  <span className="material-symbols-outlined text-[18px]">edit_note</span>
                 </span>
                 <div>
-                  <h3 className="font-serif text-xl text-primary font-bold">+ Record General Enquiry</h3>
+                  <h3 className="font-serif text-xl text-primary font-bold">Record General Enquiry</h3>
                   <p className="text-xs text-on-surface-variant">
                     For phone calls, hall checks, or tentative dates without an immediate order.
                   </p>
