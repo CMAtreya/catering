@@ -247,9 +247,6 @@ export const CataloguePage: React.FC = () => {
                 TKS Iyengar's<br className="hidden xs:inline" />
                 <span className="text-[10px] sm:text-xs uppercase font-sans tracking-widest text-on-surface-variant font-semibold ml-1 xs:ml-0">Catering</span>
               </h1>
-              <span className="inline-block text-[8px] sm:text-[9px] bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 px-1.5 py-0.2 rounded-xs font-bold uppercase tracking-wider truncate max-w-[150px] xs:max-w-none">
-                ✦ 100% Mysuru Sattvic Heritage
-              </span>
             </div>
           </div>
 
