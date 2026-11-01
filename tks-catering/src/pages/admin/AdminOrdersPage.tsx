@@ -1346,7 +1346,7 @@ export const AdminOrdersPage: React.FC = () => {
               <div className="flex items-start justify-between pb-3 border-b border-outline-variant/50">
                 <div>
                   <h2 className="font-serif text-xl sm:text-2xl font-bold text-primary">
-                    + Create Manual Catering Order
+                    Create Manual Catering Order
                   </h2>
                   <p className="text-xs text-on-surface-variant">
                     Walk-in patron or direct telephone reservation
