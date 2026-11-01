@@ -424,10 +424,6 @@ export const CataloguePage: React.FC = () => {
         >
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/20 text-on-secondary-fixed border border-secondary/30 text-xs font-bold mb-2">
-                <span className="material-symbols-outlined text-[14px]">stars</span>
-                Curated Banquet Packages
-              </div>
               <h2 className="font-headline font-black text-2xl sm:text-3xl lg:text-4xl text-primary tracking-tight">
                 Muhurtham Feasts &amp; Grand Packages
               </h2>
