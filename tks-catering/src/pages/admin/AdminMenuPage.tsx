@@ -533,16 +533,6 @@ export const AdminMenuPage: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Explanatory note */}
-                <div className="mt-3 p-2.5 rounded-lg bg-surface-container text-xs text-on-surface-variant flex items-start gap-2 border border-outline-variant/40 leading-relaxed">
-                  <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                    info
-                  </span>
-                  <span>
-                    Select &apos;All Dishes&apos; to view all items, or manage individual category order and items.
-                  </span>
-                </div>
-
                 <button
                   type="button"
                   onClick={handleOpenAddCategory}
