@@ -12,9 +12,9 @@ export const AdminDashboardPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  // Calendar navigation state (year & month, 0-indexed)
-  const [calendarDate, setCalendarDate] = useState<Date>(() => new Date(2025, 10, 18)) // Nov 2025 by default
-  const [selectedDateKey, setSelectedDateKey] = useState<string>('2025-11-18')
+  // Calendar navigation state (year & month, 0-indexed) initialized to actual system date
+  const [calendarDate, setCalendarDate] = useState<Date>(() => new Date())
+  const [selectedDateKey, setSelectedDateKey] = useState<string>(() => format(new Date(), 'yyyy-MM-dd'))
 
   // Modals state
   const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false)
@@ -25,7 +25,7 @@ export const AdminDashboardPage: React.FC = () => {
   const [manualName, setManualName] = useState<string>('')
   const [manualPhone, setManualPhone] = useState<string>('')
   const [manualOccasion, setManualOccasion] = useState<string>('Griha Pravesh')
-  const [manualDate, setManualDate] = useState<string>('2025-11-18')
+  const [manualDate, setManualDate] = useState<string>(() => format(new Date(), 'yyyy-MM-dd'))
   const [manualPlates, setManualPlates] = useState<number>(100)
   const [manualAddress, setManualAddress] = useState<string>('')
   const [manualStatus, setManualStatus] = useState<'Confirmed' | 'Under Discussion'>('Confirmed')
@@ -64,9 +64,9 @@ export const AdminDashboardPage: React.FC = () => {
     }
   }, [])
 
-  // Formatted date string e.g. "Tuesday, 18 Nov 2025"
+  // Formatted date string
   const getDateDisplayDetails = (dateStr?: string) => {
-    if (!dateStr) return { display: '18 Nov 2025' }
+    if (!dateStr) return { display: format(new Date(), 'EEEE, d MMM yyyy') }
     try {
       const d = parseISO(dateStr)
       if (!isValid(d)) return { display: dateStr }
@@ -147,9 +147,9 @@ export const AdminDashboardPage: React.FC = () => {
   }
 
   const handleGoToToday = () => {
-    const today = new Date(2025, 10, 18) // Or new Date()
+    const today = new Date()
     setCalendarDate(today)
-    setSelectedDateKey('2025-11-18')
+    setSelectedDateKey(format(today, 'yyyy-MM-dd'))
   }
 
   // Selected date orders list
@@ -244,7 +244,7 @@ export const AdminDashboardPage: React.FC = () => {
     }
   }
 
-  const todayStr = 'Tuesday, 18 Nov 2025'
+  const todayStr = format(new Date(), 'EEEE, d MMM yyyy')
 
   return (
     <AdminAppShell>
@@ -359,7 +359,7 @@ export const AdminDashboardPage: React.FC = () => {
               </p>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-2xl sm:text-3xl font-serif font-black text-[#5C0500]">
-                  {nextConfirmedOrder ? format(parseISO(nextConfirmedOrder.eventDate), 'd MMM yyyy') : 'Today, 18 Nov'}
+                  {nextConfirmedOrder ? format(parseISO(nextConfirmedOrder.eventDate), 'd MMM yyyy') : format(new Date(), 'd MMM yyyy')}
                 </span>
               </div>
               <p className="text-xs font-semibold text-[#2D1810] mt-1 truncate max-w-[200px]">
@@ -409,7 +409,7 @@ export const AdminDashboardPage: React.FC = () => {
                   onClick={handleGoToToday}
                   className="h-10 px-4 rounded-xl border-2 border-amber-500 bg-amber-50 text-amber-950 font-bold text-sm hover:bg-amber-100 transition-all shadow-xs cursor-pointer"
                 >
-                  Today (18)
+                  Today ({format(new Date(), 'd')})
                 </button>
                 <button
                   type="button"
@@ -466,7 +466,7 @@ export const AdminDashboardPage: React.FC = () => {
                 }
 
                 const dateKey = cell.dateKey
-                const isToday = dateKey === '2025-11-18'
+                const isToday = dateKey === format(new Date(), 'yyyy-MM-dd')
                 const isSelected = dateKey === selectedDateKey
                 const confirmedOrders = confirmedOrdersByDate[dateKey] || []
                 const count = confirmedOrders.length

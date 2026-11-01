@@ -406,7 +406,7 @@ export const AdminOrdersPage: React.FC = () => {
               </div>
               <p className="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
                 <span className="material-symbols-outlined text-[15px] text-amber-700">calendar_today</span>
-                <span>Friday, 21 November 2025 • Mysuru Heritage Kitchens</span>
+                <span>{format(new Date(), 'EEEE, d MMMM yyyy')} • Mysuru Heritage Kitchens</span>
               </p>
             </div>
           </div>

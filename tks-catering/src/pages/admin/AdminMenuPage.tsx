@@ -647,7 +647,7 @@ export const AdminMenuPage: React.FC = () => {
                   <span className="material-symbols-outlined text-sm text-secondary">
                     calendar_month
                   </span>
-                  <span>Tuesday, 18 Nov 2025 · Mysuru Central Matha Unit</span>
+                  <span>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })} · Mysuru Central Matha Unit</span>
                 </p>
               </div>
             </div>

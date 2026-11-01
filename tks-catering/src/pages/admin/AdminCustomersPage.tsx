@@ -572,7 +572,7 @@ export const AdminCustomersPage: React.FC = () => {
               <div>
                 <span className="font-serif text-lg text-primary font-bold">Namaskara</span>
                 <span className="hidden sm:inline text-xs text-on-surface-variant ml-2 bg-surface-container px-2 py-0.5 rounded-full border border-outline-variant/40 font-medium">
-                  Tuesday, 18 Nov 2025 · Mysuru Central Unit
+                  {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })} · Mysuru Central Unit
                 </span>
               </div>
               <div className="hidden md:flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-100/60 px-2.5 py-1 rounded-full border border-emerald-300">
