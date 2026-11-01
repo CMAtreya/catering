@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { useMotionTier } from '@/motion/MotionProvider'
 import { MOTION_SPRINGS } from '@/motion/tokens'
 
 interface OdometerProps {
@@ -11,8 +10,8 @@ interface OdometerProps {
   ariaLabel?: string
 }
 
-const SingleDigit: React.FC<{ digit: string; isReduced: boolean }> = ({ digit, isReduced }) => {
-  if (isReduced || isNaN(Number(digit))) {
+const SingleDigit: React.FC<{ digit: string }> = ({ digit }) => {
+  if (isNaN(Number(digit))) {
     return <span>{digit}</span>
   }
 
@@ -25,6 +24,7 @@ const SingleDigit: React.FC<{ digit: string; isReduced: boolean }> = ({ digit, i
           animate={{ y: '0%', opacity: 1 }}
           exit={{ y: '-100%', opacity: 0 }}
           transition={MOTION_SPRINGS.soft}
+          style={{ willChange: 'transform, opacity' }}
           className="inline-block w-full text-center"
         >
           {digit}
@@ -41,7 +41,6 @@ export const Odometer: React.FC<OdometerProps> = ({
   className = '',
   ariaLabel,
 }) => {
-  const { isReduced } = useMotionTier()
   const [displayStr, setDisplayStr] = useState<string>(String(value))
 
   useEffect(() => {
@@ -56,10 +55,12 @@ export const Odometer: React.FC<OdometerProps> = ({
       {prefix && <span className="mr-0.5">{prefix}</span>}
       <span className="inline-flex">
         {displayStr.split('').map((char, index) => (
-          <SingleDigit key={`${index}-${char}`} digit={char} isReduced={isReduced} />
+          <SingleDigit key={`${index}-${char}`} digit={char} />
         ))}
       </span>
       {suffix && <span className="ml-0.5">{suffix}</span>}
     </span>
   )
 }
+
+export default Odometer

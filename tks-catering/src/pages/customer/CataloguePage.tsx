@@ -10,6 +10,7 @@ import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell
 import { CatalogueSkeleton } from '@/components/ui/skeletons'
 import { VirtualBananaLeafModal } from '@/components/customer/VirtualBananaLeafModal'
 import { TastingSessionModal } from '@/components/customer/TastingSessionModal'
+import { Hero3D } from '@/components/motion/Hero3D'
 
 type PurityFilter = 'all' | 'satvik' | 'pureGhee' | 'live'
 type NavTab = 'tradition' | 'menus' | 'muhurtham' | 'enquiry'
@@ -673,13 +674,18 @@ export const CataloguePage: React.FC = () => {
           aria-label="Authentic Mysuru Sattvic Tradition" 
           className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12 scroll-mt-20 border-t border-outline-variant/15 bg-surface-container-low/50"
         >
-          <div className="w-full mb-8">
-            <h2 className="font-headline font-black text-2xl sm:text-3xl lg:text-4xl text-primary tracking-tight">
-              Mysuru Brahmin Tradition &amp; Sacred Sattvic Heritage
-            </h2>
-            <p className="text-sm text-on-surface-variant mt-2 max-w-4xl font-normal leading-relaxed">
-              For over four decades, TKS Iyengar's Catering has upheld the holy culinary rites of ancient Mysuru and Melkote. Prepared strictly without onion, garlic, or artificial essences, our recipes honor devout Vaishnavite hospitality, slow-cooked in traditional eeya chombu tin-lined vessels with pure churned cow ghee.
-            </p>
+          <div className="w-full mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex-1">
+              <h2 className="font-headline font-black text-2xl sm:text-3xl lg:text-4xl text-primary tracking-tight">
+                Mysuru Brahmin Tradition &amp; Sacred Sattvic Heritage
+              </h2>
+              <p className="text-sm text-on-surface-variant mt-2 max-w-4xl font-normal leading-relaxed">
+                For over four decades, TKS Iyengar&apos;s Catering has upheld the holy culinary rites of ancient Mysuru and Melkote. Prepared strictly without onion, garlic, or artificial essences, our recipes honor devout Vaishnavite hospitality, slow-cooked in traditional eeya chombu tin-lined vessels with pure churned cow ghee.
+              </p>
+            </div>
+            <div className="w-36 h-48 sm:w-44 sm:h-52 shrink-0 flex items-center justify-center">
+              <Hero3D className="w-full h-full" />
+            </div>
           </div>
 
           {/* Heritage Purity Guarantee Bento Grid */}
@@ -775,6 +781,8 @@ export const CataloguePage: React.FC = () => {
 
       {/* 10. FLOATING BOTTOM SUMMARY BAR (Generous Wide Layout) */}
       <aside 
+        id="floating-order-bar"
+        data-floating-bar="true"
         aria-label="Banquet feast selection summary" 
         className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-6xl z-50 pointer-events-auto"
       >

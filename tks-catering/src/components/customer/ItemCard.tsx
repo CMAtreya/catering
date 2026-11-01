@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react'
 import type { MenuItem } from '@/data/mockData'
 import { formatRupees } from '@/lib/format'
 import { useDraftStore } from '@/store/draftStore'
-import { useMotionTier } from '@/motion/MotionProvider'
 import { useFlyToBar } from '@/components/motion/FlyToBar'
 import { MOTION_SPRINGS, MOTION_DURATIONS } from '@/motion/tokens'
 
@@ -24,7 +23,6 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   onToggle: controlledToggle 
 }) => {
   const cardRef = useRef<HTMLDivElement>(null)
-  const { isReduced } = useMotionTier()
   const { flyItem } = useFlyToBar()
 
   const storeSelected = useDraftStore((state) => !!state.items[item.id])
@@ -58,7 +56,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
       aria-label={`${item.name}, ${formatRupees(item.pricePerPlate)} per plate${isSelected ? ', selected in feast' : ''}${!isAvailable ? ', currently unavailable' : ''}`}
       tabIndex={isAvailable ? 0 : -1}
       onClick={handleCardClick}
-      whileTap={isReduced || !isAvailable ? undefined : { scale: 0.98 }}
+      whileTap={!isAvailable ? undefined : { scale: 0.97 }}
       transition={MOTION_SPRINGS.tap}
       onKeyDown={(e) => {
         if (!isAvailable) return

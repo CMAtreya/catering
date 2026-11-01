@@ -1,5 +1,4 @@
 import React, { lazy, Suspense } from 'react'
-import { useMotionTier } from '@/motion/MotionProvider'
 
 // Lazy-loaded 3D Canvas (excluded from PWA precache)
 const LazyHero3DCanvas = lazy(() => import('./Hero3DCanvas'))
@@ -78,21 +77,13 @@ interface Hero3DProps {
 }
 
 export const Hero3D: React.FC<Hero3DProps> = ({ className = '' }) => {
-  const { isFull } = useMotionTier()
-
-  // Full Tier: load dynamic 3D canvas with poster fallback
-  if (isFull) {
-    return (
-      <div className={`relative w-full h-full flex items-center justify-center ${className}`}>
-        <Suspense fallback={<Hero3DPoster />}>
-          <LazyHero3DCanvas />
-        </Suspense>
-      </div>
-    )
-  }
-
-  // Lite or Reduced Tier: static lightweight poster
-  return <Hero3DPoster className={className} />
+  return (
+    <div className={`relative w-full h-full flex items-center justify-center ${className}`}>
+      <Suspense fallback={<Hero3DPoster />}>
+        <LazyHero3DCanvas />
+      </Suspense>
+    </div>
+  )
 }
 
 export default Hero3D

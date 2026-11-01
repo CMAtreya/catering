@@ -20,20 +20,15 @@ export const SubmittedPage: React.FC = () => {
     targetOrderId ? state.getEnquiryById(targetOrderId) : state.enquiries[0]
   )
 
-  // Celebratory confetti on mount
+  // Celebratory confetti on mount - fires smoothly across all devices
   useEffect(() => {
-    const prefersReducedMotion = 
-      typeof window !== 'undefined' && 
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    if (!prefersReducedMotion) {
-      confetti({
-        particleCount: 50,
-        spread: 65,
-        origin: { y: 0.35 },
-        colors: ['#880000', '#b30a05', '#fdb647', '#006632', '#815500']
-      })
-    }
+    confetti({
+      particleCount: 65,
+      spread: 75,
+      origin: { y: 0.35 },
+      colors: ['#880000', '#b30a05', '#fdb647', '#006632', '#815500'],
+      disableForReducedMotion: false
+    })
   }, [])
 
   // Action handlers
