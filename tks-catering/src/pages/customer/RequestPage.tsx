@@ -75,13 +75,7 @@ const OCCASION_CARDS: OccasionCard[] = [
   }
 ]
 
-// Popular Mysuru Heritage Neighborhood Hubs
-const POPULAR_HUBS = [
-  'Agrahara Heritage Area',
-  'Jayalakshmipuram',
-  'Gokulam 3rd Stage',
-  'Kuvempunagar'
-] as const
+// Delivery validation schema
 
 // Zod validation schema for event requirements
 const requirementsSchema = z.object({
@@ -881,27 +875,6 @@ export const RequestPage: React.FC = () => {
                     errors.venueAddress ? 'border-error ring-1 ring-error' : 'border-outline-variant/30'
                   }`}
                 />
-
-                {/* Popular Mysuru Hubs Chips */}
-                <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                  <span className="text-[10px] font-bold uppercase text-outline tracking-wider mr-1">
-                    Popular Mysuru hubs:
-                  </span>
-                  {POPULAR_HUBS.map((hub) => (
-                    <button
-                      key={hub}
-                      type="button"
-                      onClick={() => {
-                        const newAddr = venueAddress ? `${venueAddress}, ${hub}` : `${hub}, Mysuru`
-                        setVenueAddress(newAddr)
-                        setErrors((prev) => ({ ...prev, venueAddress: undefined }))
-                      }}
-                      className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant border border-outline-variant/20 transition-colors cursor-pointer"
-                    >
-                      {hub}
-                    </button>
-                  ))}
-                </div>
 
                 {/* Delivery Verification Badge */}
                 <div className="p-2.5 rounded-xl bg-tertiary-container/10 border border-tertiary-container/20 flex items-center gap-2 text-xs text-tertiary font-bold">
