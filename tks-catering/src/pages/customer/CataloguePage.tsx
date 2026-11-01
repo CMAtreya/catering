@@ -88,7 +88,6 @@ export const CataloguePage: React.FC = () => {
   const toggleItem = useDraftStore((state) => state.toggleItem)
   const loadPresetFeast = useDraftStore((state) => state.loadPresetFeast)
   const requirements = useDraftStore((state) => state.requirements)
-  const setRequirements = useDraftStore((state) => state.setRequirements)
   const selectedCount = Object.keys(selectedItems).length
   const perPlateTotal = useDraftStore((state) => state.getPerPlateTotal())
   const guestCount = requirements.guestCount || 150
@@ -417,102 +416,6 @@ export const CataloguePage: React.FC = () => {
       {/* MAIN FULL-PAGE CONTAINER */}
       <main className="w-full flex-1 flex flex-col">
         
-        {/* SECTION A: INTERACTIVE EVENT CONTEXT BAR (Full Page Width) */}
-        <section id="context-bar" className="w-full px-3 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-4 sm:pt-6 pb-2">
-          <div className="w-full bg-surface-container-low rounded-2xl p-3.5 sm:p-5 border border-outline-variant/15 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 shadow-2xs items-center">
-            {/* Auspicious Occasion */}
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl shrink-0">celebration</span>
-              <div className="min-w-0 flex-1">
-                <label 
-                  htmlFor="catering-occasion-select" 
-                  className="block text-[10px] uppercase font-bold text-outline tracking-wider"
-                >
-                  Auspicious Occasion
-                </label>
-                <select 
-                  id="catering-occasion-select"
-                  aria-label="Catering occasion type"
-                  value={requirements.eventType || 'Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)'}
-                  onChange={(e) => setRequirements({ eventType: e.target.value })}
-                  className="bg-transparent font-headline font-bold text-sm sm:text-base text-primary focus:outline-none cursor-pointer pr-4 w-full truncate"
-                >
-                  <option value="Upanayana (ಉಪನಯನ ಮಹೋತ್ಸವ)">Upanayana (ಉಪನಯನ)</option>
-                  <option value="Traditional Muhurtham (ವಿವಾಹ)">Traditional Muhurtham (ವಿವಾಹ)</option>
-                  <option value="Grihapravesham (ಗೃಹಪ್ರವೇಶ)">Grihapravesham (ಗೃಹಪ್ರವೇಶ)</option>
-                  <option value="Ayushya Homam (ಆಯುಷ್ಯ ಹೋಮ)">Ayushya Homam (ಆಯುಷ್ಯ)</option>
-                  <option value="Seemantham (ಸೀಮಂತ)">Seemantham (ಸೀಮಂತ)</option>
-                  <option value="Satyanarayana Pooja (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)">Satyanarayana Pooja (ಪೂಜೆ)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Number of Guests */}
-            <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-3 sm:pt-0 sm:pl-4 lg:pl-6 min-w-0">
-              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl shrink-0">groups</span>
-              <div>
-                <span className="block text-[10px] uppercase font-bold text-outline tracking-wider">Number of Guests</span>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <button 
-                    type="button" 
-                    onClick={() => setRequirements({ guestCount: Math.max(25, guestCount - 25) })}
-                    title="Decrease 25 guests"
-                    aria-label="Decrease 25 guests"
-                    className="w-7 h-7 rounded-full bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center font-bold text-xs text-primary hover:bg-surface-container-high transition-colors cursor-pointer select-none shadow-2xs"
-                  >
-                    -
-                  </button>
-                  <span className="font-headline font-bold text-base sm:text-lg text-primary min-w-[3ch] text-center select-none">
-                    {guestCount}
-                  </span>
-                  <span className="text-xs text-outline font-medium">Guests</span>
-                  <button 
-                    type="button" 
-                    onClick={() => setRequirements({ guestCount: guestCount + 25 })}
-                    title="Increase 25 guests"
-                    aria-label="Increase 25 guests"
-                    className="w-7 h-7 rounded-full bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center font-bold text-xs text-primary hover:bg-surface-container-high transition-colors cursor-pointer select-none shadow-2xs"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Muhurtham Date */}
-            <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-outline-variant/20 pt-3 sm:pt-0 sm:pl-4 lg:pl-6 min-w-0">
-              <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl shrink-0">event</span>
-              <div className="min-w-0 flex-1">
-                <label 
-                  htmlFor="muhurtham-date-input"
-                  className="block text-[10px] uppercase font-bold text-outline tracking-wider"
-                >
-                  Muhurtham Date
-                </label>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <input 
-                    id="muhurtham-date-input"
-                    type="date" 
-                    aria-label="Muhurtham event date"
-                    value={requirements.eventDate || '2026-11-18'} 
-                    onChange={(e) => setRequirements({ eventDate: e.target.value })}
-                    className="bg-transparent font-headline font-bold text-xs sm:text-sm lg:text-base text-primary focus:outline-none cursor-pointer w-full"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Traditional Plantain Leaf Service Tag */}
-            <div className="hidden xl:flex items-center gap-2.5 bg-surface-container-lowest px-4 py-2 rounded-xl border border-outline-variant/15 text-xs text-on-surface-variant font-medium shadow-2xs">
-              <span className="material-symbols-outlined text-tertiary-container text-lg shrink-0">eco</span>
-              <div className="min-w-0">
-                <span className="font-bold text-on-surface block text-xs truncate">Traditional Plantain Leaf</span>
-                <span className="text-[11px] text-outline truncate block">Live hot counters &amp; Mysuru Rasam service included</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* SECTION B: MUHURTHAM FEASTS PORTION (Portion 3 from Navbar, Full Page Width) */}
         <section 
           id="muhurtham" 
