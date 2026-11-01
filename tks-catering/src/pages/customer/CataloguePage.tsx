@@ -837,7 +837,7 @@ export const CataloguePage: React.FC = () => {
                 onClick={() => navigate('/request')}
                 className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0"
               >
-                <span>Proceed to Quote</span>
+                <span>Proceed</span>
                 <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
               </button>
             )}
