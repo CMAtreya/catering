@@ -499,7 +499,7 @@ export const AdminMenuPage: React.FC = () => {
                 <span className="material-symbols-outlined text-base text-secondary">
                   create_new_folder
                 </span>
-                <span>+ Add Category</span>
+                <span>Add Category</span>
               </button>
 
               <button
@@ -549,7 +549,7 @@ export const AdminMenuPage: React.FC = () => {
                   className="w-full mt-3 py-2 px-3 rounded-lg border border-dashed border-outline hover:border-primary bg-surface-container-low hover:bg-surface-container text-primary text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-base">add</span>
-                  <span>+ Add Category</span>
+                  <span>Add Category</span>
                 </button>
               </div>
 
