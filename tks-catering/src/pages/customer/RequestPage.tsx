@@ -248,7 +248,7 @@ export const RequestPage: React.FC = () => {
               Catering Menus
             </Link>
             <Link to="/#muhurtham" className="pb-1 transition-all text-primary font-bold border-b-2 border-primary">
-              Muhurtham Feasts
+              Feast Packages
             </Link>
             <Link to="/enquiries" className="pb-1 transition-all text-on-surface-variant hover:text-primary">
               Enquiry

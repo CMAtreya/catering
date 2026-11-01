@@ -276,7 +276,7 @@ export const CataloguePage: React.FC = () => {
               Catering Menus
             </button>
 
-            {/* 3. Muhurtham Feasts */}
+            {/* 3. Feast Packages */}
             <button
               type="button"
               onClick={() => handleNavClick('muhurtham')}
@@ -287,7 +287,7 @@ export const CataloguePage: React.FC = () => {
               }`}
             >
               <span className="material-symbols-outlined text-[16px] text-tertiary-container">eco</span>
-              <span>Muhurtham Feasts</span>
+              <span>Feast Packages</span>
             </button>
 
             {/* 4. Enquiry */}
@@ -396,7 +396,7 @@ export const CataloguePage: React.FC = () => {
             onClick={() => handleNavClick('muhurtham')}
             className={`px-2 py-1 ${activeNavTab === 'muhurtham' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant'}`}
           >
-            Feasts
+            Packages
           </button>
           <button
             type="button"
@@ -417,16 +417,16 @@ export const CataloguePage: React.FC = () => {
           </div>
         </div>
         
-        {/* SECTION B: MUHURTHAM FEASTS PORTION (Portion 3 from Navbar, Full Page Width) */}
+        {/* SECTION B: FEAST PACKAGES PORTION (Portion 3 from Navbar, Full Page Width) */}
         <section 
           id="muhurtham" 
-          aria-label="Curated Muhurtham Banquet Feasts" 
+          aria-label="Curated Feast Packages" 
           className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 py-8 scroll-mt-20"
         >
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
             <div>
               <h2 className="font-headline font-black text-2xl sm:text-3xl lg:text-4xl text-primary tracking-tight">
-                Muhurtham Feasts &amp; Grand Packages
+                Curated Feast Packages
               </h2>
               <p className="text-sm text-on-surface-variant mt-1.5 max-w-3xl font-normal leading-relaxed">
                 Handcrafted authentic Mysuru banquet menus perfected across 40 years. Select any auspicious feast to load all its authentic delicacies into your estimation with a single tap.

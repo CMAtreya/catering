@@ -579,7 +579,7 @@ export const AdminMenuPage: React.FC = () => {
                 <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">
                   auto_awesome
                 </span>
-                <span>Muhurtham Feasts</span>
+                <span>Feast Packages</span>
               </div>
             </Link>
 

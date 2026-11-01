@@ -199,7 +199,7 @@ export const EnquiriesPage: React.FC = () => {
                 className="text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low px-2.5 py-1 rounded cursor-pointer flex items-center gap-1"
               >
                 <span className="material-symbols-outlined text-[16px] text-tertiary-container">eco</span>
-                <span>Muhurtham Feasts</span>
+                <span>Feast Packages</span>
               </button>
               <button
                 type="button"

@@ -522,7 +522,7 @@ export const AdminCustomersPage: React.FC = () => {
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors text-sm font-semibold"
               >
                 <span className="material-symbols-outlined text-[20px]">celebration</span>
-                <span>Muhurtham Feasts</span>
+                <span>Feast Packages</span>
               </Link>
 
               <Link

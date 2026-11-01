@@ -91,7 +91,7 @@ export const SubmittedPage: React.FC = () => {
               Catering Menus
             </Link>
             <Link to="/#muhurtham" className="text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low px-2 py-1 rounded-lg">
-              Muhurtham Feasts
+              Feast Packages
             </Link>
             <Link to="/enquiries" className="text-primary border-b-2 border-primary pb-1 font-semibold">
               Enquiry
