@@ -175,8 +175,8 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         </div>
 
         {/* Bottom portion price & Consistent Add to Feast CTA button strictly on a single line */}
-        <div className="pt-3 border-t border-outline-variant/10 flex items-center justify-between mt-3 gap-2">
-          <div className="flex items-baseline gap-1 whitespace-nowrap">
+        <div className="pt-3 border-t border-outline-variant/10 flex items-center justify-between mt-3 gap-2 min-w-0">
+          <div className="flex items-baseline gap-1 whitespace-nowrap shrink-0">
             <span className="font-headline font-bold text-base sm:text-lg text-primary">
               {formatRupees(item.pricePerPlate)}
             </span>
@@ -189,18 +189,18 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                 <div
                   role="presentation"
                   onClick={handleCardClick}
-                  className="h-8 px-3 sm:px-3.5 rounded-lg bg-primary hover:bg-primary-container text-white border border-primary text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer select-none whitespace-nowrap shrink-0"
+                  className="h-8 px-2.5 sm:px-3 rounded-lg bg-primary hover:bg-primary-container text-white border border-primary text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-xs cursor-pointer select-none whitespace-nowrap w-fit shrink-0"
                 >
-                  <span className="material-symbols-outlined text-[15px] shrink-0">check</span>
+                  <span className="material-symbols-outlined !text-[14px] leading-none shrink-0" style={{ fontSize: '14px', width: '14px', height: '14px' }}>check</span>
                   <span className="whitespace-nowrap">Added to Feast</span>
                 </div>
               ) : (
                 <div
                   role="presentation"
                   onClick={handleCardClick}
-                  className="h-8 px-3 sm:px-3.5 rounded-lg bg-surface-container-low hover:bg-primary-fixed/40 text-primary border border-primary/25 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer select-none whitespace-nowrap shrink-0"
+                  className="h-8 px-2.5 sm:px-3 rounded-lg bg-surface-container-low hover:bg-primary-fixed/40 text-primary border border-primary/25 text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-2xs hover:shadow-xs cursor-pointer select-none whitespace-nowrap w-fit shrink-0"
                 >
-                  <span className="material-symbols-outlined text-[15px] shrink-0">add</span>
+                  <span className="material-symbols-outlined !text-[14px] leading-none shrink-0" style={{ fontSize: '14px', width: '14px', height: '14px' }}>add</span>
                   <span className="whitespace-nowrap">Add to Feast</span>
                 </div>
               )}
