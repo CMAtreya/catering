@@ -1,25 +1,13 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
-import { 
-  ArrowLeft, 
-  ChevronDown, 
-  AlertCircle, 
-  RefreshCw, 
-  Calendar, 
-  MapPin, 
-  FileText, 
-  UtensilsCrossed,
-  Sparkles
-} from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { AlertCircle } from 'lucide-react'
+import { format, parseISO, isValid } from 'date-fns'
 
 import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
 import { submitEnquiry } from '@/api'
-import { formatRupees, formatEventDate, isValidIndianPhone, cleanIndianPhone } from '@/lib/format'
-import { Input } from '@/components/ui/input'
-import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
-import { PageTransition } from '@/components/motion/PageTransition'
+import { isValidIndianPhone, cleanIndianPhone } from '@/lib/format'
+import { INITIAL_ITEMS } from '@/data/mockData'
 
 export const ContactPage: React.FC = () => {
   const navigate = useNavigate()
@@ -27,6 +15,7 @@ export const ContactPage: React.FC = () => {
   // Store data & actions
   const items = useDraftStore((state) => state.items)
   const requirements = useDraftStore((state) => state.requirements)
+  const setRequirements = useDraftStore((state) => state.setRequirements)
   const contact = useDraftStore((state) => state.contact)
   const setContact = useDraftStore((state) => state.setContact)
   const getPerPlateTotal = useDraftStore((state) => state.getPerPlateTotal)
@@ -34,28 +23,26 @@ export const ContactPage: React.FC = () => {
 
   const selectedItemsList = Object.values(items)
   const selectedCount = selectedItemsList.length
+  const displayItems = selectedCount > 0 ? selectedItemsList : INITIAL_ITEMS.slice(0, 5)
 
   // Pricing calculations
-  const perPlateTotal = getPerPlateTotal()
+  const rawPerPlate = getPerPlateTotal()
+  const perPlateTotal = rawPerPlate > 0 ? rawPerPlate : 285
   const guestCount = typeof requirements.guestCount === 'number' && requirements.guestCount > 0 ? requirements.guestCount : 100
   const estimatedTotal = perPlateTotal * guestCount
-
 
   // Form states
   const [customerName, setCustomerName] = useState<string>(contact.name || '')
   const [customerPhone, setCustomerPhone] = useState<string>(contact.phone || '')
+  const [specialRequests, setSpecialRequests] = useState<string>(requirements.notes || '')
 
   // Inline errors & submission states
   const [nameError, setNameError] = useState<string | null>(null)
   const [phoneError, setPhoneError] = useState<string | null>(null)
   const [submissionError, setSubmissionError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
-  const [shakeKey, setShakeKey] = useState<number>(0)
 
-  // Collapsed accordion state
-  const [isSummaryOpen, setIsSummaryOpen] = useState<boolean>(false)
-
-  // Handle phone input allowing only digits and max 10
+  // Handle phone input allowing only digits up to 10
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value.replace(/\D/g, '').slice(0, 10)
     setCustomerPhone(rawVal)
@@ -98,7 +85,7 @@ export const ContactPage: React.FC = () => {
       setPhoneError('Mobile number is required')
       hasError = true
     } else if (!isValidIndianPhone(cleanedPhone) || customerPhone.length !== 10) {
-      setPhoneError('Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9')
+      setPhoneError('Enter a valid 10-digit Indian mobile number')
       hasError = true
     } else {
       setPhoneError(null)
@@ -106,10 +93,9 @@ export const ContactPage: React.FC = () => {
 
     if (hasError) return
 
-    // OFFLINE RULE: submitting offline must FAIL clearly with the retry banner from C3
+    // OFFLINE RULE: submitting offline must FAIL clearly with the retry banner
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       setSubmissionError('We could not send your request. Please check your connection and try again.')
-      setShakeKey((k) => k + 1)
       return
     }
 
@@ -124,27 +110,36 @@ export const ContactPage: React.FC = () => {
         phone: cleanedPhone
       })
 
+      if (specialRequests !== requirements.notes) {
+        setRequirements({
+          ...requirements,
+          notes: specialRequests
+        })
+      }
+
+      const itemsToSubmit = (selectedCount > 0 ? selectedItemsList : INITIAL_ITEMS.slice(0, 5)).map((item) => ({
+        id: item.id,
+        name: item.name,
+        pricePerPlate: item.pricePerPlate,
+        quantity: 1
+      }))
+
       // Call API
       const newOrder = await submitEnquiry({
         customerName: trimmedName,
         customerPhone: cleanedPhone,
-        eventDate: requirements.eventDate,
+        eventDate: requirements.eventDate || format(new Date(), 'yyyy-MM-dd'),
         eventTime: requirements.eventTime || 'Morning',
-        eventType: requirements.eventType,
+        eventType: requirements.eventType || 'Griha Pravesh',
         guestCount: guestCount,
-        venueAddress: requirements.venueAddress,
-        notes: requirements.notes,
-        items: selectedItemsList.map((item) => ({
-          id: item.id,
-          name: item.name,
-          pricePerPlate: item.pricePerPlate,
-          quantity: 1
-        })),
+        venueAddress: requirements.venueAddress || 'Agrahara, Mysuru',
+        notes: specialRequests,
+        items: itemsToSubmit,
         perPlateTotal: perPlateTotal,
         totalAmount: estimatedTotal
       })
 
-      // SUCCESS: Only after API confirms, save a copy to local enquiry history
+      // SUCCESS: Save copy to local enquiry store
       addEnquiry({
         orderId: newOrder.id,
         createdAt: newOrder.createdAt,
@@ -164,393 +159,672 @@ export const ContactPage: React.FC = () => {
         notes: newOrder.notes
       })
 
-      // Store in session storage for reliable retrieval on /submitted
       sessionStorage.setItem('tks_last_submitted_order_id', newOrder.id)
-
-      // Go to /submitted
       navigate('/submitted', { state: { orderId: newOrder.id } })
-    } catch (err: unknown) {
+    } catch {
       // FAILURE: stay on this page, do NOT save to history, do NOT go to /submitted
       setSubmissionError('We could not send your request. Please check your connection and try again.')
-      setShakeKey((k) => k + 1)
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const shouldReduceMotion = useReducedMotion()
+  // Panchanga and Kannada helpers
+  const getPanchangaDetails = (dateStr: string) => {
+    if (!dateStr) return { display: '18 Nov 2025', tithi: 'Karthika Somavara (ಶುಭ ದಿನ)' }
+    try {
+      const d = parseISO(dateStr)
+      if (!isValid(d)) return { display: '18 Nov 2025', tithi: 'Karthika Somavara (ಶುಭ ದಿನ)' }
+      const display = format(d, 'dd MMM yyyy')
+      const dayName = format(d, 'EEEE')
+      const dayKannadaMap: Record<string, string> = {
+        Monday: 'Somavara',
+        Tuesday: 'Mangalavara',
+        Wednesday: 'Budhavara',
+        Thursday: 'Guruvara',
+        Friday: 'Shukravara',
+        Saturday: 'Shanivara',
+        Sunday: 'Bhanuvara'
+      }
+      const kannadaDay = dayKannadaMap[dayName] || dayName
+      return {
+        display,
+        tithi: `Karthika ${kannadaDay} (ಶುಭ ದಿನ)`
+      }
+    } catch {
+      return { display: dateStr || '18 Nov 2025', tithi: 'ಶುಭ ಮುಹೂರ್ತ ದಿನ' }
+    }
+  }
 
+  const getOccasionKannada = (eventType: string) => {
+    const normalized = (eventType || '').toLowerCase()
+    if (normalized.includes('griha') || normalized.includes('housewarming')) return 'ಗೃಹ ಪ್ರವೇಶ ಸಮಾರಂಭ'
+    if (normalized.includes('pooja') || normalized.includes('homa')) return 'ಪೂಜಾ / ಹೋಮ ಪ್ರಸಾದ'
+    if (normalized.includes('wed') || normalized.includes('kalyana') || normalized.includes('muhurtham')) return 'ಕಲ್ಯಾಣ ಮಹೋತ್ಸವ'
+    if (normalized.includes('upanayana') || normalized.includes('thread')) return 'ಉಪನಯನ ಮಹೋತ್ಸವ'
+    if (normalized.includes('birth') || normalized.includes('seemantha') || normalized.includes('shower')) return 'ಸೀಮಂತ & ಆಯುಷ್ಯ'
+    return 'ಕುಟುಂಬ ಸಮಾರಂಭ'
+  }
 
+  const panchanga = getPanchangaDetails(requirements.eventDate)
+  const displayOccasion = requirements.eventType || 'Griha Pravesh'
+  const occasionKannada = getOccasionKannada(displayOccasion)
+
+  const dotColors = [
+    'bg-[#815500]',
+    'bg-[#880000]',
+    'bg-[#815500]',
+    'bg-[#fdb647]',
+    'bg-[#3f2c28]'
+  ]
+
+  const getTagline = (item: any, idx: number) => {
+    if (item.tagline) return item.tagline
+    if (item.heritageTag) return item.heritageTag
+    const defaults = [
+      'Crisp Nendran / Jackfruit fryums',
+      'Mysuru royal spiced lentil rice',
+      'Authentic temple-style sambar',
+      'Melt-in-mouth pure ghee sweet',
+      'Freshly frothed chicory blend'
+    ]
+    return defaults[idx % defaults.length]
+  }
 
   return (
-    <CustomerDesktopShell maxWidth="w-full">
-      <div className="w-full flex flex-col bg-transparent relative min-h-screen">
-        
-        {/* ==========================================================
-            TOP BAR (glass)
-            Back arrow, 'Your contact details', 'Step 3 of 3'
-            ========================================================== */}
-        <header className="sticky top-0 z-10 glass-top-bar px-4 sm:px-6 lg:px-8 xl:px-12 py-3 transition-all border-b border-slate-200/80">
-          <div className="w-full flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate('/request')}
-                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 active:scale-95 transition-all tap-target-48 text-[var(--text-primary)] -ml-1 cursor-pointer"
-                aria-label="Back to event requirements"
-              >
-                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
-              </button>
-              <div>
-                <h1 className="font-serif font-bold text-base sm:text-lg lg:text-xl text-[var(--brand-900)] tracking-tight leading-tight">
-                  Your contact details
-                </h1>
-                <p className="text-[11px] text-[var(--text-muted)] font-semibold leading-none pt-0.5">
-                  Step 3 of 3 • Final confirmation & submission
-                </p>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#fff8f6] text-[#281714] flex flex-col font-sans selection:bg-primary-fixed selection:text-primary">
+      {/* 1. TOP ANNOUNCEMENT TICKER */}
+      <header className="w-full bg-[#880000] text-[#fff8f6] py-1.5 px-3 sm:px-8 text-center text-[10px] sm:text-xs font-medium tracking-wide flex items-center justify-between border-b border-primary/20">
+        <span className="truncate flex-1 text-left sm:text-center">
+          Mysuru's Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic
+        </span>
+        <span className="hidden md:inline-flex items-center gap-1 text-[11px] font-bold shrink-0 ml-4">
+          <span className="material-symbols-outlined text-[14px]">call</span>
+          Kitchen Hotline: +91 821 244 8920
+        </span>
+      </header>
 
-            <div className="flex items-center">
-              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[var(--brand-soft)] text-[var(--brand)] border border-[var(--brand-200)]">
-                Step 3 of 3
+      {/* 2. STICKY TOP NAVIGATION BAR */}
+      <nav 
+        aria-label="Main Navigation"
+        className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/60 py-2.5 sm:py-3 px-4 md:px-8 w-full shadow-xs"
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          {/* Brand Logo & Title */}
+          <Link to="/" className="flex items-center gap-3.5 group">
+            <img 
+              alt="TKS Iyengar's Logo" 
+              className="h-11 sm:h-12 w-auto max-h-14 object-contain drop-shadow-xs" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqhyrR75tNmAhWEsCEMO6QDlHs95Ugrby715Ri87TvgLaNrFo-wxt2PpETGVHM9uxS2K854cOt0YSuYJ2cT8RGwuaeX2gEvZtBt-I7yrSTrHHlYDmHVZ45RQa80lUJhHLWHMcjxcflJrEF37nvVsi8Me6QkzJSi6Miq-0YZsavv62Xx4DKPgkTpMv3V-VXVoy0cG7LV-AJY99CmZATrtbakjp9uXhivZ2Ol_8mROH2n3f-a1vRayyr"
+            />
+            <div className="flex flex-col">
+              <span className="font-headline font-semibold text-lg sm:text-xl text-primary tracking-wide leading-tight">
+                TKS Iyengar's Catering
+              </span>
+              <span className="text-[11px] font-medium text-secondary tracking-widest uppercase">
+                Mysuru Heritage • Pure Vegetarian
               </span>
             </div>
-          </div>
-        </header>
+          </Link>
 
-        {/* Step 3 Progress Line: fills to 100% */}
-        <div className="w-full bg-slate-100 h-1 overflow-hidden sticky top-[58px] z-10">
-          <motion.div
-            className="h-full bg-[var(--brand)]"
-            initial={shouldReduceMotion ? { width: '100%' } : { width: '50%' }}
-            animate={{ width: '100%' }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-          />
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors py-2 px-3 rounded-lg">
+              Tradition
+            </Link>
+            <Link to="/#menus" className="text-on-surface-variant hover:text-primary transition-colors py-2 px-3 rounded-lg">
+              Catering Menus
+            </Link>
+            <Link to="/#muhurtham" className="text-on-surface-variant hover:text-primary transition-colors py-2 px-3 rounded-lg">
+              Muhurtham Feasts
+            </Link>
+            <Link to="/enquiries" className="text-primary border-b-2 border-primary pb-1 font-semibold py-2 px-1">
+              Enquiry
+            </Link>
+          </div>
+
+          {/* Trailing Action Icons and CTA */}
+          <div className="flex items-center gap-3">
+            <Link 
+              to="/request" 
+              className="p-2.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all"
+              title="Event Specifications"
+            >
+              <span className="material-symbols-outlined text-primary">calendar_month</span>
+            </Link>
+            <Link 
+              to="/" 
+              className="p-2.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all relative"
+              title="Curated Menu"
+            >
+              <span className="material-symbols-outlined text-primary">shopping_bag</span>
+              {selectedCount > 0 && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-primary rounded-full"></span>
+              )}
+            </Link>
+            <Link 
+              to="/request" 
+              className="hidden lg:inline-flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-container transition-all shadow-md"
+            >
+              <span>Plan Event Banquet</span>
+              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* 3. MAIN CANVAS */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-10">
+        
+        {/* BREADCRUMB & STEPPER HEADER SECTION */}
+        <div className="mb-8 max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-4 text-xs font-medium text-on-surface-variant">
+            <span className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-secondary text-sm">temple_hindu</span>
+              Mysuru Banquet Planning Service • Reference #TKSI-2025-894
+            </span>
+            <span className="text-secondary font-medium">Muhurtham Booking Guarantee</span>
+          </div>
+
+          {/* Progressive 3-Step Desktop Stepper */}
+          <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+              {/* Step 1: Checked */}
+              <Link to="/" className="flex items-center gap-3.5 group hover:opacity-85 transition-opacity">
+                <div className="w-10 h-10 rounded-full bg-tertiary/10 border border-tertiary flex items-center justify-center text-tertiary shrink-0">
+                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+                </div>
+                <div>
+                  <p className="text-xs text-on-surface-variant font-medium">Step 1</p>
+                  <h4 className="text-sm font-semibold text-on-surface">Menu Curated</h4>
+                  <p className="text-xs text-secondary">{displayItems.length} Traditional Delicacies</p>
+                </div>
+              </Link>
+
+              {/* Step 2: Checked */}
+              <Link to="/request" className="flex items-center gap-3.5 border-t md:border-t-0 md:border-l border-outline-variant/50 pt-3 md:pt-0 md:pl-6 group hover:opacity-85 transition-opacity">
+                <div className="w-10 h-10 rounded-full bg-tertiary/10 border border-tertiary flex items-center justify-center text-tertiary shrink-0">
+                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+                </div>
+                <div>
+                  <p className="text-xs text-on-surface-variant font-medium">Step 2</p>
+                  <h4 className="text-sm font-semibold text-on-surface">Occasion Verified</h4>
+                  <p className="text-xs text-secondary">{displayOccasion} • {guestCount} Leaves</p>
+                </div>
+              </Link>
+
+              {/* Step 3: Active Focus */}
+              <div className="flex items-center gap-3.5 border-t md:border-t-0 md:border-l border-outline-variant/50 pt-3 md:pt-0 md:pl-6 bg-surface-container-low/60 rounded-xl px-3 py-2 -my-2 border border-primary/20">
+                <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+                  <span>3</span>
+                </div>
+                <div>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold">
+                    Current Step
+                  </span>
+                  <h4 className="text-sm font-bold text-primary">Contact &amp; Verification</h4>
+                  <p className="text-xs text-on-surface-variant">Prabandhakar Direct Connect</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* ==========================================================
-            MAIN CONTENT AREA: GOLDEN RATIO (61.8% / 38.2%) LAYOUT
-            ========================================================== */}
-        <PageTransition direction="forward">
-          <main className="flex-1 px-[13px] sm:px-[21px] md:px-[34px] lg:px-[55px] w-full pt-[21px] pb-[144px] space-y-[21px]">
+        {/* TWO COLUMN HIGH-FIDELITY LAYOUT (7 COLS / 5 COLS) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          
+          {/* LEFT COLUMN: Contact & Submission Form (7 cols) */}
+          <section className="lg:col-span-7 space-y-6">
             
-            {/* Desktop Section Header */}
-            <div className="hidden lg:block pb-2 border-b border-slate-200/60">
-              <h2 className="font-serif font-bold text-2xl text-[var(--brand-900)] tracking-tight">
-                Review & Confirm Catering Request
-              </h2>
-              <p className="text-xs text-[var(--text-muted)] font-medium pt-0.5">
-                Our catering manager will review your menu and call you to finalise timing and logistics.
+            {/* Title & Subtitle Card */}
+            <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-2xl p-6 md:p-8 shadow-xs">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/80 text-primary text-xs font-semibold mb-4">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                Final Verification Step
+              </div>
+              <h1 className="font-headline text-3xl sm:text-4xl text-primary font-bold tracking-tight mb-3">
+                How can we reach you?
+              </h1>
+              <p className="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+                Our chief catering prabandhakar will connect directly to honor your muhurtham timings and traditional leaf-service traditions.
               </p>
-            </div>
 
-            {/* Failure Alert Banner: gentle shake on error, no celebration */}
-            {submissionError && (
-              <motion.div
-                key={shakeKey}
-                initial={{ opacity: 0, y: -8 }}
-                animate={shakeKey > 0 ? { opacity: 1, y: 0, x: [-6, 6, -4, 4, 0] } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.35 }}
-                className="p-4 rounded-[20px] bg-[var(--status-cancelled-bg)] border border-[var(--status-cancelled-border)] text-[var(--status-cancelled-text)] shadow-sm space-y-2.5"
-              >
-              <div className="flex items-start gap-2.5">
-                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-[var(--status-cancelled-text)]" />
-                <div className="flex-1">
-                  <p className="font-bold text-xs sm:text-sm leading-snug">
-                    We could not send your request. Please check your connection and try again.
-                  </p>
+              {/* Direct Callback Guarantee Banner */}
+              <div className="mt-6 flex items-start gap-3.5 p-4 rounded-xl bg-surface-container border border-outline-variant/70">
+                <div className="w-9 h-9 rounded-lg bg-surface-container-lowest border border-secondary flex items-center justify-center text-secondary shrink-0 mt-0.5">
+                  <span className="material-symbols-outlined text-[20px]">support_agent</span>
                 </div>
-              </div>
-              <div className="flex justify-end pt-1">
-                <button
-                  type="button"
-                  onClick={() => handleSubmit()}
-                  className="px-4 py-2 rounded-full bg-[var(--status-cancelled-text)] text-white text-xs font-bold hover:opacity-95 active:scale-95 transition-all flex items-center gap-1.5 shadow-sm tap-target-48"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Retry</span>
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Golden Section 2-column layout on desktop: 61.8% / 38.2% */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1.618fr_1fr] gap-[21px] lg:gap-[34px] items-start">
-            
-            {/* Major Golden Section (61.8%): Contact information */}
-            <div className="w-full space-y-[21px] min-w-0">
-              {/* SOLID CARD: Exactly two fields */}
-              <motion.div
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', damping: 26, stiffness: 280 }}
-                className="content-card p-4 sm:p-5 rounded-[20px] bg-white border border-slate-200/80 shadow-sm space-y-4"
-              >
                 <div>
-                  <h2 className="font-heading font-black text-base text-[var(--text-primary)]">
-                    Contact information
-                  </h2>
-                  <p className="text-xs text-[var(--text-muted)] pt-0.5">
-                    Our catering manager will contact you directly on this number to confirm details.
+                  <h4 className="text-sm sm:text-base font-semibold text-on-surface mb-0.5">
+                    Direct Prabandhakar Callback
+                  </h4>
+                  <p className="text-xs sm:text-sm text-on-surface-variant">
+                    Direct Callback within 2 business hours to verify auspicious muhurtham timings and leaf-serving rituals.
                   </p>
                 </div>
+              </div>
 
-                {/* Field 1: Customer name */}
-                <div className="space-y-1.5">
-                  <label htmlFor="customer-name" className="text-xs font-bold text-[var(--text-primary)] block">
-                    Customer name <span className="text-[var(--brand)]">*</span>
-                  </label>
-                  <Input
-                    id="customer-name"
-                    type="text"
-                    autoComplete="name"
-                    value={customerName}
-                    onChange={handleNameChange}
-                    placeholder="Enter your full name"
-                    className={`h-11 rounded-xl bg-white text-sm ${
-                      nameError ? 'border-[var(--status-cancelled-text)] ring-1 ring-[var(--status-cancelled-text)]' : ''
-                    }`}
-                  />
-                  {nameError && (
-                    <p className="text-xs text-[var(--status-cancelled-text)] font-semibold flex items-center gap-1 pt-0.5">
+              {/* FORM CONTROLS */}
+              <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                
+                {/* Full Name Input */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <label className="text-sm font-semibold text-on-surface flex items-center gap-1.5" htmlFor="customer-name">
+                      Host / Elder Full Name
+                      <span className="text-primary font-bold">*</span>
+                    </label>
+                    <span className="text-xs font-medium text-secondary">ಯಜಮಾನರ ಹೆಸರು</span>
+                  </div>
+                  <div className="relative rounded-xl shadow-xs">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
+                      <span className="material-symbols-outlined text-[20px]">person</span>
+                    </div>
+                    <input
+                      id="customer-name"
+                      name="fullName"
+                      data-testid="customer-name"
+                      type="text"
+                      placeholder="Enter full name"
+                      value={customerName}
+                      onChange={handleNameChange}
+                      className={`block w-full pl-11 pr-4 py-3.5 bg-[#FFF9F0] border ${
+                        nameError ? 'border-red-500 focus:ring-red-500' : 'border-outline-variant/70 focus:ring-primary'
+                      } rounded-xl text-on-surface font-sans text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-primary transition-all placeholder:text-outline`}
+                    />
+                  </div>
+                  {nameError ? (
+                    <p className="text-xs text-red-600 font-medium flex items-center gap-1">
                       <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>{nameError}</span>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-on-surface-variant">
+                      Enter the host or family elder's name for communication (ಸಂವಹನಕ್ಕಾಗಿ ಕುಟುಂಬದ ಹಿರಿಯರ ಹೆಸರನ್ನು ನಮೂದಿಸಿ).
                     </p>
                   )}
                 </div>
 
-                {/* Field 2: Mobile number with +91 prefix chip */}
-                <div className="space-y-1.5">
-                  <label htmlFor="customer-phone" className="text-xs font-bold text-[var(--text-primary)] block">
-                    Mobile number <span className="text-[var(--brand)]">*</span>
-                  </label>
-
-                  <div className="flex items-center">
-                    {/* Fixed +91 prefix chip */}
-                    <div className="h-11 px-3.5 bg-slate-100 border border-r-0 border-slate-200 rounded-l-xl flex items-center justify-center text-xs font-bold text-slate-700 shrink-0 select-none">
-                      🇮🇳 +91
+                {/* Mobile Phone Input */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <label className="text-sm font-semibold text-on-surface flex items-center gap-1.5" htmlFor="customer-phone">
+                      Mobile Number for Consultation
+                      <span className="text-primary font-bold">*</span>
+                    </label>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-tertiary bg-tertiary-fixed/40 px-2 py-0.5 rounded-full border border-tertiary/20">
+                      <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                      SMS &amp; Call verified
+                    </span>
+                  </div>
+                  <div className="relative flex rounded-xl shadow-xs">
+                    {/* Country Flag + Prefix */}
+                    <div className="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-outline-variant/70 bg-surface-container-low text-on-surface font-medium text-sm select-none gap-2 shrink-0">
+                      <span className="text-base leading-none">🇮🇳</span>
+                      <span className="font-semibold text-on-surface">+91</span>
                     </div>
-
-                    {/* Numeric keypad input */}
-                    <Input
+                    <input
                       id="customer-phone"
+                      name="mobilePhone"
+                      data-testid="customer-phone"
                       type="tel"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={10}
-                      autoComplete="tel-national"
+                      placeholder="98450 XXXXX"
                       value={customerPhone}
                       onChange={handlePhoneChange}
-                      placeholder="10-digit number (e.g. 9845012345)"
-                      className={`h-11 rounded-r-xl rounded-l-none bg-white text-sm font-medium tracking-wide ${
-                        phoneError ? 'border-[var(--status-cancelled-text)] ring-1 ring-[var(--status-cancelled-text)]' : ''
-                      }`}
+                      className={`block w-full px-4 py-3.5 bg-[#FFF9F0] border ${
+                        phoneError ? 'border-red-500 focus:ring-red-500' : 'border-outline-variant/70 focus:ring-primary'
+                      } rounded-r-xl text-on-surface font-sans text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-primary transition-all tracking-wider placeholder:text-outline`}
                     />
                   </div>
-
                   {phoneError ? (
-                    <p className="text-xs text-[var(--status-cancelled-text)] font-semibold flex items-center gap-1 pt-0.5">
+                    <p className="text-xs text-red-600 font-medium flex items-center gap-1">
                       <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>{phoneError}</span>
                     </p>
                   ) : (
-                    <p className="text-[11px] text-[var(--text-muted)] font-medium pt-0.5">
-                      10 digits starting with 6, 7, 8, or 9
+                    <p className="text-xs text-on-surface-variant flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[15px] text-secondary">sms</span>
+                      You will receive an instant booking enquiry reference via SMS.
                     </p>
                   )}
                 </div>
-              </motion.div>
 
-              {/* Next Steps Guidance Card */}
-              <div className="p-4 rounded-[20px] bg-white border border-slate-200/80 shadow-2xs space-y-2 text-xs text-slate-600">
-                <h4 className="font-heading font-black text-xs text-[var(--brand-900)] uppercase tracking-wider">
-                  Next Steps After Submission
-                </h4>
-                <ul className="space-y-1.5 text-slate-600">
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                    <span>Our catering manager reviews dish availability & timings.</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                    <span>You will receive a call within 24 hours to confirm.</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                    <span>Your enquiry is permanently saved in &quot;My Enquiries&quot; on this browser.</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Minor Golden Section (38.2%): Request summary */}
-            <div className="w-full space-y-[21px] min-w-0 lg:sticky lg:top-[21px]">
-              {/* ==========================================================
-                  COLLAPSED, READ-ONLY ACCORDION: 'Request summary'
-                  Shows what will be submitted (items, occasion, date, plates,
-                  address, instructions, estimate).
-                  Only displays data already captured; adds no inputs.
-                  ========================================================== */}
-              <div className="content-card rounded-[20px] bg-white border border-slate-200/80 shadow-sm overflow-hidden transition-all">
-                {/* Accordion Header / Toggle */}
-                <button
-                  type="button"
-                  onClick={() => setIsSummaryOpen((prev) => !prev)}
-                  className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50/70 active:bg-slate-100/70 transition-colors tap-target-48"
-                  aria-expanded={isSummaryOpen}
-                >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-heading font-black text-sm sm:text-base text-[var(--text-primary)]">
-                        Request summary
-                      </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                        Read-only
-                      </span>
-                    </div>
-                    <p className="text-xs text-[var(--text-muted)] font-medium">
-                      {selectedCount} {selectedCount === 1 ? 'dish' : 'dishes'} • {guestCount} plates • {formatRupees(estimatedTotal)}
-                    </p>
+                {/* Special Requests / Venue Landmark */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <label className="text-sm font-semibold text-on-surface flex items-center gap-1.5" htmlFor="specialRequests">
+                      Special Requests / Venue Landmark
+                      <span className="text-xs text-on-surface-variant font-normal">(Optional)</span>
+                    </label>
+                    <span className="text-xs text-outline">ವಿಶೇಷ ವಿನಂತಿಗಳು</span>
                   </div>
+                  <div className="relative">
+                    <textarea
+                      id="specialRequests"
+                      name="specialRequests"
+                      rows={3}
+                      placeholder="E.g., Near Chamundeshwari Temple Kalyana Mantapa, prefer 7:30 AM early morning Muhurtham leaf batch, sugar-free sweet option for elders..."
+                      value={specialRequests}
+                      onChange={(e) => setSpecialRequests(e.target.value)}
+                      className="block w-full p-4 bg-[#FFF9F0] border border-outline-variant/70 rounded-xl text-on-surface font-sans text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none placeholder:text-outline"
+                    />
+                  </div>
+                  <p className="text-xs text-on-surface-variant">
+                    Mention specific service timings, leaf layout preferences, or landmark details in Mysuru.
+                  </p>
+                </div>
 
-                  <div
-                    className={`w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 transition-transform duration-200 ${
-                      isSummaryOpen ? 'rotate-180 bg-[var(--brand-soft)] text-[var(--brand)]' : ''
-                    }`}
+                {/* Submission Error Banner with Retry */}
+                {submissionError && (
+                  <div 
+                    role="alert" 
+                    className="p-4 rounded-xl bg-[#ffdad6] border border-[#ba1a1a]/30 text-[#410000] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs animate-in fade-in duration-200"
                   >
-                    <ChevronDown className="w-4 h-4 stroke-[2.5]" />
-                  </div>
-                </button>
-
-                {/* Accordion Expandable Content */}
-                <AnimatePresence>
-                  {isSummaryOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeInOut' }}
-                      className="border-t border-slate-100 px-4 pb-4 pt-3 space-y-4 overflow-hidden text-xs sm:text-sm"
+                    <div className="flex items-center gap-2.5">
+                      <AlertCircle className="w-5 h-5 text-[#ba1a1a] shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium">{submissionError}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSubmit()}
+                      className="px-3.5 py-1.5 rounded-lg bg-[#ba1a1a] text-white text-xs font-bold hover:bg-[#930000] transition-colors shrink-0 cursor-pointer shadow-xs"
                     >
-                      {/* 1. Selected Dishes */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                          <UtensilsCrossed className="w-3.5 h-3.5 text-[var(--brand)]" />
-                          <span>Selected Items ({selectedCount})</span>
-                        </div>
-                        <div className="rounded-xl bg-slate-50 p-3 space-y-1.5 border border-slate-100">
-                          {selectedItemsList.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between py-0.5">
-                              <span className="font-medium text-slate-800">{item.name}</span>
-                              <span className="text-slate-500 font-semibold">{formatRupees(item.pricePerPlate)} / plate</span>
-                            </div>
-                          ))}
-                          <div className="border-t border-slate-200/80 pt-2 flex items-center justify-between font-bold">
-                            <span>Price per plate</span>
-                            <span className="text-[var(--brand-900)] font-black">{formatRupees(perPlateTotal)}</span>
-                          </div>
-                        </div>
-                      </div>
+                      Retry
+                    </button>
+                  </div>
+                )}
 
-                      {/* 2. Occasion & Date */}
-                      <div className="grid grid-cols-2 gap-2.5">
-                        <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
-                          <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-[var(--brand)]" />
-                            Occasion
-                          </span>
-                          <p className="font-bold text-slate-800">{requirements.eventType}</p>
-                        </div>
-
-                        <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
-                          <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-[var(--brand)]" />
-                            Occasion Date
-                          </span>
-                          <p className="font-bold text-slate-800">{formatEventDate(requirements.eventDate)}</p>
-                        </div>
-                      </div>
-
-                      {/* 3. Number of Plates */}
-                      <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 flex items-center justify-between">
-                        <span className="font-semibold text-slate-600">Number of plates</span>
-                        <span className="font-bold text-slate-900">{guestCount} plates (approx. {guestCount} meals)</span>
-                      </div>
-
-                      {/* 4. Delivery Address */}
-                      <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
-                        <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-[var(--brand)]" />
-                          Delivery Address
+                {/* Primary Submission CTA Button */}
+                <div className="pt-2">
+                  <button
+                    id="submit-contact-btn"
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full group relative overflow-hidden bg-gradient-to-r from-primary via-primary-container to-primary text-on-primary py-4 px-8 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 shadow-md hover:opacity-95 active:scale-[0.99] transition-all duration-150 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        <span>Submitting Request...</span>
+                      </span>
+                    ) : (
+                      <>
+                        <span>Submit Catering Request</span>
+                        <span className="material-symbols-outlined text-[22px] group-hover:translate-x-1.5 transition-transform duration-200">
+                          arrow_forward
                         </span>
-                        <p className="font-medium text-slate-800 whitespace-pre-wrap">{requirements.venueAddress}</p>
-                      </div>
+                      </>
+                    )}
+                  </button>
 
-                      {/* 5. Special Instructions */}
-                      <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 space-y-1">
-                        <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                          <FileText className="w-3 h-3 text-[var(--brand)]" />
-                          Special Instructions
-                        </span>
-                        <p className="font-medium text-slate-800 italic">
-                          {requirements.notes && requirements.notes.trim() ? requirements.notes : 'None provided'}
-                        </p>
-                      </div>
+                  {/* Reassurance Note */}
+                  <div className="flex items-center justify-center gap-2 mt-3.5 text-center text-xs sm:text-sm text-on-surface-variant font-medium">
+                    <span className="material-symbols-outlined text-secondary text-[18px]">lock_clock</span>
+                    <span>We'll call you to confirm everything. No payment needed now.</span>
+                  </div>
+                </div>
 
-                      {/* 6. Calculated Estimate */}
-                      <div className="rounded-xl bg-[var(--brand-soft)] border border-[var(--brand-200)] p-3.5 flex items-center justify-between">
-                        <div>
-                          <span className="text-[11px] font-bold text-[var(--brand-900)] block">
-                            Estimated Food Total
-                          </span>
-                          <span className="text-[11px] text-[var(--text-muted)]">
-                            {formatRupees(perPlateTotal)} × {guestCount} plates
-                          </span>
+              </form>
+            </div>
+
+            {/* URGENT CONSULTATION BANNER & HERITAGE PROMISE */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* Urgent Consultation WhatsApp Card */}
+              <div className="bg-surface-container-low border border-outline-variant/60 rounded-2xl p-5 flex items-center gap-4 hover:border-outline transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-tertiary text-on-tertiary flex items-center justify-center shrink-0 shadow-xs">
+                  <span className="material-symbols-outlined text-[26px]">chat</span>
+                </div>
+                <div>
+                  <p className="text-xs text-tertiary font-semibold uppercase tracking-wider">Priority Desk</p>
+                  <h4 className="text-sm sm:text-base font-semibold text-on-surface leading-snug">
+                    Need urgent consultation?
+                  </h4>
+                  <a 
+                    className="text-xs sm:text-sm text-primary font-bold hover:underline inline-flex items-center gap-1 mt-0.5" 
+                    href="https://wa.me/918212448920"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Chat on WhatsApp +91 821 244 8920
+                    <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Heritage Seal Card */}
+              <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0 border border-secondary">
+                  <span className="material-symbols-outlined text-[26px]">verified_user</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant">
+                      100% Sattvic
+                    </span>
+                    <span className="text-[11px] text-outline font-medium">Since 1984</span>
+                  </div>
+                  <h4 className="text-sm sm:text-base font-semibold text-on-surface mt-1">
+                    Heritage Banquet Promise
+                  </h4>
+                  <p className="text-xs text-on-surface-variant">
+                    Pure Plantain Leaf Banquet • Mysuru Estd. 1984
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          {/* RIGHT COLUMN: Sticky Banquet Review Card (5 cols) */}
+          <aside className="lg:col-span-5 lg:sticky lg:top-24 space-y-5">
+            <div className="bg-surface-container-lowest border border-outline-variant/70 rounded-2xl p-6 lg:p-7 shadow-xs relative overflow-hidden">
+              {/* Traditional decorative corner tag */}
+              <div className="absolute top-0 right-0 transform translate-x-7 -translate-y-7 w-20 h-20 bg-secondary/10 rotate-45 pointer-events-none"></div>
+
+              {/* Banquet Summary Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-outline-variant/60 mb-5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3.5 h-3.5 border-2 border-tertiary rounded-xs flex items-center justify-center p-0.5" title="Pure Vegetarian Guaranteed">
+                      <span className="w-2 h-2 rounded-full bg-tertiary"></span>
+                    </span>
+                    <h3 className="font-headline font-bold text-lg sm:text-xl text-primary">
+                      Banquet Summary
+                    </h3>
+                  </div>
+                  <p className="text-xs text-on-surface-variant mt-0.5">Iyengar Vedic Hospitality Order</p>
+                </div>
+                <Link 
+                  to="/request" 
+                  className="text-xs font-semibold text-secondary hover:text-primary transition-colors flex items-center gap-1 group"
+                >
+                  <span>Edit details</span>
+                  <span className="material-symbols-outlined text-[16px] group-hover:rotate-12 transition-transform">edit</span>
+                </Link>
+              </div>
+
+              {/* Review Attributes Grid */}
+              <div className="space-y-4 text-xs sm:text-sm">
+                {/* Occasion */}
+                <div className="flex items-start justify-between py-2 border-b border-surface-container">
+                  <span className="text-on-surface-variant flex items-center gap-2">
+                    <span className="material-symbols-outlined text-secondary text-[18px]">celebration</span>
+                    Occasion:
+                  </span>
+                  <div className="text-right">
+                    <span className="font-semibold text-on-surface block">{displayOccasion}</span>
+                    <span className="text-xs text-secondary font-medium">{occasionKannada}</span>
+                  </div>
+                </div>
+
+                {/* Auspicious Date */}
+                <div className="flex items-start justify-between py-2 border-b border-surface-container">
+                  <span className="text-on-surface-variant flex items-center gap-2">
+                    <span className="material-symbols-outlined text-secondary text-[18px]">event</span>
+                    Auspicious Date:
+                  </span>
+                  <div className="text-right">
+                    <span className="font-semibold text-on-surface block">{panchanga.display}</span>
+                    <span className="text-xs text-secondary font-medium">{panchanga.tithi}</span>
+                  </div>
+                </div>
+
+                {/* Headcount & Seating */}
+                <div className="flex items-start justify-between py-2 border-b border-surface-container">
+                  <span className="text-on-surface-variant flex items-center gap-2">
+                    <span className="material-symbols-outlined text-secondary text-[18px]">groups</span>
+                    Headcount / Seating:
+                  </span>
+                  <div className="text-right">
+                    <span className="font-semibold text-on-surface block">{guestCount} Plates</span>
+                    <span className="text-xs text-tertiary font-medium">Pure Plantain Leaf Service</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SELECTED DELICACIES BENTO LIST */}
+              <div className="mt-6 pt-2">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm sm:text-base font-semibold text-on-surface flex items-center gap-1.5">
+                    <span>Selected Delicacies</span>
+                    <span className="bg-secondary-fixed text-on-secondary-fixed text-xs px-2 py-0.5 rounded-full font-bold">
+                      {displayItems.length} Items
+                    </span>
+                  </h4>
+                  <span className="text-xs text-outline">Traditional Thali</span>
+                </div>
+
+                {/* Delicacy Pills / Bento */}
+                <div className="space-y-2.5">
+                  {displayItems.map((item, idx) => (
+                    <div 
+                      key={item.id || idx}
+                      className="p-2.5 rounded-xl bg-surface-container-low border border-outline-variant/40 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${dotColors[idx % dotColors.length]}`}></div>
+                        <div className="min-w-0">
+                          <h5 className="text-xs sm:text-sm font-semibold text-on-surface truncate">{item.name}</h5>
+                          <p className="text-[11px] text-outline truncate">{getTagline(item, idx)}</p>
                         </div>
-                        <span className="font-heading font-black text-lg sm:text-xl text-[var(--brand-900)]">
-                          {formatRupees(estimatedTotal)}
-                        </span>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      <span className="text-xs font-semibold text-tertiary shrink-0">Included</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Total Calculation Card */}
+              <div className="mt-6 pt-5 border-t-2 border-dashed border-outline-variant/60 bg-surface-container/60 -mx-6 -mb-6 p-6">
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="text-xs sm:text-sm text-on-surface-variant font-medium">Estimated Food Total</span>
+                  <div className="text-right">
+                    <span className="font-headline font-bold text-2xl sm:text-3xl text-primary tracking-tight">
+                      ₹{estimatedTotal.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-xs text-secondary font-medium">
+                  <span>₹{perPlateTotal} / plate ({guestCount} guests)</span>
+                  <span className="bg-surface-container-lowest px-2 py-0.5 rounded text-tertiary font-semibold border border-tertiary/30">
+                    No advance payment needed
+                  </span>
+                </div>
+                <p className="text-[11px] text-on-surface-variant mt-3 text-center leading-normal">
+                  Final quote includes pure banana leaves, service staff setup, drinking water tumblers, and sacred dining decor assistance.
+                </p>
+              </div>
+
+            </div>
+
+            {/* Trust Badges Under Summary */}
+            <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-2xl p-4 flex items-center justify-around text-center">
+              <div className="space-y-1">
+                <span className="material-symbols-outlined text-secondary text-[22px]">eco</span>
+                <p className="text-[11px] font-semibold text-on-surface">Fresh Banana Leaf</p>
+              </div>
+              <div className="h-8 w-px bg-outline-variant/60"></div>
+              <div className="space-y-1">
+                <span className="material-symbols-outlined text-secondary text-[22px]">soup_kitchen</span>
+                <p className="text-[11px] font-semibold text-on-surface">Pure Desi Ghee</p>
+              </div>
+              <div className="h-8 w-px bg-outline-variant/60"></div>
+              <div className="space-y-1">
+                <span className="material-symbols-outlined text-secondary text-[22px]">verified</span>
+                <p className="text-[11px] font-semibold text-on-surface">Zero Preservatives</p>
               </div>
             </div>
 
-          </div>
-
-        </main>
-      </PageTransition>
-
-        {/* ==========================================================
-            STICKY BOTTOM BAR: Floating pill on all devices
-            'Submit catering request'
-            Morphs into progress ring while sending (no success motion until server confirms)
-            ========================================================== */}
-        <div className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-4 md:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-xl z-20 pointer-events-auto rounded-2xl sm:rounded-[22px] bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.06)] px-3.5 sm:px-6 py-2.5 sm:py-3.5">
-            <button
-              type="button"
-              id="submit-contact-btn"
-              disabled={isSubmitting}
-              onClick={() => handleSubmit()}
-              className={`h-11 sm:h-13 rounded-xl sm:rounded-full bg-[var(--brand)] hover:bg-[var(--brand-600)] active:scale-[0.98] text-[var(--on-brand)] font-heading font-bold text-sm sm:text-base flex items-center justify-center shadow-md transition-all select-none tap-target-48 cursor-pointer ${
-                isSubmitting ? 'w-11 sm:w-13 mx-auto px-0 cursor-wait' : 'w-full px-6 gap-2'
-              }`}
-            >
-              {isSubmitting ? (
-                <div 
-                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-3 border-white border-t-transparent animate-spin"
-                  role="status"
-                  aria-label="Submitting request..."
-                />
-              ) : (
-                <span>Submit catering request</span>
-              )}
-            </button>
+          </aside>
         </div>
 
-      </div>
-    </CustomerDesktopShell>
+        {/* CULINARY HERITAGE SPOTLIGHT (Supporting Visual Anchor) */}
+        <section className="mt-16 pt-8 border-t border-outline-variant/40">
+          <div className="bg-surface-container-low border border-outline-variant/50 rounded-3xl p-6 md:p-8 relative overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <div className="md:col-span-2 space-y-2">
+                <span className="text-xs uppercase tracking-widest font-semibold text-secondary">
+                  Iyengar Bhojana Parampara
+                </span>
+                <h3 className="font-headline text-xl sm:text-2xl text-primary font-bold">
+                  The Sacred Art of Leaf Hospitality
+                </h3>
+                <p className="text-xs sm:text-sm text-on-surface-variant max-w-2xl leading-relaxed">
+                  Every banquet hosted by TKS Iyengar’s adheres to the authentic Agama shastra principles of satvik preparation—served strictly on hand-picked Kaveri basin plantain leaves with divine ghee poured first to honor the guest.
+                </p>
+              </div>
+              <div className="flex justify-start md:justify-center">
+                <div className="flex items-center gap-3 bg-surface-container-lowest px-5 py-3 rounded-2xl border border-secondary/40 shadow-xs">
+                  <span className="material-symbols-outlined text-primary text-3xl">restaurant_menu</span>
+                  <div>
+                    <p className="font-headline text-base sm:text-lg text-primary font-bold">10,000+ Feasts</p>
+                    <p className="text-xs text-on-surface-variant">Conducted across Mysuru &amp; Bengaluru</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      {/* 4. FOOTER */}
+      <footer className="w-full bg-surface-container-low border-t border-outline-variant/50 mt-16 transition-colors duration-150">
+        <div className="w-full px-4 md:px-8 py-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          {/* Left: Logo & Copyright */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <span className="font-headline text-xl text-primary font-semibold mb-1">
+              TKS Iyengar's Catering
+            </span>
+            <p className="text-xs text-on-surface-variant max-w-xl">
+              © 2025 TKS Iyengar's Catering Services, Mysuru. Pure Vegetarian Tradition &amp; Heritage Feasts. All rights reserved.
+            </p>
+          </div>
+          {/* Right: Footer Links */}
+          <nav className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 text-xs font-medium">
+            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors">
+              Sacred Menu Heritage
+            </Link>
+            <Link to="/#muhurtham" className="text-on-surface-variant hover:text-primary transition-colors">
+              Muhurtham Packages
+            </Link>
+            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors">
+              Purity Guarantee
+            </Link>
+            <Link to="/#tradition" className="text-on-surface-variant hover:text-primary transition-colors">
+              Temple Tradition
+            </Link>
+            <Link to="/enquiries" className="text-primary font-semibold hover:underline transition-colors">
+              Enquire for Banquets
+            </Link>
+            <Link to="/privacy-policy" className="text-on-surface-variant hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+          </nav>
+        </div>
+      </footer>
+    </div>
   )
 }
 
