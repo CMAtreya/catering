@@ -339,7 +339,7 @@ export const SubmittedPage: React.FC = () => {
                     <span className="material-symbols-outlined text-tertiary-container" style={{ fontVariationSettings: "'FILL' 1" }}>
                       chat
                     </span>
-                    <span>Or WhatsApp our Catering Prabandhakar</span>
+                    <span>WhatsApp TKS</span>
                   </a>
                 </div>
               </div>
