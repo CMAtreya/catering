@@ -1,4 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import {
+  Calendar,
+  FilePlus,
+  Phone,
+  PlusCircle,
+  Table,
+  Search,
+  CalendarRange,
+  ChevronDown,
+  FilterX,
+  Globe,
+  PhoneCall,
+  ArrowRight,
+  ChevronRight,
+  ChevronLeft,
+  X,
+  CheckCircle2
+} from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { format, parseISO, isValid } from 'date-fns'
 import { toast } from 'sonner'
@@ -116,8 +134,8 @@ export const AdminOrdersPage: React.FC = () => {
   const [manualOccasion, setManualOccasion] = useState<string>('Griha Pravesh')
   const [manualDate, setManualDate] = useState<string>('2025-11-22')
   const [manualPlates, setManualPlates] = useState<number>(150)
-  const [manualAmount, setManualAmount] = useState<number>(42500)
   const [manualAddress, setManualAddress] = useState<string>('')
+  const [manualStatus, setManualStatus] = useState<OrderStatus>('Confirmed')
 
   // Toast banner state for matching template
   const [toastMessage, setToastMessage] = useState<string>('')
@@ -304,18 +322,19 @@ export const AdminOrdersPage: React.FC = () => {
     }
 
     try {
+      const plates = Number(manualPlates) || 100
       const newOrder = await saveOrder({
         customerName: manualName.trim(),
         customerPhone: manualPhone.trim(),
         eventType: manualOccasion,
         eventDate: manualDate,
         eventTime: 'Morning',
-        guestCount: Number(manualPlates) || 100,
-        perPlateTotal: Math.round(Number(manualAmount) / (Number(manualPlates) || 100)) || 285,
-        totalAmount: Number(manualAmount) || 28500,
+        guestCount: plates,
+        perPlateTotal: 285,
+        totalAmount: plates * 285,
         venueAddress: manualAddress.trim() || 'Mysuru Kalyana Mantapa',
         source: 'Manual',
-        status: 'Confirmed',
+        status: manualStatus,
         items: [
           { id: 'item-1', name: 'Mysuru Traditional Puliyogare', pricePerPlate: 65, quantity: 1 },
           { id: 'item-2', name: 'Bisi Bele Bath with Pure Ghee', pricePerPlate: 65, quantity: 1 },
@@ -377,11 +396,7 @@ export const AdminOrdersPage: React.FC = () => {
     showToastBanner('Kitchen Sheet CSV generated and downloaded successfully!')
   }
 
-  // Print Order Slips
-  const handlePrintSlips = () => {
-    window.print()
-    showToastBanner('Kitchen order slips sent to printer.')
-  }
+
 
   return (
     <AdminAppShell>
@@ -405,7 +420,7 @@ export const AdminOrdersPage: React.FC = () => {
                 </span>
               </div>
               <p className="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
-                <span className="material-symbols-outlined text-[15px] text-amber-700">calendar_today</span>
+                <Calendar className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                 <span>{format(new Date(), 'EEEE, d MMMM yyyy')} • Mysuru Heritage Kitchens</span>
               </p>
             </div>
@@ -472,7 +487,7 @@ export const AdminOrdersPage: React.FC = () => {
               title="Kitchen Supervisor Hotline"
               className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-on-surface-variant hover:text-primary border border-outline-variant/40 hover:bg-surface-container-low transition-colors"
             >
-              <span className="material-symbols-outlined text-[16px] text-primary">call</span>
+              <Phone className="w-4 h-4 text-primary shrink-0" />
               <span>Kitchen: +91 821 2456789</span>
             </a>
 
@@ -483,7 +498,7 @@ export const AdminOrdersPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-white font-semibold text-xs shadow-md hover:shadow-lg active:scale-95 transition-all duration-150 cursor-pointer"
               style={{ background: 'linear-gradient(90deg, #8B0A00 0%, #E0000F 50%, #8B0A00 100%)' }}
             >
-              <span className="material-symbols-outlined text-[18px]">add_circle</span>
+              <PlusCircle className="w-4 h-4 shrink-0" />
               <span className="whitespace-nowrap">Create Manual Order</span>
             </button>
           </div>
@@ -511,18 +526,10 @@ export const AdminOrdersPage: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <button
               type="button"
-              onClick={handlePrintSlips}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-on-surface bg-surface-container-lowest border border-outline-variant/60 hover:bg-surface-container-low transition-colors shadow-xs cursor-pointer active:scale-95"
-            >
-              <span className="material-symbols-outlined text-[16px] text-primary">print</span>
-              <span>Print Order Slips</span>
-            </button>
-            <button
-              type="button"
               onClick={handleExportCSV}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-primary bg-surface-container border border-outline-variant/60 hover:bg-surface-container-high transition-colors shadow-xs cursor-pointer active:scale-95"
             >
-              <span className="material-symbols-outlined text-[16px]">table_view</span>
+              <Table className="w-4 h-4 shrink-0" />
               <span>Export Kitchen Sheet (CSV)</span>
             </button>
           </div>
@@ -538,9 +545,7 @@ export const AdminOrdersPage: React.FC = () => {
             
             {/* Search Bar */}
             <div className="relative flex-1">
-              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">
-                search
-              </span>
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none" />
               <input
                 id="orderSearchInput"
                 type="text"
@@ -573,12 +578,8 @@ export const AdminOrdersPage: React.FC = () => {
                   <option value="upcoming">Upcoming Muhurthams</option>
                   <option value="past">Past Events</option>
                 </select>
-                <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">
-                  date_range
-                </span>
-                <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">
-                  expand_more
-                </span>
+                <CalendarRange className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none" />
               </div>
 
               {/* Source Filter Pill Toggle */}
@@ -780,7 +781,7 @@ export const AdminOrdersPage: React.FC = () => {
           {(viewMode === 'empty' || (!isLoading && filteredOrders.length === 0 && viewMode !== 'skeleton')) && (
             <div id="emptyView" className="bg-white/90 backdrop-blur-md rounded-2xl p-12 text-center border border-outline-variant/60 flex flex-col items-center justify-center gap-3">
               <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1">
-                <span className="material-symbols-outlined text-[36px]">filter_alt_off</span>
+                <FilterX className="w-9 h-9" />
               </div>
               <h3 className="font-serif text-xl sm:text-2xl font-bold text-on-surface">
                 No orders match the selected filters
@@ -880,12 +881,12 @@ export const AdminOrdersPage: React.FC = () => {
                           <td className="py-4 px-4">
                             {order.source === 'Online' ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                                <span className="material-symbols-outlined text-[13px]">language</span>
+                                <Globe className="w-3.5 h-3.5" />
                                 Online
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">
-                                <span className="material-symbols-outlined text-[13px]">phone_in_talk</span>
+                                <PhoneCall className="w-3.5 h-3.5" />
                                 Manual
                               </span>
                             )}
@@ -913,7 +914,7 @@ export const AdminOrdersPage: React.FC = () => {
                               className="text-xs font-semibold text-primary hover:text-primary-container group-hover:translate-x-0.5 transition-transform inline-flex items-center justify-end gap-1 ml-auto"
                             >
                               <span>View</span>
-                              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                              <ArrowRight className="w-4 h-4" />
                             </Link>
                           </td>
                         </tr>
@@ -999,7 +1000,7 @@ export const AdminOrdersPage: React.FC = () => {
                         onClick={(e) => e.stopPropagation()}
                         className="text-secondary font-semibold hover:underline flex items-center gap-1"
                       >
-                        <span className="material-symbols-outlined text-[15px]">call</span>
+                        <Phone className="w-3.5 h-3.5" />
                         <span>{formatPhone(order.customerPhone)}</span>
                       </a>
                       <Link
@@ -1008,7 +1009,7 @@ export const AdminOrdersPage: React.FC = () => {
                         className="text-primary font-bold flex items-center gap-0.5 hover:underline"
                       >
                         <span>Inspect Order</span>
-                        <span className="material-symbols-outlined text-[15px]">chevron_right</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   </div>
@@ -1036,7 +1037,7 @@ export const AdminOrdersPage: React.FC = () => {
                 disabled={currentPage === 1}
                 className="p-1.5 rounded-lg border border-outline-variant/50 text-outline hover:text-primary hover:bg-surface-container-low transition-colors disabled:opacity-40 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+                <ChevronLeft className="w-4 h-4" />
               </button>
 
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
@@ -1060,7 +1061,7 @@ export const AdminOrdersPage: React.FC = () => {
                 disabled={currentPage === totalPages}
                 className="p-1.5 rounded-lg border border-outline-variant/50 text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors disabled:opacity-40 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -1118,7 +1119,7 @@ export const AdminOrdersPage: React.FC = () => {
                   onClick={() => setInspectOrder(null)}
                   className="p-2 rounded-xl text-outline hover:text-primary hover:bg-surface-container transition-colors cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
@@ -1296,19 +1297,11 @@ export const AdminOrdersPage: React.FC = () => {
                   href={getCleanTel(inspectOrder.customerPhone)}
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-on-surface bg-surface-container-low hover:bg-surface-container border border-outline-variant/50 transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[16px] text-secondary">call</span>
+                  <Phone className="w-4 h-4 text-secondary shrink-0" />
                   <span>Call Customer</span>
                 </a>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handlePrintSlips}
-                    className="inline-flex items-center gap-1 px-3 py-2.5 rounded-xl text-xs font-medium text-outline hover:text-primary transition-colors cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">print</span>
-                    <span>Slip</span>
-                  </button>
 
                   <button
                     type="button"
@@ -1326,164 +1319,168 @@ export const AdminOrdersPage: React.FC = () => {
       )}
 
       {/* ========================================================
-           7. CREATE MANUAL ORDER MODAL
+           7. CREATE MANUAL ORDER MODAL (Compact & No-Scroll)
            ======================================================== */}
       {isManualModalOpen && (
         <div
           id="manualOrderModal"
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 overflow-hidden"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4"
         >
-          <div
-            onClick={() => setIsManualModalOpen(false)}
-            className="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm transition-opacity"
-          ></div>
-
-          <div className="fixed inset-0 z-10 flex items-center justify-center p-4">
-            <div className="w-full max-w-lg bg-surface/95 backdrop-blur-md rounded-2xl border border-outline-variant/70 shadow-2xl p-6 space-y-4">
-              
-              <div className="flex items-start justify-between pb-3 border-b border-outline-variant/50">
-                <div>
-                  <h2 className="font-serif text-xl sm:text-2xl font-bold text-primary">
-                    Create Manual Catering Order
-                  </h2>
-                  <p className="text-xs text-on-surface-variant">
-                    Walk-in patron or direct telephone reservation
-                  </p>
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-[#EADBC8] space-y-3.5 animate-in fade-in duration-200">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-2.5 border-b border-[#EADBC8]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#8B0A00]/10 text-[#8B0A00] flex items-center justify-center font-bold">
+                  <FilePlus className="w-4 h-4" />
                 </div>
+                <div>
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2D1810]">Create Manual Order</h3>
+                  <p className="text-[11px] text-[#785A48]">For direct phone bookings, walk-ins, and temple elders</p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setIsManualModalOpen(false)}
+                className="w-7 h-7 rounded-full bg-[#F7EFE2] text-[#785A48] hover:text-[#2D1810] flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Inputs */}
+            <form onSubmit={handleManualOrderSubmit} className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Customer / Host Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Nagaraja Dixit"
+                    value={manualName}
+                    onChange={(e) => setManualName(e.target.value)}
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Mobile Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="10-digit number"
+                    value={manualPhone}
+                    onChange={(e) => setManualPhone(e.target.value)}
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Occasion Type *</label>
+                  <select
+                    value={manualOccasion}
+                    onChange={(e) => setManualOccasion(e.target.value)}
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810] cursor-pointer"
+                  >
+                    <option value="Griha Pravesh">Griha Pravesh</option>
+                    <option value="Muhurtham Wedding">Muhurtham Wedding</option>
+                    <option value="Satyanarayana Pooja">Satyanarayana Pooja</option>
+                    <option value="Upanayana">Upanayana</option>
+                    <option value="Sashti Poorthi">Sashti Poorthi (60th B'day)</option>
+                    <option value="Other Feast">Other Feast</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Feast Date *</label>
+                  <input
+                    type="date"
+                    required
+                    value={manualDate}
+                    onChange={(e) => setManualDate(e.target.value)}
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Number of Plates *</label>
+                  <input
+                    type="number"
+                    min="10"
+                    step="5"
+                    required
+                    value={manualPlates}
+                    onChange={(e) => setManualPlates(Number(e.target.value))}
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Delivery Address / Hall Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Raghavendra Kalyana Mantapa, Mysore"
+                    value={manualAddress}
+                    onChange={(e) => setManualAddress(e.target.value)}
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                  />
+                </div>
+              </div>
+
+              {/* Order Status */}
+              <div>
+                <label className="block text-xs font-bold text-[#2D1810] mb-1">Order Status</label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${
+                    manualStatus === 'Confirmed' ? 'border-green-500 bg-green-50/80 ring-1 ring-green-500/20' : 'border-[#EADBC8] bg-white hover:bg-slate-50'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="orderManualStatus"
+                      value="Confirmed"
+                      checked={manualStatus === 'Confirmed'}
+                      onChange={() => setManualStatus('Confirmed')}
+                      className="text-green-600 focus:ring-green-500 w-3.5 h-3.5"
+                    />
+                    <span className="text-xs font-bold text-green-900">Mark as Confirmed</span>
+                  </label>
+                  <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${
+                    manualStatus === 'Under Discussion' ? 'border-amber-500 bg-amber-50/80 ring-1 ring-amber-500/20' : 'border-[#EADBC8] bg-white hover:bg-slate-50'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="orderManualStatus"
+                      value="Under Discussion"
+                      checked={manualStatus === 'Under Discussion'}
+                      onChange={() => setManualStatus('Under Discussion')}
+                      className="text-amber-600 focus:ring-amber-500 w-3.5 h-3.5"
+                    />
+                    <span className="text-xs font-bold text-amber-900">Under Discussion</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-[#EADBC8]">
                 <button
                   type="button"
                   onClick={() => setIsManualModalOpen(false)}
-                  className="p-1 rounded-lg text-outline hover:text-primary cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[#EADBC8] text-[#2D1810] font-semibold text-xs hover:bg-[#F7EFE2] cursor-pointer transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-lg bg-gradient-to-r from-[#8B0A00] to-[#B30A05] text-white font-bold text-xs shadow-md shadow-[#8B0A00]/25 hover:brightness-105 active:scale-95 cursor-pointer transition-all"
+                >
+                  Save &amp; Add Order
                 </button>
               </div>
+            </form>
 
-              <form onSubmit={handleManualOrderSubmit} className="space-y-3.5 text-xs">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-semibold text-on-surface mb-1">
-                      Customer Name
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={manualName}
-                      onChange={(e) => setManualName(e.target.value)}
-                      placeholder="e.g. Nagaraj Shastry"
-                      className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl focus:ring-2 focus:ring-primary/40 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-semibold text-on-surface mb-1">
-                      10-Digit Mobile Number
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={manualPhone}
-                      onChange={(e) => setManualPhone(e.target.value)}
-                      placeholder="+91 9845X XXXXX"
-                      className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl focus:ring-2 focus:ring-primary/40 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-semibold text-on-surface mb-1">
-                      Occasion / Shubhkaarya
-                    </label>
-                    <select
-                      value={manualOccasion}
-                      onChange={(e) => setManualOccasion(e.target.value)}
-                      className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl focus:ring-2 focus:ring-primary/40 focus:outline-none cursor-pointer"
-                    >
-                      <option>Griha Pravesh</option>
-                      <option>Wedding Muhurtham</option>
-                      <option>Upanayana (Munji)</option>
-                      <option>Satyanarayana Pooja</option>
-                      <option>Sashti Poorthi</option>
-                      <option>Namakarana</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block font-semibold text-on-surface mb-1">
-                      Event Date (Muhurtham)
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={manualDate}
-                      onChange={(e) => setManualDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl focus:ring-2 focus:ring-primary/40 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-semibold text-on-surface mb-1">
-                      Estimated Plates
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      value={manualPlates}
-                      onChange={(e) => setManualPlates(Number(e.target.value))}
-                      placeholder="e.g. 150"
-                      className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl focus:ring-2 focus:ring-primary/40 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-semibold text-on-surface mb-1">
-                      Estimated Budget / Amount (₹)
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      value={manualAmount}
-                      onChange={(e) => setManualAmount(Number(e.target.value))}
-                      placeholder="e.g. 45000"
-                      className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl focus:ring-2 focus:ring-primary/40 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-on-surface mb-1">
-                    Delivery Hall / Kalyana Mantapa Address
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={manualAddress}
-                    onChange={(e) => setManualAddress(e.target.value)}
-                    placeholder="e.g. Shankara Mutt Hall, Madhavachar Road, Mysuru"
-                    className="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl focus:ring-2 focus:ring-primary/40 focus:outline-none"
-                  ></textarea>
-                </div>
-
-                <div className="pt-3 flex items-center justify-end gap-2 border-t border-outline-variant/40">
-                  <button
-                    type="button"
-                    onClick={() => setIsManualModalOpen(false)}
-                    className="px-4 py-2 rounded-xl text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-xl text-white font-semibold shadow-sm transition-all cursor-pointer active:scale-95"
-                    style={{ background: 'linear-gradient(90deg, #8B0A00 0%, #b30a05 100%)' }}
-                  >
-                    Confirm &amp; Book Order
-                  </button>
-                </div>
-              </form>
-
-            </div>
           </div>
         </div>
       )}
@@ -1498,9 +1495,7 @@ export const AdminOrdersPage: React.FC = () => {
         }`}
       >
         <div className="bg-surface-container-lowest/95 backdrop-blur-md border border-outline-variant/80 rounded-xl px-4 py-3 shadow-lg flex items-center gap-2.5 text-xs font-semibold text-on-surface">
-          <span className="material-symbols-outlined text-[18px] text-emerald-600">
-            check_circle
-          </span>
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span id="toastMessage">{toastMessage || 'Kitchen Sheet CSV generated successfully!'}</span>
         </div>
       </div>

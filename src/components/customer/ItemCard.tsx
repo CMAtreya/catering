@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { CheckCircle2, Flame, Check, Plus } from 'lucide-react'
 import type { MenuItem } from '@/data/mockData'
 import { formatRupees } from '@/lib/format'
 import { useDraftStore } from '@/store/draftStore'
@@ -133,7 +134,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
               transition={MOTION_SPRINGS.tap}
               className="absolute top-2.5 right-2.5 bg-secondary-container/95 text-on-secondary-container text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs border border-secondary/30 pointer-events-none"
             >
-              <span className="material-symbols-outlined text-[13px]">check_circle</span>
+              <CheckCircle2 className="w-3 h-3 text-on-secondary-container" />
               <span>In Feast</span>
             </motion.div>
           )}
@@ -142,7 +143,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         {/* Heritage Tag badge (bottom left of image) */}
         {item.heritageTag && (
           <div className="absolute bottom-2.5 left-2.5 bg-surface-container-lowest/90 backdrop-blur-xs px-2.5 py-1 rounded-full text-[10px] font-bold text-on-surface flex items-center gap-1 shadow-xs border border-outline-variant/10 pointer-events-none">
-            <span className="material-symbols-outlined text-[12px] text-primary">local_fire_department</span>
+            <Flame className="w-3 h-3 text-primary" />
             <span>{item.heritageTag}</span>
           </div>
         )}
@@ -182,7 +183,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                   onClick={handleCardClick}
                   className="h-8 px-2.5 sm:px-3 rounded-lg bg-primary hover:bg-primary-container text-white border border-primary text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-xs cursor-pointer select-none whitespace-nowrap w-fit shrink-0"
                 >
-                  <span className="material-symbols-outlined !text-[14px] leading-none shrink-0" style={{ fontSize: '14px', width: '14px', height: '14px' }}>check</span>
+                  <Check className="w-3.5 h-3.5 shrink-0" />
                   <span className="whitespace-nowrap">Added to Feast</span>
                 </div>
               ) : (
@@ -191,7 +192,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                   onClick={handleCardClick}
                   className="h-8 px-2.5 sm:px-3 rounded-lg bg-surface-container-low hover:bg-primary-fixed/40 text-primary border border-primary/25 text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-2xs hover:shadow-xs cursor-pointer select-none whitespace-nowrap w-fit shrink-0"
                 >
-                  <span className="material-symbols-outlined !text-[14px] leading-none shrink-0" style={{ fontSize: '14px', width: '14px', height: '14px' }}>add</span>
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
                   <span className="whitespace-nowrap">Add to Feast</span>
                 </div>
               )}

@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, CheckCircle2, AlertCircle, Sparkles, ArrowRight, RefreshCw } from 'lucide-react'
+import { X, CheckCircle2, AlertCircle, Sparkles, ArrowRight, RefreshCw, Leaf } from 'lucide-react'
 import { useDraftStore } from '@/store/draftStore'
 import { formatRupees } from '@/lib/format'
 import { PlantainLeafCanvas } from './PlantainLeafCanvas'
@@ -19,6 +19,10 @@ export const VirtualBananaLeafModal: React.FC<VirtualBananaLeafModalProps> = ({
   onProceedToRequirements,
   availableItems = INITIAL_ITEMS
 }) => {
+  const sanitizedAvailableItems = useMemo(() => {
+    return (availableItems || INITIAL_ITEMS).filter((i) => i.available !== false)
+  }, [availableItems])
+
   const itemsMap = useDraftStore((state) => state.items)
   const toggleItem = useDraftStore((state) => state.toggleItem)
   const clearItems = useDraftStore((state) => state.clearItems)
@@ -56,8 +60,8 @@ export const VirtualBananaLeafModal: React.FC<VirtualBananaLeafModalProps> = ({
           {/* Header */}
           <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-emerald-950/20 flex items-center justify-between gap-3 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-950 text-white shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-xl shadow-xs border border-white/20">
-                🍃
+              <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shadow-xs border border-white/20">
+                <Leaf className="w-5 h-5 text-emerald-300" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -89,7 +93,7 @@ export const VirtualBananaLeafModal: React.FC<VirtualBananaLeafModalProps> = ({
             
             {/* The Authentic 3D Plantain Leaf Canvas */}
             <PlantainLeafCanvas
-              availableItems={availableItems}
+              availableItems={sanitizedAvailableItems}
               selectedItemsMap={itemsMap}
               onToggleItem={toggleItem}
               showGhosts={true}

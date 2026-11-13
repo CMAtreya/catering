@@ -1,13 +1,45 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { toast } from 'sonner'
+import {
+  ArrowLeft,
+  BookOpen,
+  Check,
+  CheckCircle2,
+  CheckSquare,
+  Copy,
+  Download,
+  Eye,
+  FileText,
+  Globe,
+  Info,
+  Link2,
+  Lock,
+  Mail,
+  MessageSquare,
+  Phone,
+  Plus,
+  Printer,
+  Receipt,
+  Share2,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Store,
+  Tv,
+  UserCheck,
+  X,
+  XCircle
+} from 'lucide-react'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
 
 import { getOrder, confirmOrder, setStatus, getCatalogue } from '@/api'
 import type { Order, OrderStatus, OrderItem } from '@/data/mockData'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 
 export const AdminOrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  const settings = useBusinessSettingsStore((state) => state.settings)
 
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -283,7 +315,7 @@ export const AdminOrderDetailPage: React.FC = () => {
           <div className="bg-surface-container-low border border-outline-variant/60 rounded-xl p-3 shadow-xs">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-1.5 text-xs text-secondary font-bold">
-                <span className="material-symbols-outlined text-[16px]">tune</span>
+                <SlidersHorizontal className="w-4 h-4 shrink-0" />
                 <span>Preview Desk States:</span>
               </div>
               <div className="flex items-center gap-1.5 flex-wrap text-xs">
@@ -344,7 +376,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   onClick={() => setIsInvoiceModalOpen(true)}
                   className="px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15 transition-all font-semibold flex items-center gap-1 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[14px]">receipt</span>
+                  <Receipt className="w-3.5 h-3.5 shrink-0" />
                   <span>5. Show Invoice Modal (A4)</span>
                 </button>
 
@@ -353,7 +385,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   onClick={() => setIsFoodPickerOpen(true)}
                   className="px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary border border-tertiary/20 hover:bg-tertiary/15 transition-all font-semibold flex items-center gap-1 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[14px]">menu_book</span>
+                  <BookOpen className="w-3.5 h-3.5 shrink-0" />
                   <span>6. Food Picker Sheet</span>
                 </button>
               </div>
@@ -364,7 +396,7 @@ export const AdminOrderDetailPage: React.FC = () => {
           {currentStatus === 'Cancelled' && (
             <div id="cancelled-banner" className="bg-error-container/70 border-l-4 border-error text-on-error-container p-4 rounded-r-xl shadow-xs">
               <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-error text-[24px]">cancel</span>
+                <XCircle className="w-6 h-6 text-error shrink-0" />
                 <div>
                   <h4 className="font-bold text-error">
                     This order was cancelled on 18 Nov 2025. This catering request was cancelled.
@@ -385,14 +417,12 @@ export const AdminOrderDetailPage: React.FC = () => {
                   to="/admin/orders"
                   className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-bold"
                 >
-                  <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                  <ArrowLeft className="w-4.5 h-4.5 shrink-0" />
                   <span>Back to All Orders</span>
                 </Link>
                 <span className="text-outline-variant">•</span>
                 <div className="inline-flex items-center gap-1 bg-surface-container-high px-2.5 py-0.5 rounded-full border border-outline-variant/60 text-xs font-semibold">
-                  <span className="material-symbols-outlined text-[15px] text-tertiary">
-                    {order?.source === 'Manual' ? 'storefront' : 'public'}
-                  </span>
+                  {order?.source === 'Manual' ? <Store className="w-3.5 h-3.5 text-tertiary shrink-0" /> : <Globe className="w-3.5 h-3.5 text-tertiary shrink-0" />}
                   <span id="source-badge">
                     {order?.source === 'Manual' ? 'Manual Walk-in / Phone' : 'Online Web Enquiry'}
                   </span>
@@ -411,7 +441,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   className="p-1.5 hover:bg-surface-container text-on-surface-variant rounded-md transition-colors cursor-pointer"
                   title="Copy Order ID"
                 >
-                  <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                  <Copy className="w-4.5 h-4.5 shrink-0" />
                 </button>
 
                 {isCopiedToastVisible && (
@@ -491,7 +521,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   onClick={() => setIsConfirmModalOpen(true)}
                   className="primary-btn-gradient text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 active:scale-95 transition-all cursor-pointer shadow-md"
                 >
-                  <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                  <CheckCircle2 className="w-4.5 h-4.5 shrink-0" />
                   <span>Confirm Order</span>
                 </button>
               )}
@@ -507,7 +537,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   }}
                   className="px-3.5 py-2 rounded-xl text-xs font-semibold text-error bg-error-container/40 hover:bg-error-container border border-error/30 transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
-                  <span className="material-symbols-outlined text-[16px]">cancel</span>
+                  <XCircle className="w-4 h-4 shrink-0" />
                   <span>Cancel order</span>
                 </button>
               )}
@@ -526,7 +556,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                 <div className="flex items-center justify-between pb-4 border-b border-outline-variant/40 mb-5">
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-primary">
-                      <span className="material-symbols-outlined text-[22px]">person_pin</span>
+                      <UserCheck className="w-5.5 h-5.5 shrink-0" />
                     </div>
                     <div>
                       <h2 className="text-title-lg font-serif font-bold text-on-surface">
@@ -536,7 +566,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                     </div>
                   </div>
                   <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald-200">
-                    <span className="material-symbols-outlined text-[15px]">check</span>
+                    <Check className="w-3.5 h-3.5 shrink-0" />
                     <span>Verified Caller</span>
                   </span>
                 </div>
@@ -569,7 +599,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                         className="text-primary hover:underline font-bold inline-flex items-center gap-0.5"
                         title="Call Customer"
                       >
-                        <span className="material-symbols-outlined text-[14px]">call</span>
+                        <Phone className="w-3.5 h-3.5 shrink-0" />
                         <span>Call</span>
                       </a>
                     </div>
@@ -700,9 +730,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                       Special Acharya &amp; Dietary Instructions
                     </label>
                     <div className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/50 flex items-start gap-2.5">
-                      <span className="material-symbols-outlined text-secondary text-[20px] mt-0.5">
-                        temple_hindu
-                      </span>
+                      <Sparkles className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
                       <input
                         type="text"
                         value={specialInstructions}
@@ -788,7 +816,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                     onClick={() => setIsFoodPickerOpen(true)}
                     className="px-3.5 py-2 bg-primary-fixed text-on-primary-fixed hover:bg-primary-fixed-dim rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[18px]">add</span>
+                    <Plus className="w-4.5 h-4.5 shrink-0" />
                     <span>Add Items</span>
                   </button>
                 </div>
@@ -826,7 +854,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                           className="text-outline hover:text-error transition-colors p-1 cursor-pointer"
                           title="Remove delicacy"
                         >
-                          <span className="material-symbols-outlined text-[18px]">close</span>
+                          <X className="w-4.5 h-4.5 shrink-0" />
                         </button>
                       </div>
                     </div>
@@ -971,7 +999,7 @@ export const AdminOrderDetailPage: React.FC = () => {
 
                 {/* Payment Policy Callout */}
                 <div className="mt-3.5 bg-surface-container-low p-3 rounded-xl border border-outline-variant/40 flex items-start gap-2 text-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-secondary text-[18px]">info</span>
+                  <Info className="w-4.5 h-4.5 text-secondary shrink-0" />
                   <p>
                     Payment is handled separately — no direct payment is collected here. Cash or direct bank transfer on event day upon verification.
                   </p>
@@ -996,9 +1024,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                         : 'primary-btn-gradient text-white shadow-md active:scale-98'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[20px]">
-                      {currentStatus === 'Confirmed' ? 'check_circle' : 'assignment_turned_in'}
-                    </span>
+                    {currentStatus === 'Confirmed' ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <CheckSquare className="w-5 h-5 shrink-0" />}
                     <span>
                       {currentStatus === 'Confirmed'
                         ? '✓ Order Confirmed'
@@ -1016,7 +1042,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                 <div className="mt-6 pt-5 border-t border-outline-variant/50">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[18px] text-primary">receipt</span>
+                      <Receipt className="w-4.5 h-4.5 text-primary shrink-0" />
                       <span>Banquet Tax Invoice</span>
                     </h3>
                     <span
@@ -1043,9 +1069,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                       id="invoice-locked-state"
                       className="p-3 bg-surface-container-low rounded-xl border border-dashed border-outline text-xs text-on-surface-variant text-center"
                     >
-                      <span className="material-symbols-outlined text-outline text-[22px] block mx-auto mb-1">
-                        lock
-                      </span>
+                      <Lock className="w-5.5 h-5.5 text-outline block mx-auto mb-1" />
                       Confirm the order to unlock generation of official GST invoice &amp; printable estimation slips.
                     </div>
                   ) : (
@@ -1055,7 +1079,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                         to={`/admin/orders/${order?.id || id || 'TKS-84920'}/invoice`}
                         className="w-full py-2.5 px-4 bg-surface-container hover:bg-surface-container-high border border-outline-variant text-primary rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
                       >
-                        <span className="material-symbols-outlined text-[18px]">visibility</span>
+                        <Eye className="w-4.5 h-4.5 shrink-0" />
                         <span>Generate / View Invoice (A4)</span>
                       </Link>
 
@@ -1068,7 +1092,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                           }}
                           className="py-2 px-3 bg-surface-container-lowest hover:bg-surface-container border border-outline-variant rounded-xl text-xs font-semibold text-on-surface flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                         >
-                          <span className="material-symbols-outlined text-[16px] text-secondary">download</span>
+                          <Download className="w-4 h-4 text-secondary shrink-0" />
                           <span>Download PDF</span>
                         </button>
 
@@ -1077,7 +1101,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                           onClick={() => setIsShareModalOpen(true)}
                           className="py-2 px-3 bg-surface-container-lowest hover:bg-surface-container border border-outline-variant rounded-xl text-xs font-semibold text-on-surface flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                         >
-                          <span className="material-symbols-outlined text-[16px] text-primary">share</span>
+                          <Share2 className="w-4 h-4 text-primary shrink-0" />
                           <span>Share Details</span>
                         </button>
                       </div>
@@ -1107,7 +1131,7 @@ export const AdminOrderDetailPage: React.FC = () => {
             onClick={() => setIsInvoiceModalOpen(true)}
             className="p-2.5 bg-surface-container border border-outline-variant text-primary rounded-xl cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[20px]">receipt</span>
+            <Receipt className="w-5 h-5 shrink-0" />
           </button>
           <button
             type="button"
@@ -1115,7 +1139,7 @@ export const AdminOrderDetailPage: React.FC = () => {
             disabled={currentStatus === 'Confirmed' || currentStatus === 'Cancelled'}
             className="primary-btn-gradient text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
           >
-            <span className="material-symbols-outlined text-[18px]">check_circle</span>
+            <CheckCircle2 className="w-4.5 h-4.5 shrink-0" />
             <span>Confirm</span>
           </button>
         </div>
@@ -1135,7 +1159,7 @@ export const AdminOrderDetailPage: React.FC = () => {
         >
           <div className="bg-surface rounded-2xl max-w-md w-full p-6 shadow-2xl border border-outline-variant">
             <div className="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center mx-auto mb-4">
-              <span className="material-symbols-outlined text-[28px]">check_circle</span>
+              <CheckCircle2 className="w-7 h-7 shrink-0" />
             </div>
             <h3 className="font-serif text-xl font-bold text-center text-on-surface">
               Confirm Order #{order?.id || id || 'TKS-84920'}?
@@ -1192,7 +1216,7 @@ export const AdminOrderDetailPage: React.FC = () => {
             {/* Header Bar */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/60 bg-surface-container-low">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[24px]">description</span>
+                <FileText className="w-6 h-6 text-primary shrink-0" />
                 <h3 className="font-serif text-lg font-bold text-on-surface">
                   Banquet Tax Invoice &amp; Estimation Slip
                 </h3>
@@ -1203,7 +1227,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   onClick={() => window.print()}
                   className="px-3 py-1.5 bg-surface-container hover:bg-surface-container-high rounded-lg text-xs text-primary font-bold flex items-center gap-1 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[16px]">print</span>
+                  <Printer className="w-4 h-4 shrink-0" />
                   <span>Print Invoice</span>
                 </button>
                 <button
@@ -1214,7 +1238,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   }}
                   className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[16px]">download</span>
+                  <Download className="w-4 h-4 shrink-0" />
                   <span>Download PDF</span>
                 </button>
                 <button
@@ -1222,7 +1246,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                   onClick={() => setIsInvoiceModalOpen(false)}
                   className="p-1.5 hover:bg-surface-container rounded-lg text-outline cursor-pointer"
                 >
-                  <span className="material-symbols-outlined">close</span>
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -1240,16 +1264,16 @@ export const AdminOrderDetailPage: React.FC = () => {
                   />
                   <div>
                     <h2 className="font-serif text-xl font-bold text-primary leading-tight">
-                      TKS Iyengar's Catering Services
+                      {settings.businessName}
                     </h2>
                     <p className="text-secondary font-semibold">
-                      Estd. 1984 • Agrahara Heritage Pure Vegetarian Cuisine
+                      {settings.tagline}
                     </p>
                     <p className="text-[11px] text-outline mt-1">
-                      Vani Vilas Mohalla, Agrahara, Mysuru, Karnataka - 570004
+                      {settings.address}
                     </p>
                     <p className="text-[11px] text-outline">
-                      GSTIN: 29AABCT8492C1ZP • FSSAI Lic: 11219334000421
+                      GSTIN: {settings.gstin} • FSSAI Lic: {settings.fssaiNumber}
                     </p>
                   </div>
                 </div>
@@ -1347,8 +1371,8 @@ export const AdminOrderDetailPage: React.FC = () => {
               {/* Signature */}
               <div className="pt-8 flex justify-between items-end border-t border-outline-variant/50 text-[11px] text-outline">
                 <div>
-                  <p>Generated by TKS Iyengar Desk System</p>
-                  <p>Mysuru Agrahara Main Office</p>
+                  <p>Generated by {settings.businessName} Desk System</p>
+                  <p>{settings.address}</p>
                 </div>
                 <div className="text-right">
                   <div className="h-10 border-b border-outline-variant w-40 mb-1 ml-auto"></div>
@@ -1375,7 +1399,7 @@ export const AdminOrderDetailPage: React.FC = () => {
             {/* Header */}
             <div className="px-6 py-4 border-b border-outline-variant/50 flex items-center justify-between bg-surface-container-low">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[24px]">menu_book</span>
+                <BookOpen className="w-6 h-6 text-primary shrink-0" />
                 <div>
                   <h3 className="font-serif text-lg font-bold text-on-surface">
                     Iyengar Delicacy Catalogue
@@ -1388,7 +1412,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                 onClick={() => setIsFoodPickerOpen(false)}
                 className="p-1 hover:bg-surface-container rounded-lg text-outline cursor-pointer"
               >
-                <span className="material-symbols-outlined">close</span>
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1481,7 +1505,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                       onClick={() => handleAddCatalogueItem(extra.name, extra.price)}
                       className="px-3 py-1.5 bg-surface-container hover:bg-primary-fixed text-primary font-bold rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[16px]">add</span>
+                      <Plus className="w-4 h-4" />
                       <span>Add</span>
                     </button>
                   </div>
@@ -1524,7 +1548,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                 onClick={() => setIsShareModalOpen(false)}
                 className="p-1 hover:bg-surface-container rounded-lg text-outline cursor-pointer"
               >
-                <span className="material-symbols-outlined">close</span>
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1539,7 +1563,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                 className="flex flex-col items-center gap-1.5 group cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined">chat</span>
+                  <MessageSquare className="w-4 h-4" />
                 </div>
                 <span className="text-[11px] font-medium">WhatsApp</span>
               </button>
@@ -1553,7 +1577,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                 className="flex flex-col items-center gap-1.5 group cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-surface-container-high text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined">airplay</span>
+                  <Tv className="w-4 h-4" />
                 </div>
                 <span className="text-[11px] font-medium">AirDrop</span>
               </button>
@@ -1567,7 +1591,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                 className="flex flex-col items-center gap-1.5 group cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-surface-container-high text-secondary flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined">mail</span>
+                  <Mail className="w-4 h-4" />
                 </div>
                 <span className="text-[11px] font-medium">Mail</span>
               </button>
@@ -1578,7 +1602,7 @@ export const AdminOrderDetailPage: React.FC = () => {
                 className="flex flex-col items-center gap-1.5 group cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined">link</span>
+                  <Link2 className="w-4 h-4" />
                 </div>
                 <span className="text-[11px] font-medium">Copy Link</span>
               </button>
@@ -1609,7 +1633,7 @@ export const AdminOrderDetailPage: React.FC = () => {
         >
           <div className="bg-surface rounded-2xl max-w-md w-full p-6 shadow-2xl border border-outline-variant">
             <div className="w-12 h-12 rounded-full bg-error-container text-error flex items-center justify-center mx-auto mb-4">
-              <span className="material-symbols-outlined text-[28px]">shield_lock</span>
+              <ShieldCheck className="w-7 h-7" />
             </div>
 
             <h3 className="font-serif text-xl font-bold text-center text-on-surface">

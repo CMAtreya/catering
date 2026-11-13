@@ -101,23 +101,23 @@ function Calendar({
           defaultClassNames.week_number
         ),
         day: cn(
-          "group/day relative aspect-square h-full w-full rounded-(--cell-radius) p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius)",
+          "group/day relative aspect-square h-full w-full p-0 text-center select-none bg-transparent [&:last-child[data-selected=true]_button]:rounded-r-full",
           props.showWeekNumber
-            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-(--cell-radius)"
-            : "[&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)",
+            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-full"
+            : "[&:first-child[data-selected=true]_button]:rounded-l-full",
           defaultClassNames.day
         ),
         range_start: cn(
-          "relative isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
+          "relative isolate z-0 rounded-l-full bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
           defaultClassNames.range_start
         ),
         range_middle: cn("rounded-none", defaultClassNames.range_middle),
         range_end: cn(
-          "relative isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
+          "relative isolate z-0 rounded-r-full bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
           defaultClassNames.range_end
         ),
         today: cn(
-          "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
+          "bg-transparent font-bold",
           defaultClassNames.today
         ),
         outside: cn(
@@ -192,29 +192,66 @@ function CalendarDayButton({
     if (modifiers.focused) ref.current?.focus()
   }, [modifiers.focused])
 
+  const isSelected = Boolean(
+    modifiers.selected ||
+    modifiers.range_start ||
+    modifiers.range_end
+  )
+  const isToday = Boolean(modifiers.today)
+  const isDisabled = Boolean(modifiers.disabled || (props as any).disabled)
+
+  const { style: propStyle, children, ...restProps } = props
+
   return (
-    <Button
+    <button
       ref={ref}
-      variant="ghost"
-      size="icon"
-      disabled={modifiers.disabled || (props as any).disabled}
+      type="button"
+      disabled={isDisabled}
       data-day={day.date.toLocaleDateString(locale?.code)}
-      data-selected-single={
-        modifiers.selected &&
-        !modifiers.range_start &&
-        !modifiers.range_end &&
-        !modifiers.range_middle
-      }
-      data-range-start={modifiers.range_start}
-      data-range-end={modifiers.range_end}
-      data-range-middle={modifiers.range_middle}
+      data-selected={isSelected}
+      data-today={isToday}
+      {...restProps}
       className={cn(
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
+        "relative isolate z-10 flex aspect-square size-8 sm:size-9 mx-auto items-center justify-center rounded-full border-0 leading-none transition-all text-xs sm:text-sm select-none cursor-pointer outline-none",
+        isSelected
+          ? "!bg-[#8B0A00] !text-white !font-bold shadow-md ring-2 ring-[#8B0A00]/25"
+          : isToday
+          ? "border-2 border-[#8B0A00] text-[#8B0A00] font-bold hover:bg-[#8B0A00]/10"
+          : "text-slate-800 font-medium hover:bg-amber-100/70 hover:text-[#8B0A00] active:scale-95",
+        isDisabled && "opacity-25 pointer-events-none hover:bg-transparent text-slate-400 cursor-not-allowed",
         defaultClassNames.day,
         className
       )}
-      {...props}
-    />
+      style={{
+        ...propStyle,
+        ...(isSelected
+          ? {
+              backgroundColor: '#8B0A00',
+              color: '#ffffff',
+              fontWeight: 700,
+            }
+          : isToday
+          ? {
+              color: '#8B0A00',
+              fontWeight: 700,
+            }
+          : {}),
+      }}
+    >
+      <span
+        style={
+          isSelected
+            ? { color: '#ffffff', fontWeight: 700 }
+            : undefined
+        }
+        className={cn(
+          "inline-flex items-center justify-center leading-none",
+          isSelected && "text-white font-bold"
+        )}
+      >
+        {children}
+      </span>
+    </button>
   )
 }
 

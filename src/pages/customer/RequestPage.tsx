@@ -1,6 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AlertCircle } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
+import { 
+  AlertCircle, 
+  Calendar as CalendarIcon, 
+  CheckCircle2, 
+  Home, 
+  Flame, 
+  Heart, 
+  Scroll, 
+  Cake, 
+  Users, 
+  Sunrise, 
+  SunMedium, 
+  Moon, 
+  Sun,
+  Leaf, 
+  MapPin, 
+  Info, 
+  ArrowRight, 
+  Lock, 
+  Sparkles,
+  Building2
+} from 'lucide-react'
 import { AppFooter } from '@/components/common/AppFooter'
 import { BookingStepper } from '@/components/customer/BookingStepper'
 import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
@@ -28,7 +50,6 @@ interface OccasionCard {
   id: string
   title: string
   subtitle: string
-  icon: string
   canonicalName: string
 }
 
@@ -37,45 +58,73 @@ const OCCASION_CARDS: OccasionCard[] = [
     id: 'griha-pravesh',
     title: 'Griha Pravesh',
     subtitle: 'Housewarming Feast',
-    icon: 'home',
     canonicalName: 'Housewarming'
   },
   {
     id: 'pooja-homa',
     title: 'Pooja / Homa',
     subtitle: 'Sacred Ritual Prasad',
-    icon: 'local_fire_department',
     canonicalName: 'Pooja'
   },
   {
     id: 'wedding',
     title: 'Muhurtham Wedding',
     subtitle: 'Grand Kalyana Feast',
-    icon: 'favorite',
     canonicalName: 'Wedding'
   },
   {
     id: 'upanayana',
     title: 'Upanayana',
     subtitle: 'Sacred Thread Feast',
-    icon: 'history_edu',
     canonicalName: 'Upanayana'
   },
   {
     id: 'birthday-seemantha',
     title: 'Birthday & Seemantha',
     subtitle: 'Baby Shower & Ayushya',
-    icon: 'cake',
     canonicalName: 'Birthday'
   },
   {
     id: 'other',
     title: 'Other Feast',
     subtitle: 'Family Congregation',
-    icon: 'diversity_3',
     canonicalName: 'Other'
   }
 ]
+
+const renderOccasionIcon = (id: string, isSelected: boolean) => {
+  const className = `w-5 h-5 ${isSelected ? 'text-primary' : 'text-outline'}`
+  switch (id) {
+    case 'griha-pravesh':
+      return <Home className={className} />
+    case 'pooja-homa':
+      return <Flame className={className} />
+    case 'wedding':
+      return <Heart className={className} />
+    case 'upanayana':
+      return <Scroll className={className} />
+    case 'birthday-seemantha':
+      return <Cake className={className} />
+    case 'other':
+      return <Users className={className} />
+    default:
+      return <Sparkles className={className} />
+  }
+}
+
+const renderSlotIcon = (id: string, isSelected: boolean) => {
+  const className = `w-5 h-5 ${isSelected ? 'text-primary' : 'text-outline'}`
+  switch (id) {
+    case 'Morning':
+      return <Sunrise className={className} />
+    case 'Afternoon':
+      return <SunMedium className={className} />
+    case 'Evening':
+      return <Moon className={className} />
+    default:
+      return <Sun className={className} />
+  }
+}
 
 // Delivery validation schema
 
@@ -104,6 +153,31 @@ const requirementsSchema = z.object({
 
 type FieldErrors = Partial<Record<'eventType' | 'eventDate' | 'guestCount' | 'venueAddress', string>>
 
+// Helper to resolve occasion card and canonical text
+const resolveOccasionState = (savedType: string) => {
+  if (!savedType) return { cardId: 'griha-pravesh', eventType: 'Griha Pravesh', customText: '' }
+  const s = savedType.toLowerCase()
+  if (s.includes('griha') || s.includes('housewarming')) {
+    return { cardId: 'griha-pravesh', eventType: 'Griha Pravesh', customText: '' }
+  }
+  if (s.includes('pooja') || s.includes('homa') || s.includes('homam')) {
+    return { cardId: 'pooja-homa', eventType: 'Pooja / Homa', customText: '' }
+  }
+  if (s.includes('wedding') || s.includes('muhurtham') || s.includes('kalyana')) {
+    return { cardId: 'wedding', eventType: 'Muhurtham Wedding', customText: '' }
+  }
+  if (s.includes('upanayana') || s.includes('thread')) {
+    return { cardId: 'upanayana', eventType: 'Upanayana', customText: '' }
+  }
+  if (s.includes('birthday') || s.includes('seemantha') || s.includes('baby') || s.includes('ayushya')) {
+    return { cardId: 'birthday-seemantha', eventType: 'Birthday & Seemantha', customText: '' }
+  }
+  if (s === 'other' || s.trim()) {
+    return { cardId: 'other', eventType: savedType, customText: savedType === 'Other' ? '' : savedType }
+  }
+  return { cardId: 'griha-pravesh', eventType: 'Griha Pravesh', customText: '' }
+}
+
 export const RequestPage: React.FC = () => {
   const navigate = useNavigate()
 
@@ -118,10 +192,13 @@ export const RequestPage: React.FC = () => {
   const displayItems = selectedCount > 0 ? selectedItemsList : INITIAL_ITEMS.slice(0, 5)
 
   // Form state initialized from draftStore
-  const [eventType, setEventType] = useState<string>(requirements.eventType || '')
+  const initialOccasion = resolveOccasionState(requirements.eventType || '')
+  const [selectedCardId, setSelectedCardId] = useState<string>(initialOccasion.cardId)
+  const [eventType, setEventType] = useState<string>(initialOccasion.eventType)
+  const [customOccasion, setCustomOccasion] = useState<string>(initialOccasion.customText)
+
   const [eventDate, setEventDate] = useState<string>(requirements.eventDate || '')
   const [eventTime, setEventTime] = useState<'Morning' | 'Afternoon' | 'Evening'>(requirements.eventTime || 'Morning')
-  const [specificTime, setSpecificTime] = useState<string>(requirements.specificTime || '')
   const [guestCount, setGuestCount] = useState<number | ''>(requirements.guestCount || 100)
   const [venueAddress, setVenueAddress] = useState<string>(requirements.venueAddress || '')
   const [notes, setNotes] = useState<string>(requirements.notes || '')
@@ -157,11 +234,14 @@ export const RequestPage: React.FC = () => {
   // Handle validation & proceed to /contact
   const handleContinue = () => {
     const numericPlates = typeof guestCount === 'number' ? guestCount : 0
+    const finalEventType = selectedCardId === 'other'
+      ? (customOccasion.trim() || 'Other Feast')
+      : eventType
+
     const parseResult = requirementsSchema.safeParse({
-      eventType,
+      eventType: finalEventType,
       eventDate,
       eventTime,
-      specificTime,
       guestCount: numericPlates,
       venueAddress,
       notes
@@ -191,7 +271,7 @@ export const RequestPage: React.FC = () => {
       eventType: parseResult.data.eventType,
       eventDate: parseResult.data.eventDate,
       eventTime: parseResult.data.eventTime,
-      specificTime: specificTime.trim() || undefined,
+      specificTime: undefined,
       guestCount: parseResult.data.guestCount,
       venueAddress: parseResult.data.venueAddress,
       notes: parseResult.data.notes || '',
@@ -207,7 +287,15 @@ export const RequestPage: React.FC = () => {
   const isDateValid = selectedDateObj && isValid(selectedDateObj)
 
   return (
-    <div className="min-h-screen bg-[#fff8f6] text-[#281714] flex flex-col font-sans selection:bg-primary-fixed selection:text-primary">
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.52,
+        ease: [0.16, 1, 0.3, 1] // Fast in, slow out (deceleration curve)
+      }}
+      className="min-h-screen bg-[#fff8f6] text-[#281714] flex flex-col font-sans selection:bg-primary-fixed selection:text-primary"
+    >
       {/* UNIFIED STICKY TOP NAVIGATION BAR */}
       <CustomerTopNav activeNavTab="muhurtham" />
 
@@ -243,7 +331,7 @@ export const RequestPage: React.FC = () => {
             {/* Purity Guarantee Callout Banner */}
             <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-4 sm:p-5 flex items-start sm:items-center gap-3.5 shadow-2xs">
               <div className="p-2.5 sm:p-3 bg-primary/10 rounded-xl text-primary flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-2xl">temple_hindu</span>
+                <Building2 className="w-6 h-6 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -283,20 +371,20 @@ export const RequestPage: React.FC = () => {
                 {/* 6 Cards Grid (Matching exact layout from screenshot) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {OCCASION_CARDS.map((occ) => {
-                    const isSelected = eventType === occ.canonicalName ||
-                      eventType.trim().toLowerCase() === occ.canonicalName.toLowerCase() ||
-                      eventType.trim().toLowerCase().includes(occ.title.toLowerCase()) ||
-                      (occ.id === 'wedding' && eventType.toLowerCase().includes('wedding')) ||
-                      (occ.id === 'griha-pravesh' && (eventType.toLowerCase().includes('griha') || eventType.toLowerCase().includes('housewarming'))) ||
-                      (occ.id === 'pooja-homa' && eventType.toLowerCase().includes('pooja'))
+                    const isSelected = selectedCardId === occ.id
 
                     return (
                       <button
                         key={occ.id}
                         type="button"
                         onClick={() => {
-                          setEventType(occ.canonicalName)
+                          setSelectedCardId(occ.id)
                           setErrors((prev) => ({ ...prev, eventType: undefined }))
+                          if (occ.id === 'other') {
+                            setEventType(customOccasion.trim() ? customOccasion.trim() : 'Other Feast')
+                          } else {
+                            setEventType(occ.title)
+                          }
                         }}
                         className={`relative p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between min-h-[96px] cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99] ${
                           isSelected
@@ -305,13 +393,9 @@ export const RequestPage: React.FC = () => {
                         }`}
                       >
                         <div className="flex items-center justify-between w-full">
-                          <span className={`material-symbols-outlined text-[20px] ${isSelected ? 'text-primary' : 'text-outline'}`}>
-                            {occ.icon}
-                          </span>
+                          {renderOccasionIcon(occ.id, isSelected)}
                           {isSelected && (
-                            <span className="material-symbols-outlined text-[16px] text-primary">
-                              check_circle
-                            </span>
+                            <CheckCircle2 className="w-4 h-4 text-primary" />
                           )}
                         </div>
                         <div className="mt-2">
@@ -327,23 +411,39 @@ export const RequestPage: React.FC = () => {
                   })}
                 </div>
 
-                {/* Accessible text input for custom occasion & test fill compatibility */}
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    value={eventType}
-                    onChange={(e) => {
-                      setEventType(e.target.value)
-                      if (e.target.value.trim()) {
-                        setErrors((prev) => ({ ...prev, eventType: undefined }))
-                      }
-                    }}
-                    placeholder="Or enter custom ritual / occasion name..."
-                    className={`w-full px-3.5 py-2 rounded-xl border text-xs font-semibold bg-surface-container-low focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary outline-none transition-all shadow-2xs ${
-                      errors.eventType ? 'border-error ring-1 ring-error' : 'border-outline-variant/30'
-                    }`}
-                  />
-                </div>
+                {/* Custom occasion input: ONLY displayed when "Other Feast" is selected */}
+                <AnimatePresence>
+                  {selectedCardId === 'other' && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: 'auto', marginTop: 8 }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden space-y-1"
+                    >
+                      <label className="text-[11px] font-semibold text-slate-700 block">
+                        Specify Custom Ritual or Occasion Name:
+                      </label>
+                      <input
+                        type="text"
+                        autoFocus
+                        value={customOccasion}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setCustomOccasion(val)
+                          setEventType(val.trim() ? val.trim() : 'Other Feast')
+                          if (val.trim()) {
+                            setErrors((prev) => ({ ...prev, eventType: undefined }))
+                          }
+                        }}
+                        placeholder="e.g. Shashti Poorthi, Ayushya Homam, Naming Ceremony..."
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-xs font-semibold bg-surface-container-low focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary outline-none transition-all shadow-2xs ${
+                          errors.eventType ? 'border-error ring-1 ring-error' : 'border-outline-variant/30'
+                        }`}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {errors.eventType && (
                   <p className="text-xs text-error font-semibold flex items-center gap-1 pt-0.5">
@@ -379,7 +479,7 @@ export const RequestPage: React.FC = () => {
                             <span className={eventDate && isDateValid ? 'font-bold text-primary' : 'text-outline font-medium'}>
                               {eventDate && isDateValid ? format(parseISO(eventDate), 'dd/MM/yyyy') : 'DD/MM/YYYY'}
                             </span>
-                            <span className="material-symbols-outlined text-[20px] text-primary">calendar_today</span>
+                            <CalendarIcon className="w-5 h-5 text-primary" />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-2 bg-white rounded-2xl shadow-xl border border-slate-200 z-50" align="start">
@@ -415,7 +515,7 @@ export const RequestPage: React.FC = () => {
                             <span className={eventDate && isDateValid ? 'font-bold text-primary' : 'text-outline font-medium'}>
                               {eventDate && isDateValid ? format(parseISO(eventDate), 'dd/MM/yyyy') : 'DD/MM/YYYY'}
                             </span>
-                            <span className="material-symbols-outlined text-[20px] text-primary">calendar_today</span>
+                            <CalendarIcon className="w-5 h-5 text-primary" />
                           </button>
                         </DrawerTrigger>
                         <DrawerContent className="p-4 max-w-md mx-auto rounded-t-[24px] bg-white">
@@ -476,7 +576,7 @@ export const RequestPage: React.FC = () => {
                   {/* Right: Date Selection Status Card */}
                   <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/20 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-secondary-container/30 text-secondary border border-secondary/20 flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+                      <CalendarIcon className="w-5 h-5 text-secondary" />
                     </div>
                     <div className="min-w-0">
                       <span className="font-headline font-bold text-xs sm:text-sm text-primary block truncate">
@@ -494,14 +594,14 @@ export const RequestPage: React.FC = () => {
                 )}
               </div>
 
-              {/* 2B. TIME OPTION SELECTION & SPECIFIC TIME */}
+              {/* 2B. TIME OPTION SELECTION */}
               <div id="field-eventTime" className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-slate-800">
                     Service Time Slot <span className="text-primary">*</span>
                   </label>
                   <span className="text-[11px] font-semibold text-secondary">
-                    {eventTime} Service {specificTime ? `• ${specificTime}` : ''}
+                    {eventTime} Service
                   </span>
                 </div>
 
@@ -543,13 +643,9 @@ export const RequestPage: React.FC = () => {
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className={`material-symbols-outlined text-[20px] ${isSelected ? 'text-primary' : 'text-outline'}`}>
-                            {slot.icon}
-                          </span>
+                          {renderSlotIcon(slot.id, isSelected)}
                           {isSelected && (
-                            <span className="material-symbols-outlined text-[16px] text-primary">
-                              check_circle
-                            </span>
+                            <CheckCircle2 className="w-4 h-4 text-primary" />
                           )}
                         </div>
                         <span className={`font-headline font-bold text-xs sm:text-sm block ${isSelected ? 'text-primary' : 'text-on-surface'}`}>
@@ -564,84 +660,6 @@ export const RequestPage: React.FC = () => {
                       </button>
                     )
                   })}
-                </div>
-
-                {/* Specific Serving Time Selection ("and if they want to choose the specific time let them have that option too") */}
-                <div className="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 space-y-2.5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                    <div>
-                      <span className="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-secondary text-[16px]">schedule</span>
-                        Specific Serving Time <span className="text-[10px] text-outline font-normal">(Optional)</span>
-                      </span>
-                      <p className="text-[10.5px] text-outline">
-                        Pick a recommended time or enter your exact muhurtham / dining time.
-                      </p>
-                    </div>
-                    {specificTime && (
-                      <button
-                        type="button"
-                        onClick={() => setSpecificTime('')}
-                        className="text-[11px] text-primary hover:underline font-semibold self-start sm:self-auto cursor-pointer"
-                      >
-                        Clear specific time
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Popular quick picks for the selected slot */}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[10px] uppercase font-bold text-outline tracking-wider mr-1">
-                      Quick Picks:
-                    </span>
-                    {(eventTime === 'Morning'
-                      ? ['07:30 AM', '08:30 AM (Muhurtham)', '09:30 AM', '10:30 AM']
-                      : eventTime === 'Afternoon'
-                      ? ['12:00 PM', '12:45 PM (Feast)', '01:30 PM', '02:15 PM']
-                      : ['06:30 PM', '07:30 PM (Reception)', '08:30 PM', '09:15 PM']
-                    ).map((timeOption) => {
-                      const isTimeActive = specificTime === timeOption
-                      return (
-                        <button
-                          key={timeOption}
-                          type="button"
-                          onClick={() => setSpecificTime(timeOption)}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
-                            isTimeActive
-                              ? 'bg-primary text-white shadow-2xs font-bold'
-                              : 'bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/30'
-                          }`}
-                        >
-                          {timeOption}
-                        </button>
-                      )
-                    })}
-                  </div>
-
-                  {/* Custom exact time input */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-1">
-                    <div className="relative flex-1 max-w-xs">
-                      <input
-                        type="text"
-                        value={specificTime}
-                        onChange={(e) => setSpecificTime(e.target.value)}
-                        placeholder={
-                          eventTime === 'Morning' 
-                            ? 'Or enter exact time e.g. 08:15 AM' 
-                            : eventTime === 'Afternoon' 
-                            ? 'Or enter exact time e.g. 01:15 PM' 
-                            : 'Or enter exact time e.g. 07:45 PM'
-                        }
-                        className="w-full px-3 py-1.5 rounded-lg border border-outline-variant/40 text-xs bg-surface-container-lowest focus:bg-white focus:border-primary outline-none transition-all"
-                      />
-                    </div>
-                    {specificTime && (
-                      <span className="text-[11px] font-bold text-secondary flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[15px]">done</span>
-                        Serving fixed at: {specificTime}
-                      </span>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -708,7 +726,7 @@ export const RequestPage: React.FC = () => {
 
                 {/* Leaf Setup & Parisevane Banner */}
                 <div className="p-3 rounded-xl bg-surface-container-low/70 border border-outline-variant/20 flex items-start gap-2.5 text-xs text-on-surface-variant">
-                  <span className="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">eco</span>
+                  <Leaf className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                   <p className="leading-relaxed">
                     Includes dedicated <span className="font-bold text-primary">plantain leaf lay-out setup</span> and certified traditional <span className="font-bold text-primary">Iyengar parisevane servers</span> in veshthi &amp; angavastram.
                   </p>
@@ -736,7 +754,7 @@ export const RequestPage: React.FC = () => {
                     }}
                     className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[14px]">my_location</span>
+                    <MapPin className="w-3.5 h-3.5" />
                     <span>Detect Mysuru Location</span>
                   </button>
                 </div>
@@ -758,7 +776,7 @@ export const RequestPage: React.FC = () => {
 
                 {/* Delivery Verification Badge */}
                 <div className="p-2.5 rounded-xl bg-tertiary-container/10 border border-tertiary-container/20 flex items-center gap-2 text-xs text-tertiary font-bold">
-                  <span className="material-symbols-outlined text-[16px] text-tertiary">verified</span>
+                  <CheckCircle2 className="w-4 h-4 text-tertiary" />
                   <span>Mysuru city delivery &amp; Insulated brass hot-pack live transport verified</span>
                 </div>
 
@@ -904,7 +922,7 @@ export const RequestPage: React.FC = () => {
 
                 {/* Disclaimer info note */}
                 <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/20 flex items-start gap-2 text-[11px] text-on-surface-variant leading-relaxed">
-                  <span className="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">info</span>
+                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                   <p>
                     Estimated Food Total: <span className="font-bold text-primary">₹{estimatedFoodTotal.toLocaleString('en-IN')}</span>. Delivery transit logistics and special ritual customizations calculated at final confirmation. No advance deposit needed now.
                   </p>
@@ -918,12 +936,12 @@ export const RequestPage: React.FC = () => {
                   className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-white font-bold text-sm shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Continue to Contact Details</span>
-                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
 
                 {/* Footnote with Lock */}
                 <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-outline">
-                  <span className="material-symbols-outlined text-[14px]">lock</span>
+                  <Lock className="w-3.5 h-3.5" />
                   <span>Direct confirmation with Mysuru Head Acharya</span>
                 </div>
               </div>
@@ -934,7 +952,7 @@ export const RequestPage: React.FC = () => {
 
       {/* 5. HERITAGE FOOTER */}
       <AppFooter />
-    </div>
+    </motion.div>
   )
 }
 

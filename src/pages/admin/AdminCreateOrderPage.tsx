@@ -1,6 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
+import {
+  ArrowLeft,
+  Bookmark,
+  Calculator,
+  Check,
+  CheckCircle2,
+  Circle,
+  Info,
+  Lightbulb,
+  PartyPopper,
+  PhoneCall,
+  Plus,
+  Shield,
+  ShieldCheck,
+  User,
+  UtensilsCrossed,
+  X
+} from 'lucide-react'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
 import { saveOrder, getCustomer } from '@/api'
 import type { CustomerRecord, OrderItem } from '@/data/mockData'
@@ -408,7 +426,7 @@ export const AdminCreateOrderPage: React.FC = () => {
               to="/admin/orders"
               className="flex items-center gap-2 text-on-surface-variant hover:text-primary cursor-pointer transition-colors w-fit text-xs font-semibold"
             >
-              <span className="material-symbols-outlined text-sm font-semibold">arrow_back</span>
+              <ArrowLeft className="w-4 h-4 shrink-0 font-semibold" />
               <span>Back to All Orders</span>
             </Link>
             
@@ -420,7 +438,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                 </span>
               </h1>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary text-xs font-bold">
-                <span className="material-symbols-outlined text-[16px]">phone_in_talk</span>
+                <PhoneCall className="w-4 h-4" />
                 <span>Manual / Phone Booking</span>
               </span>
             </div>
@@ -428,7 +446,7 @@ export const AdminCreateOrderPage: React.FC = () => {
 
           {/* Prominent Reassurance Pill */}
           <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-secondary-fixed/50 text-on-secondary-container shadow-xs">
-            <span className="material-symbols-outlined text-secondary text-[20px]">info</span>
+            <Info className="w-5 h-5 text-secondary shrink-0" />
             <p className="text-xs font-medium">
               <span className="font-bold">Fast Capture:</span> Only mobile number is needed to save. Date and plates are needed to confirm.
             </p>
@@ -486,7 +504,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                       : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[14px] text-emerald-700">check_circle</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                   <span>Existing Customer Match</span>
                 </button>
               </div>
@@ -496,9 +514,7 @@ export const AdminCreateOrderPage: React.FC = () => {
             {customerMode === 'existing' && (
               <div className="mb-6 p-4 rounded-xl bg-tertiary-container/10 flex flex-col sm:flex-row sm:items-start justify-between gap-4 border border-tertiary/20">
                 <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-emerald-800 mt-0.5 text-2xl shrink-0">
-                    verified_user
-                  </span>
+                  <ShieldCheck className="w-6 h-6 text-emerald-800 mt-0.5 shrink-0" />
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-bold text-on-surface">
@@ -556,7 +572,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                   />
                   {isMobileValid && (
                     <span className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-emerald-700">
-                      <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                      <CheckCircle2 className="w-4.5 h-4.5 shrink-0" />
                     </span>
                   )}
                 </div>
@@ -565,9 +581,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                     isMobileValid ? 'text-emerald-700' : 'text-on-surface-variant'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[13px]">
-                    {isMobileValid ? 'done' : 'info'}
-                  </span>
+                  {isMobileValid ? <Check className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
                   <span>
                     {isMobileValid
                       ? 'Validated mobile record. Eligible to save draft immediately.'
@@ -590,7 +604,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                     className="w-full px-3.5 pr-10 py-2.5 rounded-xl bg-surface border border-outline-variant text-on-surface font-semibold text-xs focus:ring-2 focus:ring-primary focus:outline-none transition-all shadow-xs"
                   />
                   <span className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-outline">
-                    <span className="material-symbols-outlined text-[18px]">person</span>
+                    <User className="w-4.5 h-4.5 shrink-0" />
                   </span>
                 </div>
                 <p className="text-[11px] text-on-surface-variant mt-1.5 font-medium">
@@ -652,9 +666,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                             : 'bg-surface-container text-on-surface-variant hover:text-primary hover:bg-surface-container-high border border-outline-variant/40'
                         }`}
                       >
-                        <span className="material-symbols-outlined text-[14px]">
-                          {isSelected ? 'check' : 'add'}
-                        </span>
+                        {isSelected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
                         <span>{tag}</span>
                       </button>
                     )
@@ -685,7 +697,7 @@ export const AdminCreateOrderPage: React.FC = () => {
             {/* Subgrid: Event Details */}
             <div className="p-5 md:p-6 rounded-2xl bg-surface-container-low/50 space-y-6 border border-outline-variant/30">
               <h3 className="font-serif text-lg text-primary flex items-center gap-2 font-bold">
-                <span className="material-symbols-outlined text-[20px]">celebration</span>
+                <PartyPopper className="w-5 h-5 shrink-0" />
                 <span>Muhurtham Banquet Details</span>
               </h3>
 
@@ -726,7 +738,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                     />
                   </div>
                   <p className="text-[11px] text-emerald-800 mt-1 flex items-center gap-1 font-medium">
-                    <span className="material-symbols-outlined text-[13px]">check_circle</span>
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                     <span>Date validated &amp; available in Mysuru Kitchen calendar</span>
                   </p>
                 </div>
@@ -881,7 +893,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                           {isSelected ? (
                             <>
                               <span className="text-xs text-emerald-800 font-bold flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                                <CheckCircle2 className="w-4 h-4 shrink-0" />
                                 <span>Added in Menu</span>
                               </span>
                               <button
@@ -889,7 +901,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                                 onClick={() => handleToggleDelicacy(item.id)}
                                 className="px-3 py-1 rounded-full bg-surface-container text-primary text-xs font-bold hover:bg-surface-variant transition-colors flex items-center gap-1 cursor-pointer border border-outline-variant/30"
                               >
-                                <span className="material-symbols-outlined text-[14px]">check</span>
+                                <Check className="w-3.5 h-3.5 shrink-0" />
                                 <span>Added ✓</span>
                               </button>
                             </>
@@ -903,7 +915,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                                 onClick={() => handleToggleDelicacy(item.id)}
                                 className="px-3.5 py-1 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary hover:text-on-primary text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                               >
-                                <span className="material-symbols-outlined text-[14px]">add</span>
+                                <Plus className="w-3.5 h-3.5 shrink-0" />
                                 <span>Add</span>
                               </button>
                             </>
@@ -920,9 +932,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                 <div className="p-5 rounded-2xl bg-surface-container-low/70 card-ambient-shadow border border-outline-variant/40">
                   <div className="flex items-center justify-between pb-3 border-b border-outline-variant/30">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary text-[20px]">
-                        local_dining
-                      </span>
+                      <UtensilsCrossed className="w-5 h-5 text-primary shrink-0" />
                       <h4 className="text-sm text-on-surface font-bold">
                         Selected Delicacies
                       </h4>
@@ -952,7 +962,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                             className="text-outline hover:text-error transition-colors cursor-pointer p-0.5"
                             title="Remove delicacy"
                           >
-                            <span className="material-symbols-outlined text-[16px]">close</span>
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -1013,9 +1023,7 @@ export const AdminCreateOrderPage: React.FC = () => {
               {/* Breakdown Glass Card */}
               <div className="p-5 md:p-6 rounded-2xl bg-surface-container-low/50 card-ambient-shadow space-y-4 border border-outline-variant/30">
                 <h3 className="text-sm text-on-surface font-bold flex items-center gap-2 pb-2 border-b border-outline-variant/20">
-                  <span className="material-symbols-outlined text-primary text-[20px]">
-                    calculate
-                  </span>
+                  <Calculator className="w-5 h-5 text-primary shrink-0" />
                   <span>Cost Quotation Summary</span>
                 </h3>
 
@@ -1118,9 +1126,7 @@ export const AdminCreateOrderPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="p-5 rounded-2xl bg-secondary-fixed/40 space-y-3 border border-secondary/20">
                   <div className="flex items-center gap-2 text-on-secondary-container">
-                    <span className="material-symbols-outlined text-secondary text-[20px]">
-                      shield_person
-                    </span>
+                    <Shield className="w-5 h-5 text-secondary shrink-0" />
                     <h4 className="text-xs font-bold">Payment &amp; Desk Guarantee</h4>
                   </div>
                   <p className="text-xs text-on-secondary-container leading-relaxed">
@@ -1142,9 +1148,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                         isMobileValid ? 'text-emerald-800 font-semibold' : 'text-on-surface-variant'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[16px]">
-                        {isMobileValid ? 'check_circle' : 'radio_button_unchecked'}
-                      </span>
+                      {isMobileValid ? <CheckCircle2 className="w-4 h-4" /> : <Circle className="w-4 h-4" />}
                       <span>
                         <strong>Mobile Phone:</strong> +91 {mobile}{' '}
                         {isMobileValid ? '(Ready for Draft & Confirm)' : '(10 digits required)'}
@@ -1156,9 +1160,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                         isDateValid ? 'text-emerald-800 font-semibold' : 'text-on-surface-variant'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[16px]">
-                        {isDateValid ? 'check_circle' : 'radio_button_unchecked'}
-                      </span>
+                      {isDateValid ? <CheckCircle2 className="w-4 h-4" /> : <Circle className="w-4 h-4" />}
                       <span>
                         <strong>Occasion Date:</strong> {eventDate || 'Not selected'}{' '}
                         {isDateValid ? '(Ready for Confirmation)' : '(Required to confirm)'}
@@ -1170,9 +1172,7 @@ export const AdminCreateOrderPage: React.FC = () => {
                         isPlatesValid ? 'text-emerald-800 font-semibold' : 'text-on-surface-variant'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[16px]">
-                        {isPlatesValid ? 'check_circle' : 'radio_button_unchecked'}
-                      </span>
+                      {isPlatesValid ? <CheckCircle2 className="w-4 h-4" /> : <Circle className="w-4 h-4" />}
                       <span>
                         <strong>Plates Count:</strong> {plates} Plates{' '}
                         {isPlatesValid ? '(Ready for Confirmation)' : '(Min 25 required)'}
@@ -1209,7 +1209,7 @@ export const AdminCreateOrderPage: React.FC = () => {
             </div>
 
             <p className="text-[11px] text-on-surface-variant hidden lg:flex items-center gap-1.5 font-medium">
-              <span className="material-symbols-outlined text-secondary text-sm">lightbulb</span>
+              <Lightbulb className="w-3.5 h-3.5 text-secondary shrink-0" />
               <span>Only mobile number is needed to save. Date and plates are needed to confirm.</span>
             </p>
           </div>
@@ -1223,7 +1223,7 @@ export const AdminCreateOrderPage: React.FC = () => {
               disabled={isSaving || !isMobileValid}
               className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-surface hover:bg-surface-container text-on-surface text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xs border border-outline-variant/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="material-symbols-outlined text-outline text-[18px]">bookmark</span>
+              <Bookmark className="w-4.5 h-4.5 text-outline shrink-0" />
               <span>{isSaving ? 'Saving...' : 'Save as Enquiry'}</span>
             </button>
 
@@ -1234,7 +1234,7 @@ export const AdminCreateOrderPage: React.FC = () => {
               disabled={isSaving}
               className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#8B0A00] via-[#B30A05] to-[#8B0A00] text-on-primary text-xs font-bold primary-cta-glow transition-all active:scale-95 flex items-center justify-center gap-2 hover:brightness-105 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="material-symbols-outlined text-[18px]">check_circle</span>
+              <CheckCircle2 className="w-4.5 h-4.5 shrink-0" />
               <span>Save &amp; Confirm Order</span>
             </button>
           </div>

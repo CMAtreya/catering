@@ -1,7 +1,9 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Flame, PhoneCall, Leaf, Phone, Calendar, ShoppingBag, UtensilsCrossed } from 'lucide-react'
 import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 
 export interface CustomerTopNavProps {
   activeNavTab?: 'tradition' | 'menus' | 'muhurtham' | 'enquiry'
@@ -24,6 +26,7 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
   const draftItems = useDraftStore((state) => state.items)
   const selectedCount = Object.keys(draftItems).length
   const enquiriesCount = useEnquiryStore((state) => state.enquiries.length)
+  const settings = useBusinessSettingsStore((state) => state.settings)
 
   // Determine active tab if not explicitly controlled
   const currentTab = React.useMemo(() => {
@@ -82,18 +85,16 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
         <header className="bg-primary text-on-primary py-2 px-3 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 text-xs font-medium tracking-wide border-b border-primary-container/40 w-full overflow-hidden">
           <div className="w-full flex justify-between items-center gap-2">
             <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
-              <span className="material-symbols-outlined text-[15px] sm:text-[16px] text-secondary-container shrink-0">
-                local_fire_department
-              </span>
+              <Flame className="w-4 h-4 text-secondary-container shrink-0" />
               <span className="truncate text-[10px] sm:text-xs">
                 Mysuru&apos;s Revered Iyengar Traditional Feasts • Prepared Strictly Without Onion &amp; Garlic
               </span>
             </div>
             <div className="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] text-primary-fixed shrink-0">
-              <a href="tel:+918212448920" className="hover:underline flex items-center gap-1 whitespace-nowrap">
-                <span className="material-symbols-outlined text-[12px] sm:text-[13px]">phone_in_talk</span>
+              <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`} className="hover:underline flex items-center gap-1 whitespace-nowrap">
+                <PhoneCall className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Kitchen Hotline:</span>
-                <span>+91 821 244 8920</span>
+                <span>{settings.phone}</span>
               </a>
             </div>
           </div>
@@ -158,7 +159,7 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
                   : 'text-on-surface-variant hover:text-primary'
               }`}
             >
-              <span className="material-symbols-outlined text-[16px] text-tertiary-container">eco</span>
+              <Leaf className="w-4 h-4 text-tertiary-container" />
               <span>Feast Packages</span>
             </button>
 
@@ -187,7 +188,7 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
               className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-fixed/30 hover:bg-primary-fixed/50 px-3.5 py-1.5 rounded-full transition-colors border border-primary/10" 
               href="tel:+918212448920"
             >
-              <span className="material-symbols-outlined text-[16px]">call</span>
+              <Phone className="w-3.5 h-3.5" />
               +91 821 244 8920
             </a>
 
@@ -199,7 +200,7 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
               title="My Enquiries"
               aria-label="View previous banquet enquiries"
             >
-              <span className="material-symbols-outlined text-[20px] text-on-surface">calendar_month</span>
+              <Calendar className="w-5 h-5 text-on-surface" />
               {enquiriesCount > 0 && (
                 <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
               )}
@@ -213,7 +214,7 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
               title="Selected Items"
               aria-label={`Selected delicacies: ${selectedCount}`}
             >
-              <span className="material-symbols-outlined text-[20px] sm:text-[22px] text-on-surface">shopping_bag</span>
+              <ShoppingBag className="w-5 h-5 text-on-surface" />
               {selectedCount > 0 && (
                 <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-on-primary rounded-full text-[10px] flex items-center justify-center font-bold">
                   {selectedCount}
@@ -227,7 +228,7 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
               onClick={handlePlanEventBanquet}
               className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold px-3.5 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap"
             >
-              <span className="material-symbols-outlined text-[16px]">flatware</span>
+              <UtensilsCrossed className="w-4 h-4" />
               <span>Plan Event Banquet</span>
             </button>
           </div>

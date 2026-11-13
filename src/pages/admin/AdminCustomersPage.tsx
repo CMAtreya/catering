@@ -1,5 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  Download,
+  FileEdit,
+  FilePlus,
+  FileText,
+  HelpCircle,
+  Leaf,
+  Loader2,
+  MapPin,
+  MessageSquare,
+  MessageSquarePlus,
+  Phone,
+  Save,
+  Scroll,
+  Search,
+  Send,
+  X
+} from 'lucide-react'
 import { getCustomers, getOrders, recordEnquiry } from '@/api'
 import type { CustomerRecord, Order } from '@/data/mockData'
 import { toast } from 'sonner'
@@ -348,9 +369,7 @@ export const AdminCustomersPage: React.FC = () => {
             {/* Loading Indicator */}
             {isLoading && (
               <div className="flex flex-col items-center justify-center py-20 text-on-surface-variant gap-3">
-                <span className="material-symbols-outlined animate-spin text-3xl text-primary">
-                  progress_activity
-                </span>
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 <p className="text-sm font-medium">Loading sacred patron directory...</p>
               </div>
             )}
@@ -381,7 +400,7 @@ export const AdminCustomersPage: React.FC = () => {
                         onClick={handleExportCSV}
                         className="self-start md:self-auto px-3.5 py-2 rounded-xl text-xs font-semibold text-on-surface-variant bg-surface-container-lowest border border-outline-variant/60 hover:text-primary hover:border-primary transition-all flex items-center gap-2 shadow-sm cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-[18px]">download</span>
+                        <Download className="w-4 h-4 shrink-0" />
                         <span>Export Customer List (CSV)</span>
                       </button>
                     </div>
@@ -390,9 +409,7 @@ export const AdminCustomersPage: React.FC = () => {
                     <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
                       {/* Search Bar */}
                       <div className="relative flex-1 max-w-xl">
-                        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">
-                          search
-                        </span>
+                        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none" />
                         <input
                           type="text"
                           value={searchQuery}
@@ -516,7 +533,7 @@ export const AdminCustomersPage: React.FC = () => {
                                         onClick={(e) => e.stopPropagation()}
                                         title={`Call +91 ${cleanMobile}`}
                                       >
-                                        <span className="material-symbols-outlined text-[15px]">call</span>
+                                        <Phone className="w-3.5 h-3.5" />
                                       </a>
                                       <span className="font-medium text-xs sm:text-sm">
                                         +91 {cleanMobile}
@@ -571,7 +588,7 @@ export const AdminCustomersPage: React.FC = () => {
                                       className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:underline cursor-pointer"
                                     >
                                       <span>View Profile</span>
-                                      <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                      <ArrowRight className="w-4 h-4" />
                                     </button>
                                   </td>
                                 </tr>
@@ -674,7 +691,7 @@ export const AdminCustomersPage: React.FC = () => {
                                 onClick={(e) => e.stopPropagation()}
                                 className="flex-1 py-2 rounded-xl bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm"
                               >
-                                <span className="material-symbols-outlined text-[16px]">call</span>
+                                <Phone className="w-4 h-4" />
                                 <span>Call +91 {cleanMobile}</span>
                               </a>
                               <button
@@ -709,7 +726,7 @@ export const AdminCustomersPage: React.FC = () => {
                         onClick={() => setViewState('directory')}
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-on-primary-fixed-variant bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/60 transition-all shadow-sm cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                        <ArrowLeft className="w-4 h-4" />
                         <span>← Back to Customers Directory</span>
                       </button>
                     </div>
@@ -741,7 +758,7 @@ export const AdminCustomersPage: React.FC = () => {
                               {CUSTOMER_META_MAP[selectedCustomer.phone.replace(/\D/g, '').slice(-10)]?.designation || 'Senior Govt Officer (Retd.)'}
                             </div>
                             <div className="flex items-center gap-1.5 text-xs text-on-surface-variant mt-2">
-                              <span className="material-symbols-outlined text-[16px] text-outline">location_on</span>
+                              <MapPin className="w-4 h-4 text-outline shrink-0" />
                               <span>{selectedCustomer.address || CUSTOMER_META_MAP[selectedCustomer.phone.replace(/\D/g, '').slice(-10)]?.area || 'No. 74, 5th Cross, Jayalakshmipuram, Mysuru - 570012'}</span>
                             </div>
                           </div>
@@ -753,7 +770,7 @@ export const AdminCustomersPage: React.FC = () => {
                             href={`tel:+91${selectedCustomer.phone.replace(/\D/g, '').slice(-10)}`}
                             className="px-4 py-2.5 rounded-xl bg-emerald-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm hover:opacity-95 transition-all"
                           >
-                            <span className="material-symbols-outlined text-[17px]">call</span>
+                            <Phone className="w-4 h-4" />
                             <span>📞 Tap to Call (+91 {selectedCustomer.phone.replace(/\D/g, '').slice(-10)})</span>
                           </a>
 
@@ -763,7 +780,7 @@ export const AdminCustomersPage: React.FC = () => {
                             rel="noopener noreferrer"
                             className="px-4 py-2.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold text-xs flex items-center gap-2 hover:bg-emerald-200 transition-all"
                           >
-                            <span className="material-symbols-outlined text-[17px]">chat</span>
+                            <MessageSquare className="w-4 h-4" />
                             <span>WhatsApp</span>
                           </a>
 
@@ -772,7 +789,7 @@ export const AdminCustomersPage: React.FC = () => {
                             onClick={() => setIsEnquiryModalOpen(true)}
                             className="px-4 py-2.5 rounded-xl bg-primary-container text-white font-semibold text-xs flex items-center gap-2 shadow-md shadow-primary/25 hover:bg-primary transition-all cursor-pointer"
                           >
-                            <span className="material-symbols-outlined text-[17px]">note_add</span>
+                            <FilePlus className="w-4 h-4" />
                             <span>Record General Enquiry</span>
                           </button>
                         </div>
@@ -821,7 +838,7 @@ export const AdminCustomersPage: React.FC = () => {
                       <div className="lg:col-span-7 flex flex-col gap-4">
                         <div className="flex items-center justify-between pb-1 border-b border-outline-variant/50">
                           <div className="flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary text-[22px]">history_edu</span>
+                            <Scroll className="w-5 h-5 text-primary shrink-0" />
                             <h3 className="font-serif text-xl text-primary font-bold">Enquiry &amp; Order History</h3>
                           </div>
                           <span className="text-xs text-on-surface-variant font-medium">Sorted by Newest First</span>
@@ -866,7 +883,7 @@ export const AdminCustomersPage: React.FC = () => {
 
                             <div className="mt-4 pt-3 border-t border-outline-variant/40 flex items-center justify-between text-xs">
                               <div className="flex items-center gap-2 text-on-surface-variant">
-                                <span className="material-symbols-outlined text-[16px] text-outline">event</span>
+                                <Calendar className="w-4 h-4 text-outline shrink-0" />
                                 <span>Feast Date: <strong>14 Dec 2025</strong> · Source: Walk-in Desk Booking</span>
                               </div>
                               <button
@@ -875,7 +892,7 @@ export const AdminCustomersPage: React.FC = () => {
                                 className="font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                               >
                                 <span>Open Order #TKS-84920</span>
-                                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
@@ -903,7 +920,7 @@ export const AdminCustomersPage: React.FC = () => {
                               Customer visited desk personally, inquired regarding hall availability and winter payasa options (Gasagase Payasa vs Kadalebele Payasa).
                             </div>
                             <div className="mt-3 text-xs text-on-surface-variant flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[16px] text-secondary">help</span>
+                              <HelpCircle className="w-4 h-4 text-secondary shrink-0" />
                               <span>Source: <strong>General Enquiry Desk</strong> · Logged Today 11:30 AM</span>
                             </div>
                           </div>
@@ -1011,7 +1028,7 @@ export const AdminCustomersPage: React.FC = () => {
                       <div className="lg:col-span-5 flex flex-col gap-4">
                         <div className="flex items-center justify-between pb-1 border-b border-outline-variant/50">
                           <div className="flex items-center gap-2">
-                            <span className="material-symbols-outlined text-secondary text-[22px]">sticky_note_2</span>
+                            <FileText className="w-5 h-5 text-secondary shrink-0" />
                             <h3 className="font-serif text-xl text-primary font-bold">Customer Notes &amp; Preferences</h3>
                           </div>
                         </div>
@@ -1038,7 +1055,7 @@ export const AdminCustomersPage: React.FC = () => {
                                     : 'bg-surface-container-highest text-primary border border-outline-variant'
                                 }`}
                               >
-                                {idx === 0 && <span className="material-symbols-outlined text-[14px]">eco</span>}
+                                {idx === 0 && <Leaf className="w-3.5 h-3.5 shrink-0" />}
                                 {badge}
                               </span>
                             ))}
@@ -1049,7 +1066,7 @@ export const AdminCustomersPage: React.FC = () => {
                         <div className="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/70 shadow-sm flex flex-col gap-3">
                           <div className="flex items-center justify-between">
                             <label className="text-xs font-bold text-primary flex items-center gap-1.5" htmlFor="new-note-text">
-                              <span className="material-symbols-outlined text-[16px]">add_comment</span>
+                              <MessageSquarePlus className="w-4 h-4" />
                               <span>Add Supervisor Note / Kitchen Alert</span>
                             </label>
                             <span className="text-[11px] text-outline">Visible to Desk &amp; Cooks</span>
@@ -1096,7 +1113,7 @@ export const AdminCustomersPage: React.FC = () => {
                               onClick={handleAddNote}
                               className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-container shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
                             >
-                              <span className="material-symbols-outlined text-[15px]">send</span>
+                              <Send className="w-3.5 h-3.5" />
                               <span>Add Note</span>
                             </button>
                           </div>
@@ -1147,7 +1164,7 @@ export const AdminCustomersPage: React.FC = () => {
             <div className="bg-surface-container-low px-6 py-4 border-b border-outline-variant/60 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm">
-                  <span className="material-symbols-outlined text-[18px]">edit_note</span>
+                  <FileEdit className="w-4 h-4" />
                 </span>
                 <div>
                   <h3 className="font-serif text-xl text-primary font-bold">Record General Enquiry</h3>
@@ -1161,7 +1178,7 @@ export const AdminCustomersPage: React.FC = () => {
                 onClick={() => setIsEnquiryModalOpen(false)}
                 className="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -1274,7 +1291,7 @@ export const AdminCustomersPage: React.FC = () => {
                   disabled={isSavingEnquiry}
                   className="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-primary hover:bg-primary-container shadow-md shadow-primary/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
-                  <span className="material-symbols-outlined text-[16px]">save</span>
+                  <Save className="w-4 h-4" />
                   <span>{isSavingEnquiry ? 'Saving...' : 'Save Enquiry Record'}</span>
                 </button>
               </div>

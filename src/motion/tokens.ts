@@ -128,12 +128,24 @@ export const getPageTransitionVariants = (tier: MotionTier, direction: 'forward'
     typeof window !== 'undefined' &&
     ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches)
 
-  // Per specification: simple fade on touch devices to avoid gesture fights; instant on reduced
-  if (tier === 'reduced' || (direction !== 'admin' && isTouchDevice)) {
+  // Per specification: smooth fast-in slow-out entrance on touch devices; instant on reduced
+  if (tier === 'reduced') {
     return {
       initial: { opacity: 0 },
-      animate: { opacity: 1, transition: { duration: MOTION_DURATIONS.quick } },
+      animate: { opacity: 1, transition: { duration: MOTION_DURATIONS.instant } },
       exit: { opacity: 0, transition: { duration: MOTION_DURATIONS.instant } },
+    }
+  }
+
+  if (direction !== 'admin' && isTouchDevice) {
+    return {
+      initial: { opacity: 0, y: 18 },
+      animate: { 
+        opacity: 1, 
+        y: 0, 
+        transition: { duration: 0.52, ease: MOTION_EASINGS.entrance } 
+      },
+      exit: { opacity: 0, transition: { duration: 0.2 } },
     }
   }
 
@@ -160,20 +172,21 @@ export const getPageTransitionVariants = (tier: MotionTier, direction: 'forward'
   const xOffset = direction === 'forward' ? distance : -distance
 
   return {
-    initial: { opacity: 0, x: xOffset },
+    initial: { opacity: 0, x: xOffset, y: 12 },
     animate: {
       opacity: 1,
       x: 0,
+      y: 0,
       transition: {
-        duration: MOTION_DURATIONS.base,
-        ease: MOTION_EASINGS.entrance,
+        duration: 0.52,
+        ease: MOTION_EASINGS.entrance, // Fast in, slow out [0.16, 1, 0.3, 1]
       },
     },
     exit: {
       opacity: 0,
-      x: -xOffset * 0.7,
+      x: -xOffset * 0.5,
       transition: {
-        duration: MOTION_DURATIONS.quick,
+        duration: 0.22,
         ease: MOTION_EASINGS.standard,
       },
     },

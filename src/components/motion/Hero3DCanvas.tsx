@@ -154,6 +154,7 @@ export const Hero3DCanvas: React.FC = () => {
           scale={2.2}
           blur={1.8}
           far={1.8}
+          frames={1}
           color="#3a2202"
         />
       </Canvas>

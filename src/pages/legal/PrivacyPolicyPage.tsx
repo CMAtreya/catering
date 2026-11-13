@@ -2,9 +2,11 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, ShieldCheck, Lock, FileText, CheckCircle2, Mail, Phone, Building2 } from 'lucide-react'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 
 export const PrivacyPolicyPage: React.FC = () => {
   const navigate = useNavigate()
+  const settings = useBusinessSettingsStore((state) => state.settings)
 
   return (
     <CustomerDesktopShell maxWidth="w-full" showFooter={true}>
@@ -106,7 +108,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               </div>
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-slate-700 space-y-1">
                 <span className="font-bold text-[var(--brand-900)] block">Statutory Compliance</span>
-                Generating GST invoices (GSTIN: 29ABCDE1234F1Z5) and fulfilling FSSAI food safety trace records.
+                Generating GST invoices (GSTIN: {settings.gstin}) and fulfilling FSSAI food safety trace records.
               </div>
             </div>
           </section>
@@ -120,7 +122,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-amber-950 font-medium leading-relaxed">
-              <strong>We never sell, rent, lease, or share your mobile number or event information with external marketing agencies, advertising aggregators, or third-party vendors.</strong> Your personal phone number is strictly used for order confirmation, catering coordination, and invoice delivery by TKS Catering's authorized operations desk.
+              <strong>We never sell, rent, lease, or share your mobile number or event information with external marketing agencies, advertising aggregators, or third-party vendors.</strong> Your personal phone number is strictly used for order confirmation, catering coordination, and invoice delivery by {settings.businessName}'s authorized operations desk.
             </p>
           </section>
 
@@ -144,21 +146,21 @@ export const PrivacyPolicyPage: React.FC = () => {
             </p>
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs sm:text-sm">
               <p className="font-bold text-[var(--brand-900)]">Compliance & Legal Desk</p>
-              <p className="text-slate-600">TKS Catering Services Private Limited</p>
+              <p className="text-slate-600">{settings.companyLegalName}</p>
               <p className="flex items-center gap-2 text-slate-700">
                 <Mail className="w-3.5 h-3.5 text-[var(--brand)]" />
-                <a href="mailto:orders@tksiyengarscatering.com" className="hover:underline font-semibold">
-                  orders@tksiyengarscatering.com
+                <a href={`mailto:${settings.email}`} className="hover:underline font-semibold">
+                  {settings.email}
                 </a>
               </p>
               <p className="flex items-center gap-2 text-slate-700">
                 <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                <a href="tel:+918212448920" className="hover:underline font-semibold">
-                  +91 821 244 8920 / +91 98450 12345 (Mon–Sun: 8:00 AM – 9:00 PM IST)
+                <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`} className="hover:underline font-semibold">
+                  {settings.phone} {settings.mobile ? `/ ${settings.mobile}` : ''} (Mon–Sun: 8:00 AM – 9:00 PM IST)
                 </a>
               </p>
               <p className="text-slate-500 pt-1 text-[11px]">
-                Registered Office: Shop 14, 5th Main Road, Vani Vilas Mohalla, Mysuru, Karnataka 570002
+                Registered Office: {settings.address}
               </p>
             </div>
           </section>

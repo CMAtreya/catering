@@ -3,6 +3,32 @@ import { useNavigate } from 'react-router-dom'
 import { toast, Toaster } from 'sonner'
 import { format, parseISO, isValid } from 'date-fns'
 import { motion } from 'motion/react'
+import {
+  Headphones,
+  Lock,
+  ShieldCheck,
+  UtensilsCrossed,
+  Inbox,
+  Search,
+  Trash2,
+  Plus,
+  RefreshCw,
+  CheckCircle2,
+  Flame,
+  HeartHandshake,
+  Leaf,
+  Calendar,
+  Users,
+  CookingPot,
+  MapPin,
+  BookOpen,
+  Info,
+  Phone,
+  Copy,
+  X,
+  User,
+  FileText
+} from 'lucide-react'
 
 import { useEnquiryStore, type LocalEnquiryRecord } from '@/store/enquiryStore'
 import { useDraftStore } from '@/store/draftStore'
@@ -185,7 +211,7 @@ export const EnquiriesPage: React.FC = () => {
               {/* Kitchen Concierge Quick Contact Chip */}
               <div className="flex items-center gap-3 bg-surface-container-low border border-outline-variant/60 rounded-2xl p-3 px-4 shadow-2xs self-start md:self-auto shrink-0">
                 <div className="w-10 h-10 rounded-full bg-secondary/15 flex items-center justify-center text-secondary">
-                  <span className="material-symbols-outlined text-[22px]">support_agent</span>
+                  <Headphones className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="text-xs font-semibold text-on-surface-variant block">Kitchen Concierge</span>
@@ -207,7 +233,7 @@ export const EnquiriesPage: React.FC = () => {
               />
               <div className="flex items-start md:items-center gap-3.5 relative z-10">
                 <div className="p-2.5 rounded-xl bg-surface-container-highest text-primary flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[20px]">lock</span>
+                  <Lock className="w-5 h-5 text-tertiary" />
                 </div>
                 <div>
                   <h2 className="text-sm sm:text-base font-bold text-on-surface">Guest Order Privacy</h2>
@@ -217,7 +243,7 @@ export const EnquiriesPage: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 text-xs font-semibold text-secondary bg-secondary-fixed/50 px-3 py-1.5 rounded-full border border-secondary-container shrink-0 relative z-10">
-                <span className="material-symbols-outlined text-sm">verified_user</span>
+                <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Local Device Storage Protected</span>
               </div>
             </div>
@@ -239,7 +265,7 @@ export const EnquiriesPage: React.FC = () => {
                       : 'text-on-surface-variant hover:text-primary font-medium'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[18px]">restaurant_menu</span>
+                  <UtensilsCrossed className="w-4 h-4" />
                   <span>Active History ({enquiries.length} Requests)</span>
                 </button>
                 <button
@@ -254,7 +280,7 @@ export const EnquiriesPage: React.FC = () => {
                       : 'text-on-surface-variant hover:text-primary font-medium'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[18px]">inbox</span>
+                  <Inbox className="w-4 h-4" />
                   <span>Empty State Preview</span>
                 </button>
               </div>
@@ -262,7 +288,7 @@ export const EnquiriesPage: React.FC = () => {
               {/* Action Cluster: Search, Clear History & Place New Request */}
               <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
                 <div className="flex items-center bg-surface-container-low border border-outline-variant/60 rounded-xl px-3 py-1.5 gap-2 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
-                  <span className="material-symbols-outlined text-outline text-[18px]">search</span>
+                  <Search className="w-4 h-4 text-outline" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -277,7 +303,7 @@ export const EnquiriesPage: React.FC = () => {
                   onClick={() => setIsClearDialogOpen(true)}
                   className="px-4 py-2 rounded-xl border border-outline-variant hover:bg-error-container/40 text-on-surface-variant hover:text-error transition-all text-xs sm:text-sm font-semibold flex items-center gap-2 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-base">delete</span>
+                  <Trash2 className="w-4 h-4" />
                   <span>Clear History</span>
                 </button>
                 <button
@@ -285,7 +311,7 @@ export const EnquiriesPage: React.FC = () => {
                   onClick={() => navigate('/request')}
                   className="crimson-gradient text-white px-4 sm:px-5 py-2 rounded-xl custom-cta-glow text-xs sm:text-sm font-bold hover:opacity-95 active:scale-95 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
                 >
-                  <span className="material-symbols-outlined text-base">add</span>
+                  <Plus className="w-4 h-4" />
                   <span>Place New Catering Request</span>
                 </button>
               </div>
@@ -298,7 +324,7 @@ export const EnquiriesPage: React.FC = () => {
                 Showing {sortedEnquiries.length} catering banquet {sortedEnquiries.length === 1 ? 'request' : 'requests'}
               </span>
               <span className="flex items-center gap-1.5 text-xs font-semibold text-secondary">
-                <span className="material-symbols-outlined text-sm">sync</span>
+                <RefreshCw className="w-3.5 h-3.5" />
                 Last synced just now
               </span>
             </div>
@@ -314,7 +340,7 @@ export const EnquiriesPage: React.FC = () => {
                   
                   {/* Clean SVG/Icon representation */}
                   <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary shadow-inner">
-                    <span className="material-symbols-outlined text-4xl sm:text-5xl">restaurant</span>
+                    <UtensilsCrossed className="w-10 h-10 text-primary" />
                   </div>
 
                   <div className="space-y-2">
@@ -332,7 +358,7 @@ export const EnquiriesPage: React.FC = () => {
                       onClick={() => navigate('/')}
                       className="crimson-gradient text-white text-xs sm:text-sm font-bold px-6 sm:px-8 py-3 rounded-xl custom-cta-glow hover:opacity-95 active:scale-95 transition-all flex items-center gap-2 shadow-md w-full sm:w-auto justify-center cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-lg">soup_kitchen</span>
+                      <UtensilsCrossed className="w-4 h-4" />
                       <span>Browse Catering Menus</span>
                     </button>
                     {enquiries.length > 0 && (
@@ -349,15 +375,15 @@ export const EnquiriesPage: React.FC = () => {
                   {/* Trust and Purity Assurance Badges */}
                   <div className="pt-6 border-t border-outline-variant/40 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-semibold text-on-surface-variant">
                     <span className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-secondary text-sm">verified</span>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
                       100% Mysuru Purity
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-secondary text-sm">local_fire_department</span>
+                      <Flame className="w-3.5 h-3.5 text-secondary" />
                       Fresh Live Counters
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-secondary text-sm">volunteer_activism</span>
+                      <HeartHandshake className="w-3.5 h-3.5 text-secondary" />
                       Sacred Hospitality
                     </span>
                   </div>
@@ -405,7 +431,7 @@ export const EnquiriesPage: React.FC = () => {
                             </span>
                             {/* Sattvic Purity Chip */}
                             <span className="inline-flex items-center gap-1 bg-secondary-fixed/40 text-on-secondary-fixed border border-secondary-container px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                              <span className="material-symbols-outlined text-xs">eco</span>
+                              <Leaf className="w-3 h-3" />
                               100% Traditional Sattvic
                             </span>
                           </div>
@@ -437,7 +463,7 @@ export const EnquiriesPage: React.FC = () => {
                         {/* 1. Muhurtham Date */}
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-xl bg-surface-container text-primary shrink-0">
-                            <span className="material-symbols-outlined text-[20px]">event</span>
+                            <Calendar className="w-5 h-5 text-secondary" />
                           </div>
                           <div>
                             <span className="text-[11px] font-semibold text-on-surface-variant block">Muhurtham Date</span>
@@ -449,7 +475,7 @@ export const EnquiriesPage: React.FC = () => {
                         {/* 2. Guest Serving Count (Matches Playwright '120 plates') */}
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-xl bg-surface-container text-primary shrink-0">
-                            <span className="material-symbols-outlined text-[20px]">groups</span>
+                            <Users className="w-5 h-5 text-secondary" />
                           </div>
                           <div>
                             <span className="text-[11px] font-semibold text-on-surface-variant block">Guest Serving Count</span>
@@ -461,7 +487,7 @@ export const EnquiriesPage: React.FC = () => {
                         {/* 3. Curated Spread */}
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-xl bg-surface-container text-primary shrink-0">
-                            <span className="material-symbols-outlined text-[20px]">soup_kitchen</span>
+                            <CookingPot className="w-5 h-5 text-secondary" />
                           </div>
                           <div>
                             <span className="text-[11px] font-semibold text-on-surface-variant block">Curated Spread</span>
@@ -475,7 +501,7 @@ export const EnquiriesPage: React.FC = () => {
                         {/* 4. Delivery & Service Hub */}
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-xl bg-surface-container text-primary shrink-0">
-                            <span className="material-symbols-outlined text-[20px]">pin_drop</span>
+                            <MapPin className="w-5 h-5 text-secondary" />
                           </div>
                           <div>
                             <span className="text-[11px] font-semibold text-on-surface-variant block">Delivery &amp; Service Hub</span>
@@ -491,7 +517,7 @@ export const EnquiriesPage: React.FC = () => {
                       <div className="pt-2 pb-2">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary text-base">menu_book</span>
+                            <BookOpen className="w-4 h-4 text-primary" />
                             Curated Traditional Course Details
                           </h4>
                           <span className="text-xs font-semibold text-secondary hidden sm:inline-block">
@@ -530,7 +556,7 @@ export const EnquiriesPage: React.FC = () => {
                           {/* Plantain Leaf Service Note */}
                           <div className="p-3 rounded-xl bg-secondary-fixed/30 border border-secondary-container flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
-                              <span className="material-symbols-outlined text-secondary text-[20px]">restaurant</span>
+                              <UtensilsCrossed className="w-5 h-5 text-secondary" />
                               <div>
                                 <span className="text-xs sm:text-sm font-bold text-on-secondary-fixed block">
                                   Bale Ele Seva (Full Setup)
@@ -550,7 +576,7 @@ export const EnquiriesPage: React.FC = () => {
                       {/* Footer Action Toolbar */}
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-outline-variant/30">
                         <div className="flex items-center gap-2 text-on-surface-variant text-xs sm:text-sm self-start sm:self-auto">
-                          <span className="material-symbols-outlined text-secondary text-base">info</span>
+                          <Info className="w-4 h-4 text-secondary" />
                           <span>Chef assigned: Srivatsa Iyengar (Head Rasamacharya)</span>
                         </div>
                         <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
@@ -559,7 +585,7 @@ export const EnquiriesPage: React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                             className="px-4 py-2 rounded-xl border border-outline-variant hover:bg-surface-container text-on-surface text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-all flex-1 sm:flex-initial"
                           >
-                            <span className="material-symbols-outlined text-primary text-base">call</span>
+                            <Phone className="w-4 h-4 text-primary" />
                             <span>Call Kitchen</span>
                           </a>
                           <button
@@ -567,7 +593,7 @@ export const EnquiriesPage: React.FC = () => {
                             onClick={(e) => handleReorder(enquiry, e)}
                             className="crimson-gradient text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 rounded-xl custom-cta-glow hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-sm flex-1 sm:flex-initial cursor-pointer whitespace-nowrap"
                           >
-                            <span className="material-symbols-outlined text-base">content_copy</span>
+                            <Copy className="w-4 h-4" />
                             <span>Re-order / Duplicate Menu</span>
                           </button>
                         </div>
@@ -583,7 +609,7 @@ export const EnquiriesPage: React.FC = () => {
             <section className="bg-surface-container-high border border-outline-variant/50 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-4 sm:gap-5">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary text-white flex items-center justify-center shrink-0 shadow-md">
-                  <span className="material-symbols-outlined text-2xl sm:text-3xl">spa</span>
+                  <Leaf className="w-7 h-7 text-white" />
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-lg sm:text-xl font-serif font-bold text-primary">
@@ -643,7 +669,7 @@ export const EnquiriesPage: React.FC = () => {
                         aria-label="Close enquiry details"
                         className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-base">close</span>
+                        <X className="w-4 h-4" />
                       </button>
                     </SheetClose>
                   </SheetHeader>
@@ -672,7 +698,7 @@ export const EnquiriesPage: React.FC = () => {
                     <div className="grid grid-cols-2 gap-2.5">
                       <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-0.5">
                         <span className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
-                          <span className="material-symbols-outlined text-xs text-primary">person</span>
+                          <User className="w-3 h-3 text-primary" />
                           Customer Name
                         </span>
                         <p className="font-bold text-on-surface">{selectedEnquiry.customerName}</p>
@@ -680,7 +706,7 @@ export const EnquiriesPage: React.FC = () => {
 
                       <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-0.5">
                         <span className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
-                          <span className="material-symbols-outlined text-xs text-primary">phone</span>
+                          <Phone className="w-3 h-3 text-primary" />
                           Mobile Number
                         </span>
                         <p className="font-bold text-on-surface">+91 {selectedEnquiry.customerPhone}</p>
@@ -690,7 +716,7 @@ export const EnquiriesPage: React.FC = () => {
                     {/* Full Items with per-plate prices */}
                     <div className="space-y-2">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface">
-                        <span className="material-symbols-outlined text-xs text-primary">restaurant</span>
+                        <UtensilsCrossed className="w-3 h-3 text-primary" />
                         <span>Items Selected ({selectedEnquiry.itemsCount || selectedEnquiry.itemsList?.length || 0})</span>
                       </div>
 
@@ -720,7 +746,7 @@ export const EnquiriesPage: React.FC = () => {
                     {/* Delivery Address */}
                     <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-1">
                       <span className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
-                        <span className="material-symbols-outlined text-xs text-primary">location_on</span>
+                        <MapPin className="w-3 h-3 text-primary" />
                         Delivery Address
                       </span>
                       <p className="font-medium text-on-surface whitespace-pre-wrap">
@@ -731,7 +757,7 @@ export const EnquiriesPage: React.FC = () => {
                     {/* Special Instructions */}
                     <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-1">
                       <span className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
-                        <span className="material-symbols-outlined text-xs text-primary">description</span>
+                        <FileText className="w-3 h-3 text-primary" />
                         Special Instructions
                       </span>
                       <p className="font-medium text-on-surface italic">
@@ -764,7 +790,7 @@ export const EnquiriesPage: React.FC = () => {
                         }}
                         className="w-full crimson-gradient text-white text-xs sm:text-sm font-bold py-2.5 rounded-xl shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                       >
-                        <span className="material-symbols-outlined text-sm">content_copy</span>
+                        <Copy className="w-3.5 h-3.5" />
                         <span>Re-order Duplicate Menu</span>
                       </button>
                     </div>
@@ -800,7 +826,7 @@ export const EnquiriesPage: React.FC = () => {
                           aria-label="Close details"
                           className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 cursor-pointer"
                         >
-                          <span className="material-symbols-outlined text-base">close</span>
+                          <X className="w-4 h-4" />
                         </button>
                       </DrawerClose>
                     </div>
@@ -830,7 +856,7 @@ export const EnquiriesPage: React.FC = () => {
                     <div className="grid grid-cols-2 gap-2.5">
                       <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-0.5">
                         <span className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
-                          <span className="material-symbols-outlined text-xs text-primary">person</span>
+                          <User className="w-3 h-3 text-primary" />
                           Customer Name
                         </span>
                         <p className="font-bold text-on-surface">{selectedEnquiry.customerName}</p>
@@ -838,7 +864,7 @@ export const EnquiriesPage: React.FC = () => {
 
                       <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-0.5">
                         <span className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
-                          <span className="material-symbols-outlined text-xs text-primary">phone</span>
+                          <Phone className="w-3 h-3 text-primary" />
                           Mobile Number
                         </span>
                         <p className="font-bold text-on-surface">+91 {selectedEnquiry.customerPhone}</p>
@@ -848,7 +874,7 @@ export const EnquiriesPage: React.FC = () => {
                     {/* Full Items with per-plate prices */}
                     <div className="space-y-2">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface">
-                        <span className="material-symbols-outlined text-xs text-primary">restaurant</span>
+                        <UtensilsCrossed className="w-3 h-3 text-primary" />
                         <span>Items Selected ({selectedEnquiry.itemsCount || selectedEnquiry.itemsList?.length || 0})</span>
                       </div>
 

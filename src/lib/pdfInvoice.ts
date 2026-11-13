@@ -3,6 +3,7 @@ import autoTable from 'jspdf-autotable'
 import type { Order } from '@/data/mockData'
 import type { OrderPricingResult } from '@/lib/pricing'
 import { LOGO_BASE64 } from '@/lib/logoBase64'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 
 /**
  * Builds the official A4 PDF document for TKS Iyengars Catering Invoice
@@ -16,7 +17,11 @@ import { LOGO_BASE64 } from '@/lib/logoBase64'
  * - Footer: Final instructions and thank-you line
  * - No payment QR or payment details
  */
-export function buildInvoicePdf(order: Order, pricing: OrderPricingResult): jsPDF {
+export function buildInvoicePdf(
+  order: Order,
+  pricing: OrderPricingResult,
+  invoiceNumberOverride?: string
+): jsPDF {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -64,17 +69,24 @@ export function buildInvoicePdf(order: Order, pricing: OrderPricingResult): jsPD
     doc.text('TKS', margin + 11, 18, { align: 'center' })
   }
 
+  const settings = useBusinessSettingsStore.getState().settings
+  const bName = settings.businessName || "TKS Iyengar's Catering"
+  const bAddr = settings.address || 'Shop 14, 5th Main Road, Vani Vilas Mohalla, Mysuru'
+  const bPhone = settings.phone || '0821-2448920'
+  const bGstin = settings.gstin || '29ABCDE1234F1Z5'
+  const bFssai = settings.fssaiNumber || '11223344556677'
+
   // Business Name & Subtitle
   doc.setTextColor(255, 255, 255)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(16)
-  doc.text('TKS Iyengars Catering', margin + 26, 14)
+  doc.text(bName, margin + 26, 14)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8.5)
   doc.setTextColor(245, 230, 230)
-  doc.text('142/A, Krishnamurthy Puram, Mysuru, Karnataka 570004 | Phone: +91 90000 00000', margin + 26, 20)
-  doc.text('GSTIN: 29AAAAA0000A1Z5 | FSSAI Lic. No: 11223344556677', margin + 26, 25)
+  doc.text(`${bAddr} | Phone: ${bPhone}`, margin + 26, 20)
+  doc.text(`GSTIN: ${bGstin} | FSSAI Lic. No: ${bFssai}`, margin + 26, 25)
 
   // Invoice Title & Metadata on the Right
   doc.setTextColor(255, 255, 255)
@@ -83,10 +95,11 @@ export function buildInvoicePdf(order: Order, pricing: OrderPricingResult): jsPD
   doc.text('INVOICE', pageWidth - margin, 14, { align: 'right' })
 
   const cleanId = order.id.replace(/^TKS-/, '')
+  const displayInvoiceNumber = invoiceNumberOverride || `TKS-${cleanId}`
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
   doc.setTextColor(245, 230, 230)
-  doc.text(`Invoice No: TKS-${cleanId}`, pageWidth - margin, 20, { align: 'right' })
+  doc.text(`Invoice No: ${displayInvoiceNumber}`, pageWidth - margin, 20, { align: 'right' })
 
   const invoiceDate = new Date().toLocaleDateString('en-IN', {
     day: 'numeric',

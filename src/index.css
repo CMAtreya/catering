@@ -30,6 +30,8 @@
 
   --color-on-error: #ffffff;
   --color-primary: #880000;
+  --color-primary-foreground: #ffffff;
+  --color-on-primary: #ffffff;
   --color-inverse-primary: #ffb4a8;
   --color-surface-tint: #bc150c;
   --color-tertiary-fixed-dim: #7bda94;

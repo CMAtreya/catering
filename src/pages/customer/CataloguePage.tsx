@@ -1,9 +1,33 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { getCatalogue, type CatalogueResponse } from '@/api'
+import {
+  Crown,
+  Sun,
+  Leaf,
+  Home,
+  Sparkles,
+  PlusSquare,
+  Search,
+  X,
+  Flame,
+  CookingPot,
+  SlidersHorizontal,
+  Layers,
+  UtensilsCrossed,
+  Coffee,
+  Soup,
+  Salad,
+  AlertCircle,
+  SearchX,
+  Award,
+  ArrowRight,
+  MessageCircle
+} from 'lucide-react'
+import { getCatalogue, subscribeToMenu, type CatalogueResponse } from '@/api'
 import type { MenuItem } from '@/data/mockData'
 import { useDraftStore } from '@/store/draftStore'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 import { ItemCard } from '@/components/customer/ItemCard'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
 import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
@@ -22,7 +46,6 @@ interface PresetFeastPlan {
   name: string
   subtitle: string
   tag: string
-  icon: string
   itemIds: string[]
 }
 
@@ -31,35 +54,46 @@ const PRESET_MUHURTHAM_FEASTS: PresetFeastPlan[] = [
     id: 'kalyana-feast',
     name: 'Royal Mysore Kalyana Feast',
     subtitle: 'Grand wedding banquet with pure cow ghee sweets, traditional saaru & live service.',
-    tag: '👑 Most Popular',
-    icon: 'crown',
+    tag: 'Most Popular',
     itemIds: ['item-1', 'item-2', 'item-3', 'item-4', 'item-7', 'item-8', 'item-9', 'item-10', 'item-12']
   },
   {
     id: 'muhurtham-breakfast',
     name: 'Traditional Muhurtham Breakfast',
     subtitle: 'Fluffy idlis, crispy medu vadas, ghee ven pongal, and aromatic filter coffee.',
-    tag: '🌅 Morning Feasts',
-    icon: 'wb_sunny',
+    tag: 'Morning Feasts',
     itemIds: ['item-5', 'item-6', 'item-10', 'item-12']
   },
   {
     id: 'satvik-homam',
     name: 'Satvik Ayushya Homam Feast',
     subtitle: 'Pristine Vedic pooja spread, strictly no onion/garlic, temple-simmered dishes.',
-    tag: '🌿 100% Satvik',
-    icon: 'spa',
+    tag: '100% Satvik',
     itemIds: ['item-1', 'item-7', 'item-9', 'item-11']
   },
   {
     id: 'grihapravesha-special',
     name: 'Grihapravesha Banquet',
     subtitle: 'Auspicious housewarming feast with royal Mysore Pak and heritage gojju spread.',
-    tag: '🏡 Housewarming',
-    icon: 'cottage',
+    tag: 'Housewarming',
     itemIds: ['item-2', 'item-3', 'item-4', 'item-8', 'item-12']
   }
 ]
+
+const renderFeastIcon = (id: string) => {
+  switch (id) {
+    case 'kalyana-feast':
+      return <Crown className="w-5 h-5 text-primary" />
+    case 'muhurtham-breakfast':
+      return <Sun className="w-5 h-5 text-primary" />
+    case 'satvik-homam':
+      return <Leaf className="w-5 h-5 text-primary" />
+    case 'grihapravesha-special':
+      return <Home className="w-5 h-5 text-primary" />
+    default:
+      return <Sparkles className="w-5 h-5 text-primary" />
+  }
+}
 
 export const CataloguePage: React.FC = () => {
   const navigate = useNavigate()
@@ -86,9 +120,20 @@ export const CataloguePage: React.FC = () => {
   const toggleItem = useDraftStore((state) => state.toggleItem)
   const loadPresetFeast = useDraftStore((state) => state.loadPresetFeast)
   const requirements = useDraftStore((state) => state.requirements)
+  const settings = useBusinessSettingsStore((state) => state.settings)
   const selectedCount = Object.keys(selectedItems).length
   const perPlateTotal = useDraftStore((state) => state.getPerPlateTotal())
   const guestCount = requirements.guestCount || 150
+
+  // Proceed navigation state for smooth Fast-In Slow-Out transition
+  const [isProceeding, setIsProceeding] = useState<boolean>(false)
+
+  const handleProceed = () => {
+    setIsProceeding(true)
+    setTimeout(() => {
+      navigate('/request')
+    }, 200)
+  }
 
   // Load catalogue data
   const loadCatalogue = async () => {
@@ -106,6 +151,16 @@ export const CataloguePage: React.FC = () => {
 
   useEffect(() => {
     loadCatalogue()
+
+    const unsubscribe = subscribeToMenu((event) => {
+      if (event.table === 'menu_items') {
+        loadCatalogue()
+      }
+    })
+
+    return () => {
+      unsubscribe()
+    }
   }, [])
 
   // Smooth scroll helper for navbar portions
@@ -138,48 +193,53 @@ export const CataloguePage: React.FC = () => {
     ]
   }, [data?.categories])
 
-  // Filtered items based on Category, Search Query, and Purity Filter
+  // Filtered items based on Category, Search Query, and Purity Filter, sorted strictly alphabetically
   const filteredItems = useMemo(() => {
     if (!data?.items) return []
 
-    return data.items.filter((item) => {
-      // 1. Category filter
-      if (activeCategoryId && activeCategoryId !== 'cat-all') {
-        const catObj = categories.find((c) => c.id === activeCategoryId)
-        if (catObj && item.category !== catObj.name && item.category !== catObj.id) {
+    return data.items
+      .filter((item) => {
+        // 0. Only available items visible to customers (when made available, they appear in their exact alphabetical position)
+        if (item.available === false) return false
+
+        // 1. Category filter
+        if (activeCategoryId && activeCategoryId !== 'cat-all') {
+          const catObj = categories.find((c) => c.id === activeCategoryId)
+          if (catObj && item.category !== catObj.name && item.category !== catObj.id) {
+            return false
+          }
+        }
+
+        // 2. Search query filter
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim()
+          const matchesName = item.name.toLowerCase().includes(q)
+          const matchesDesc = (item.description || '').toLowerCase().includes(q)
+          const matchesTag = (item.heritageTag || '').toLowerCase().includes(q)
+          const matchesCategory = item.category.toLowerCase().includes(q)
+          if (!matchesName && !matchesDesc && !matchesTag && !matchesCategory) {
+            return false
+          }
+        }
+
+        // 3. Purity matrix filter
+        if (purityFilter === 'satvik' && !item.satvik) {
           return false
         }
-      }
-
-      // 2. Search query filter
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim()
-        const matchesName = item.name.toLowerCase().includes(q)
-        const matchesDesc = (item.description || '').toLowerCase().includes(q)
-        const matchesTag = (item.heritageTag || '').toLowerCase().includes(q)
-        const matchesCategory = item.category.toLowerCase().includes(q)
-        if (!matchesName && !matchesDesc && !matchesTag && !matchesCategory) {
+        if (purityFilter === 'pureGhee' && !item.pureGhee) {
           return false
         }
-      }
+        if (purityFilter === 'live') {
+          const isLive = (item.heritageTag || '').toLowerCase().includes('live') ||
+                         (item.name || '').toLowerCase().includes('rotti') ||
+                         (item.name || '').toLowerCase().includes('dosa') ||
+                         (item.name || '').toLowerCase().includes('coffee')
+          if (!isLive) return false
+        }
 
-      // 3. Purity matrix filter
-      if (purityFilter === 'satvik' && !item.satvik) {
-        return false
-      }
-      if (purityFilter === 'pureGhee' && !item.pureGhee) {
-        return false
-      }
-      if (purityFilter === 'live') {
-        const isLive = (item.heritageTag || '').toLowerCase().includes('live') ||
-                       (item.name || '').toLowerCase().includes('rotti') ||
-                       (item.name || '').toLowerCase().includes('dosa') ||
-                       (item.name || '').toLowerCase().includes('coffee')
-        if (!isLive) return false
-      }
-
-      return true
-    })
+        return true
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
   }, [data?.items, activeCategoryId, searchQuery, purityFilter, categories])
 
   // Estimated banquet total
@@ -192,7 +252,7 @@ export const CataloguePage: React.FC = () => {
     const itemsToLoad: MenuItem[] = []
     preset.itemIds.forEach((id) => {
       const found = data.items.find((it) => it.id === id)
-      if (found) itemsToLoad.push(found)
+      if (found && found.available !== false) itemsToLoad.push(found)
     })
 
     if (itemsToLoad.length > 0) {
@@ -207,8 +267,9 @@ export const CataloguePage: React.FC = () => {
     const text = encodeURIComponent(
       `Namaskara! I am planning a traditional Mysore Iyengar feast for ${guestCount} guests (${requirements.eventType || 'Muhurtham'}). Selected ${selectedCount} dishes at ₹${displayPerPlate}/plate. Estimated banquet total: ₹${estimatedBanquetTotal.toLocaleString('en-IN')}. Could you please share quotation and availability?`
     )
-    return `https://wa.me/918212448920?text=${text}`
-  }, [guestCount, requirements.eventType, selectedCount, displayPerPlate, estimatedBanquetTotal])
+    const phoneDigits = (settings.mobile || settings.phone).replace(/\D/g, '')
+    return `https://wa.me/${phoneDigits}?text=${text}`
+  }, [guestCount, requirements.eventType, selectedCount, displayPerPlate, estimatedBanquetTotal, settings.mobile, settings.phone])
 
   return (
     <CustomerDesktopShell maxWidth="w-full">
@@ -259,7 +320,7 @@ export const CataloguePage: React.FC = () => {
               onClick={() => setIsLeafModalOpen(true)}
               className="px-4 py-2.5 rounded-xl bg-tertiary-container/15 hover:bg-tertiary-container/25 text-tertiary-container border border-tertiary-container/30 text-xs font-bold transition-all flex items-center gap-2 self-start md:self-auto shrink-0 shadow-2xs cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px]">eco</span>
+              <Leaf className="w-4 h-4 text-tertiary-container" />
               <span>Preview on Banana Leaf</span>
             </button>
           </div>
@@ -276,9 +337,7 @@ export const CataloguePage: React.FC = () => {
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-container/30 text-on-secondary-container border border-secondary/20">
                       {feast.tag}
                     </span>
-                    <span className="material-symbols-outlined text-primary text-xl">
-                      {feast.icon}
-                    </span>
+                    {renderFeastIcon(feast.id)}
                   </div>
                   <h3 className="font-headline font-bold text-base sm:text-lg text-primary tracking-tight">
                     {feast.name}
@@ -297,7 +356,7 @@ export const CataloguePage: React.FC = () => {
                     onClick={() => handleLoadPreset(feast)}
                     className="w-full py-2 px-3 rounded-xl bg-surface-container-lowest hover:bg-primary hover:text-white text-primary border border-primary/25 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer select-none"
                   >
-                    <span className="material-symbols-outlined text-[15px]">add_task</span>
+                    <PlusSquare className="w-3.5 h-3.5" />
                     <span>Load This Feast</span>
                   </button>
                 </div>
@@ -329,9 +388,7 @@ export const CataloguePage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             {/* Search Box */}
             <div className="relative flex-1">
-              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">
-                search
-              </span>
+              <Search className="w-4 h-4 text-outline absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input 
                 type="text" 
                 value={searchQuery}
@@ -346,7 +403,7 @@ export const CataloguePage: React.FC = () => {
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface p-1"
                   aria-label="Clear search query"
                 >
-                  <span className="material-symbols-outlined text-[16px]">close</span>
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -362,7 +419,7 @@ export const CataloguePage: React.FC = () => {
                     : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/15'
                 }`}
               >
-                <span className="material-symbols-outlined text-[14px]">spa</span>
+                <Leaf className="w-3.5 h-3.5" />
                 <span>No Onion No Garlic</span>
               </button>
               <button 
@@ -374,7 +431,7 @@ export const CataloguePage: React.FC = () => {
                     : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/15'
                 }`}
               >
-                <span className="material-symbols-outlined text-[14px]">water_drop</span>
+                <Flame className="w-3.5 h-3.5" />
                 <span>Pure Desi Ghee Only</span>
               </button>
               <button 
@@ -386,7 +443,7 @@ export const CataloguePage: React.FC = () => {
                     : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/15'
                 }`}
               >
-                <span className="material-symbols-outlined text-[14px]">skillet</span>
+                <CookingPot className="w-3.5 h-3.5" />
                 <span>Live Tiffin Counter</span>
               </button>
               <button 
@@ -399,7 +456,7 @@ export const CataloguePage: React.FC = () => {
                 title="Reset all filters"
                 className="px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/15 transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer select-none"
               >
-                <span className="material-symbols-outlined text-[14px]">tune</span>
+                <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>Filters</span>
               </button>
             </div>
@@ -428,13 +485,13 @@ export const CataloguePage: React.FC = () => {
                       : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high border border-outline-variant/15'
                   }`}
                 >
-                  {cat.id === 'cat-all' && <span className="material-symbols-outlined text-[14px]">all_inclusive</span>}
-                  {cat.id === 'cat-rice' && <span className="material-symbols-outlined text-[14px]">rice_bowl</span>}
-                  {cat.id === 'cat-tiffins' && <span className="material-symbols-outlined text-[14px]">bakery_dining</span>}
-                  {cat.id === 'cat-sambar' && <span className="material-symbols-outlined text-[14px]">soup_kitchen</span>}
-                  {cat.id === 'cat-sweets' && <span className="material-symbols-outlined text-[14px]">cake</span>}
-                  {cat.id === 'cat-palya' && <span className="material-symbols-outlined text-[14px]">nutrition</span>}
-                  {cat.id === 'cat-beverages' && <span className="material-symbols-outlined text-[14px]">local_cafe</span>}
+                  {cat.id === 'cat-all' && <Layers className="w-3.5 h-3.5" />}
+                  {cat.id === 'cat-rice' && <UtensilsCrossed className="w-3.5 h-3.5" />}
+                  {cat.id === 'cat-tiffins' && <Coffee className="w-3.5 h-3.5" />}
+                  {cat.id === 'cat-sambar' && <Soup className="w-3.5 h-3.5" />}
+                  {cat.id === 'cat-sweets' && <Sparkles className="w-3.5 h-3.5" />}
+                  {cat.id === 'cat-palya' && <Salad className="w-3.5 h-3.5" />}
+                  {cat.id === 'cat-beverages' && <Coffee className="w-3.5 h-3.5" />}
                   <span>
                     {cat.name} {cat.id === 'cat-all' ? `(${filteredItems.length})` : ''}
                   </span>
@@ -450,7 +507,7 @@ export const CataloguePage: React.FC = () => {
             <CatalogueSkeleton />
           ) : error ? (
             <div className="p-8 text-center bg-surface-container-low rounded-2xl border border-outline-variant/20 max-w-md mx-auto my-12">
-              <span className="material-symbols-outlined text-4xl text-primary mb-2">error</span>
+              <AlertCircle className="w-10 h-10 text-primary mb-2 mx-auto" />
               <p className="text-sm font-semibold text-primary">{error}</p>
               <button 
                 type="button" 
@@ -462,7 +519,7 @@ export const CataloguePage: React.FC = () => {
             </div>
           ) : filteredItems.length === 0 ? (
             <div className="p-12 text-center bg-surface-container-low rounded-2xl border border-outline-variant/15 max-w-md mx-auto my-8">
-              <span className="material-symbols-outlined text-4xl text-outline mb-2">search_off</span>
+              <SearchX className="w-10 h-10 text-outline mb-2 mx-auto" />
               <h4 className="font-headline font-bold text-base text-primary">No dishes found</h4>
               <p className="text-xs text-on-surface-variant mt-1">
                 Try adjusting your search query or selecting a different dietary filter.
@@ -513,7 +570,7 @@ export const CataloguePage: React.FC = () => {
             {/* Bento Card 1: Pure Desi Ghee */}
             <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/15 flex items-start gap-4 shadow-2xs hover:shadow-md transition-shadow">
               <div className="p-3 rounded-xl bg-secondary-container/20 text-on-secondary-container shrink-0">
-                <span className="material-symbols-outlined text-2xl">water_drop</span>
+                <Flame className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-headline font-bold text-base text-primary">100% Pure Desi Ghee</h3>
@@ -526,7 +583,7 @@ export const CataloguePage: React.FC = () => {
             {/* Bento Card 2: Traditional Banana Leaf */}
             <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/15 flex items-start gap-4 shadow-2xs hover:shadow-md transition-shadow">
               <div className="p-3 rounded-xl bg-tertiary-container/20 text-tertiary-container shrink-0">
-                <span className="material-symbols-outlined text-2xl">eco</span>
+                <Leaf className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-headline font-bold text-base text-primary">Traditional Banana Leaf Protocol</h3>
@@ -539,7 +596,7 @@ export const CataloguePage: React.FC = () => {
             {/* Bento Card 3: Strict Vedic Hygiene */}
             <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/15 flex items-start gap-4 shadow-2xs hover:shadow-md transition-shadow">
               <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0">
-                <span className="material-symbols-outlined text-2xl">workspace_premium</span>
+                <Award className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-headline font-bold text-base text-primary">Strict Vedic Hygiene</h3>
@@ -557,7 +614,7 @@ export const CataloguePage: React.FC = () => {
               className="px-5 py-2.5 rounded-full bg-primary text-on-primary text-xs font-bold hover:bg-primary-container shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>Explore Catering Menus</span>
-              <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </section>
@@ -577,7 +634,7 @@ export const CataloguePage: React.FC = () => {
           {/* Left: Delicacies Count & Service Info */}
           <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
-              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">soup_kitchen</span>
+              <UtensilsCrossed className="w-5 h-5 text-on-primary" />
             </div>
             <div className="min-w-0 flex-1">
               <span className="font-headline font-bold text-xs sm:text-sm text-primary block truncate">
@@ -611,7 +668,7 @@ export const CataloguePage: React.FC = () => {
               aria-label="Share feast requirements on WhatsApp"
               className="px-2.5 sm:px-3 py-2 rounded-full bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-xs flex items-center gap-1 border border-[#25D366]/30 transition-colors shrink-0 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[15px] sm:text-[16px]">chat</span>
+              <MessageCircle className="w-4 h-4" />
               <span className="hidden xs:inline">WhatsApp</span>
             </a>
 
@@ -629,11 +686,17 @@ export const CataloguePage: React.FC = () => {
               <button
                 id="proceed-to-request-btn"
                 type="button"
-                onClick={() => navigate('/request')}
-                className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0"
+                disabled={isProceeding}
+                onClick={handleProceed}
+                className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg active:scale-95 cursor-pointer shrink-0 transition-all ${
+                  isProceeding ? 'scale-95 opacity-90' : ''
+                }`}
+                style={{
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}
               >
                 <span>Proceed</span>
-                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                <ArrowRight className={`w-3.5 h-3.5 transition-transform duration-300 ${isProceeding ? 'translate-x-1.5' : ''}`} />
               </button>
             )}
           </div>
@@ -645,6 +708,8 @@ export const CataloguePage: React.FC = () => {
         <VirtualBananaLeafModal 
           isOpen={isLeafModalOpen} 
           onClose={() => setIsLeafModalOpen(false)} 
+          onProceedToRequirements={handleProceed}
+          availableItems={(data?.items || []).filter((i) => i.available !== false)}
         />
       )}
 
@@ -652,7 +717,7 @@ export const CataloguePage: React.FC = () => {
         <TastingSessionModal 
           isOpen={isTastingModalOpen} 
           onClose={() => setIsTastingModalOpen(false)} 
-          availableItems={data?.items || []}
+          availableItems={(data?.items || []).filter((i) => i.available !== false)}
         />
       )}
     </CustomerDesktopShell>

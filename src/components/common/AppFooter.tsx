@@ -23,6 +23,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 
 export interface AppFooterProps {
   className?: string
@@ -36,6 +37,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   onTastingModalOpen
 }) => {
   const navigate = useNavigate()
+  const settings = useBusinessSettingsStore((state) => state.settings)
   const [activeModal, setActiveModal] = useState<'privacy' | 'allergies' | 'hygiene' | null>(null)
 
   const handleScrollTo = (id: string) => {
@@ -142,27 +144,27 @@ export const AppFooter: React.FC<AppFooterProps> = ({
             <div className="space-y-2.5 text-on-surface-variant leading-relaxed text-[11.5px]">
               <div>
                 <p className="font-bold text-on-surface">
-                  TKS Catering Services Pvt. Ltd.
+                  {settings.companyLegalName}
                 </p>
                 <p className="text-on-surface-variant">
-                  Shop 14, 5th Main Road,<br />
-                  Vani Vilas Mohalla, Mysuru,<br />
-                  Karnataka 570002, India
+                  {settings.address}
                 </p>
               </div>
 
-              <div className="pt-2 text-on-surface-variant border-t border-outline-variant/30 space-y-1">
-                <p className="font-bold text-[11px] text-on-surface flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-secondary shrink-0" />
-                  <span>Central Kitchen &amp; Tasting Studio:</span>
-                </p>
-                <p className="text-[11px]">
-                  142/A, Krishnamurthy Puram, Mysuru, Karnataka 570004
-                </p>
-              </div>
+              {settings.kitchenAddress && (
+                <div className="pt-2 text-on-surface-variant border-t border-outline-variant/30 space-y-1">
+                  <p className="font-bold text-[11px] text-on-surface flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-secondary shrink-0" />
+                    <span>Central Kitchen &amp; Tasting Studio:</span>
+                  </p>
+                  <p className="text-[11px]">
+                    {settings.kitchenAddress}
+                  </p>
+                </div>
+              )}
 
               <p className="text-[10px] text-outline">
-                GSTIN: <span className="font-mono font-semibold text-on-surface">29ABCDE1234F1Z5</span>
+                GSTIN: <span className="font-mono font-semibold text-on-surface">{settings.gstin}</span>
               </p>
             </div>
           </div>
@@ -184,49 +186,55 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 </span>
                 <div className="space-y-1">
                   <a 
-                    href="tel:+918212448920"
+                    href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`}
                     className="font-semibold text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5"
                   >
-                    <span>+91 821 244 8920</span>
+                    <span>{settings.phone}</span>
                     <span className="text-[10px] text-outline font-normal">(Desk)</span>
                   </a>
-                  <a 
-                    href="tel:+919845012345"
-                    className="font-semibold text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5"
-                  >
-                    <span>+91 98450 12345</span>
-                    <span className="text-[10px] text-outline font-normal">(Mobile &amp; WhatsApp)</span>
-                  </a>
+                  {settings.mobile && (
+                    <a 
+                      href={`tel:${settings.mobile.replace(/[^\d+]/g, '')}`}
+                      className="font-semibold text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5"
+                    >
+                      <span>{settings.mobile}</span>
+                      <span className="text-[10px] text-outline font-normal">(Mobile &amp; WhatsApp)</span>
+                    </a>
+                  )}
                 </div>
-                <a 
-                  href="https://wa.me/919845012345" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[11px] text-secondary font-bold hover:underline pt-0.5"
-                >
-                  <MessageSquare className="w-3 h-3" />
-                  <span>WhatsApp Banquet Coordinator</span>
-                </a>
+                {settings.mobile && (
+                  <a 
+                    href={`https://wa.me/${settings.mobile.replace(/\D/g, '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] text-secondary font-bold hover:underline pt-0.5"
+                  >
+                    <MessageSquare className="w-3 h-3" />
+                    <span>WhatsApp Banquet Coordinator</span>
+                  </a>
+                )}
               </div>
 
               {/* Item 5: Business Email */}
-              <div className="space-y-1 pt-2 border-t border-outline-variant/30">
-                <span className="text-[10px] uppercase font-bold text-outline tracking-wider block">
-                  Official Business Email
-                </span>
-                <a 
-                  href="mailto:orders@tksiyengarscatering.com"
-                  className="font-semibold text-on-surface hover:text-primary transition-colors flex items-center gap-1.5 truncate"
-                >
-                  <Mail className="w-3.5 h-3.5 text-secondary shrink-0" />
-                  <span className="truncate">orders@tksiyengarscatering.com</span>
-                </a>
+              {settings.email && (
+                <div className="space-y-1 pt-2 border-t border-outline-variant/30">
+                  <span className="text-[10px] uppercase font-bold text-outline tracking-wider block">
+                    Official Business Email
+                  </span>
+                  <a 
+                    href={`mailto:${settings.email}`}
+                    className="font-semibold text-on-surface hover:text-primary transition-colors flex items-center gap-1.5 truncate"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-secondary shrink-0" />
+                    <span className="truncate">{settings.email}</span>
+                  </a>
+                </div>
+              )}
                 <p className="text-[10.5px] text-outline">
                   Banquet proposals, pro-forma invoicing &amp; quotations
                 </p>
               </div>
             </div>
-          </div>
 
           {/* COLUMN 3: 6. BUSINESS HOURS */}
           <div className="space-y-3.5">
@@ -401,10 +409,10 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           
           <div className="space-y-0.5">
             <p>
-              © {new Date().getFullYear()} <strong className="text-on-surface">TKS Catering Services Private Limited</strong>. All rights reserved.
+              © {new Date().getFullYear()} <strong className="text-on-surface">{settings.companyLegalName}</strong>. All rights reserved.
             </p>
             <p className="text-[10px] text-outline/80">
-              CIN: U55101KA2020PTC138920 • GSTIN: 29ABCDE1234F1Z5 • FSSAI Lic. No: 11223344556677 • Registered in Mysuru, Karnataka, India
+              CIN: U55101KA2020PTC138920 • GSTIN: {settings.gstin} • FSSAI Lic. No: {settings.fssaiNumber} • Registered in Mysuru, Karnataka, India
             </p>
           </div>
 

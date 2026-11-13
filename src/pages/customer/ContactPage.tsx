@@ -1,6 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AlertCircle } from 'lucide-react'
+import { motion } from 'motion/react'
+import { 
+  AlertCircle,
+  Building2,
+  User,
+  CheckCircle2,
+  ArrowRight,
+  Clock,
+  MessageCircle,
+  ExternalLink,
+  ShieldCheck,
+  Edit3,
+  PartyPopper,
+  Calendar,
+  Users,
+  Leaf,
+  Flame,
+  UtensilsCrossed
+} from 'lucide-react'
 import { AppFooter } from '@/components/common/AppFooter'
 import { BookingStepper } from '@/components/customer/BookingStepper'
 import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
@@ -8,6 +26,7 @@ import { format, parseISO, isValid } from 'date-fns'
 
 import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 import { submitEnquiry } from '@/api'
 import { isValidIndianPhone, cleanIndianPhone } from '@/lib/format'
 import { INITIAL_ITEMS } from '@/data/mockData'
@@ -21,8 +40,10 @@ export const ContactPage: React.FC = () => {
   const setRequirements = useDraftStore((state) => state.setRequirements)
   const contact = useDraftStore((state) => state.contact)
   const setContact = useDraftStore((state) => state.setContact)
+  const resetDraft = useDraftStore((state) => state.resetDraft)
   const getPerPlateTotal = useDraftStore((state) => state.getPerPlateTotal)
   const addEnquiry = useEnquiryStore((state) => state.addEnquiry)
+  const settings = useBusinessSettingsStore((state) => state.settings)
 
   const selectedItemsList = Object.values(items)
   const selectedCount = selectedItemsList.length
@@ -44,6 +65,13 @@ export const ContactPage: React.FC = () => {
   const [phoneError, setPhoneError] = useState<string | null>(null)
   const [submissionError, setSubmissionError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+  // Redirect guard: if user lands here with empty draft (e.g. after submission or manual URL entry)
+  useEffect(() => {
+    if (selectedCount === 0 && !requirements.eventType) {
+      navigate('/', { replace: true })
+    }
+  }, [selectedCount, requirements.eventType, navigate])
 
   // Handle phone input allowing only digits up to 10
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,7 +193,8 @@ export const ContactPage: React.FC = () => {
       })
 
       sessionStorage.setItem('tks_last_submitted_order_id', newOrder.id)
-      navigate('/submitted', { state: { orderId: newOrder.id } })
+      resetDraft()
+      navigate('/submitted', { state: { orderId: newOrder.id }, replace: true })
     } catch {
       // FAILURE: stay on this page, do NOT save to history, do NOT go to /submitted
       setSubmissionError('We could not send your request. Please check your connection and try again.')
@@ -198,7 +227,15 @@ export const ContactPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fff8f6] text-[#281714] flex flex-col font-sans selection:bg-primary-fixed selection:text-primary">
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.52,
+        ease: [0.16, 1, 0.3, 1] // Fast in, slow out (deceleration curve)
+      }}
+      className="min-h-screen bg-[#fff8f6] text-[#281714] flex flex-col font-sans selection:bg-primary-fixed selection:text-primary"
+    >
       {/* UNIFIED STICKY TOP NAVIGATION BAR */}
       <CustomerTopNav activeNavTab="enquiry" />
 
@@ -209,7 +246,7 @@ export const ContactPage: React.FC = () => {
         <div className="mb-8 max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-4 text-xs font-medium text-on-surface-variant">
             <span className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-sm">temple_hindu</span>
+              <Building2 className="w-4 h-4 text-secondary" />
               Mysuru Banquet Planning Service • Reference #TKSI-2025-894
             </span>
             <span className="text-secondary font-medium">Muhurtham Booking Guarantee</span>
@@ -251,7 +288,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <div className="relative rounded-xl shadow-xs">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
-                      <span className="material-symbols-outlined text-[20px]">person</span>
+                      <User className="w-5 h-5" />
                     </div>
                     <input
                       id="customer-name"
@@ -286,7 +323,7 @@ export const ContactPage: React.FC = () => {
                       <span className="text-primary font-bold">*</span>
                     </label>
                     <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-tertiary bg-tertiary-fixed/40 px-2 py-0.5 rounded-full border border-tertiary/20">
-                      <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                       SMS &amp; Call verified
                     </span>
                   </div>
@@ -377,16 +414,14 @@ export const ContactPage: React.FC = () => {
                     ) : (
                       <>
                         <span>Submit Catering Request</span>
-                        <span className="material-symbols-outlined text-[22px] group-hover:translate-x-1.5 transition-transform duration-200">
-                          arrow_forward
-                        </span>
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-200" />
                       </>
                     )}
                   </button>
 
                   {/* Reassurance Note */}
                   <div className="flex items-center justify-center gap-2 mt-3.5 text-center text-xs sm:text-sm text-on-surface-variant font-medium">
-                    <span className="material-symbols-outlined text-secondary text-[18px]">lock_clock</span>
+                    <Clock className="w-4 h-4 text-secondary" />
                     <span>We'll call you to confirm everything. No payment needed now.</span>
                   </div>
                 </div>
@@ -400,7 +435,7 @@ export const ContactPage: React.FC = () => {
               {/* Urgent Consultation WhatsApp Card */}
               <div className="bg-surface-container-low border border-outline-variant/60 rounded-2xl p-5 flex items-center gap-4 hover:border-outline transition-colors">
                 <div className="w-12 h-12 rounded-xl bg-tertiary text-on-tertiary flex items-center justify-center shrink-0 shadow-xs">
-                  <span className="material-symbols-outlined text-[26px]">chat</span>
+                  <MessageCircle className="w-6 h-6" />
                 </div>
                 <div>
                   <p className="text-xs text-tertiary font-semibold uppercase tracking-wider">Priority Desk</p>
@@ -409,12 +444,12 @@ export const ContactPage: React.FC = () => {
                   </h4>
                   <a 
                     className="text-xs sm:text-sm text-primary font-bold hover:underline inline-flex items-center gap-1 mt-0.5" 
-                    href="https://wa.me/918212448920"
+                    href={`https://wa.me/${(settings.mobile || settings.phone).replace(/\D/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Chat on WhatsApp +91 821 244 8920
-                    <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                    Chat on WhatsApp {settings.mobile || settings.phone}
+                    <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>
               </div>
@@ -422,7 +457,7 @@ export const ContactPage: React.FC = () => {
               {/* Heritage Seal Card */}
               <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0 border border-secondary">
-                  <span className="material-symbols-outlined text-[26px]">verified_user</span>
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -467,7 +502,7 @@ export const ContactPage: React.FC = () => {
                   className="text-xs font-semibold text-secondary hover:text-primary transition-colors flex items-center gap-1 group"
                 >
                   <span>Edit details</span>
-                  <span className="material-symbols-outlined text-[16px] group-hover:rotate-12 transition-transform">edit</span>
+                  <Edit3 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                 </Link>
               </div>
 
@@ -476,7 +511,7 @@ export const ContactPage: React.FC = () => {
                 {/* Occasion */}
                 <div className="flex items-start justify-between py-2 border-b border-surface-container">
                   <span className="text-on-surface-variant flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary text-[18px]">celebration</span>
+                    <PartyPopper className="w-4 h-4 text-secondary" />
                     Occasion:
                   </span>
                   <div className="text-right">
@@ -487,7 +522,7 @@ export const ContactPage: React.FC = () => {
                 {/* Event Date & Service Time */}
                 <div className="flex items-start justify-between py-2 border-b border-surface-container">
                   <span className="text-on-surface-variant flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary text-[18px]">event</span>
+                    <Calendar className="w-4 h-4 text-secondary" />
                     Event Date &amp; Time:
                   </span>
                   <div className="text-right">
@@ -505,7 +540,7 @@ export const ContactPage: React.FC = () => {
                 {/* Headcount & Seating */}
                 <div className="flex items-start justify-between py-2 border-b border-surface-container">
                   <span className="text-on-surface-variant flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary text-[18px]">groups</span>
+                    <Users className="w-4 h-4 text-secondary" />
                     Headcount / Seating:
                   </span>
                   <div className="text-right">
@@ -572,18 +607,18 @@ export const ContactPage: React.FC = () => {
 
             {/* Trust Badges Under Summary */}
             <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-2xl p-4 flex items-center justify-around text-center">
-              <div className="space-y-1">
-                <span className="material-symbols-outlined text-secondary text-[22px]">eco</span>
+              <div className="space-y-1 flex flex-col items-center">
+                <Leaf className="w-5 h-5 text-secondary" />
                 <p className="text-[11px] font-semibold text-on-surface">Fresh Banana Leaf</p>
               </div>
               <div className="h-8 w-px bg-outline-variant/60"></div>
-              <div className="space-y-1">
-                <span className="material-symbols-outlined text-secondary text-[22px]">soup_kitchen</span>
+              <div className="space-y-1 flex flex-col items-center">
+                <Flame className="w-5 h-5 text-secondary" />
                 <p className="text-[11px] font-semibold text-on-surface">Pure Desi Ghee</p>
               </div>
               <div className="h-8 w-px bg-outline-variant/60"></div>
-              <div className="space-y-1">
-                <span className="material-symbols-outlined text-secondary text-[22px]">verified</span>
+              <div className="space-y-1 flex flex-col items-center">
+                <CheckCircle2 className="w-5 h-5 text-secondary" />
                 <p className="text-[11px] font-semibold text-on-surface">Zero Preservatives</p>
               </div>
             </div>
@@ -608,7 +643,7 @@ export const ContactPage: React.FC = () => {
               </div>
               <div className="flex justify-start md:justify-center">
                 <div className="flex items-center gap-3 bg-surface-container-lowest px-5 py-3 rounded-2xl border border-secondary/40 shadow-xs">
-                  <span className="material-symbols-outlined text-primary text-3xl">restaurant_menu</span>
+                  <UtensilsCrossed className="w-8 h-8 text-primary" />
                   <div>
                     <p className="font-headline text-base sm:text-lg text-primary font-bold">10,000+ Feasts</p>
                     <p className="text-xs text-on-surface-variant">Conducted across Mysuru &amp; Bengaluru</p>
@@ -623,7 +658,7 @@ export const ContactPage: React.FC = () => {
 
       {/* 4. FOOTER */}
       <AppFooter />
-    </div>
+    </motion.div>
   )
 }
 

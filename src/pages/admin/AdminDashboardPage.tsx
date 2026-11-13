@@ -1,4 +1,35 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import {
+  Calendar,
+  RefreshCw,
+  PlusCircle,
+  BellRing,
+  CheckCircle2,
+  CalendarCheck,
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  MousePointerClick,
+  Plus,
+  Globe,
+  FileEdit,
+  CalendarX,
+  ChefHat,
+  Inbox,
+  Phone,
+  ArrowRight,
+  MailCheck,
+  Clock,
+  FilePlus,
+  X,
+  Armchair,
+  MapPin,
+  FileText,
+  Utensils,
+  PhoneCall,
+  XCircle,
+  ExternalLink
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { format, parseISO, isValid } from 'date-fns'
 import { toast } from 'sonner'
@@ -7,6 +38,7 @@ import { getOrders, saveOrder, setStatus, confirmOrder, subscribeToOrders } from
 import type { Order, OrderStatus } from '@/data/mockData'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
 import { KitchenBEOSheetModal } from '@/components/admin/KitchenBEOSheetModal'
+import { AdminShimmer } from '@/components/admin/AdminSkeletons'
 
 export const AdminDashboardPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
@@ -267,7 +299,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </span>
               </div>
               <p className="text-xs sm:text-sm font-medium text-[#785A48] mt-1 flex items-center gap-1.5 flex-wrap">
-                <span className="material-symbols-outlined text-base text-amber-700">calendar_today</span>
+                <Calendar className="w-4 h-4 text-amber-700 shrink-0" />
                 <span className="font-semibold text-[#2D1810]">{todayStr}</span>
               </p>
             </div>
@@ -284,9 +316,7 @@ export const AdminDashboardPage: React.FC = () => {
               title="Reload Orders"
               className="p-2.5 px-3.5 rounded-xl border border-[#EADBC8] bg-white text-[#2D1810] hover:bg-[#F7EFE2] transition-all flex items-center gap-1.5 text-xs font-semibold shadow-xs cursor-pointer active:scale-95"
             >
-              <span className={`material-symbols-outlined text-lg text-[#785A48] ${isLoading ? 'animate-spin' : ''}`}>
-                sync
-              </span>
+              <RefreshCw className={`w-4 h-4 text-[#785A48] ${isLoading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
 
@@ -296,7 +326,7 @@ export const AdminDashboardPage: React.FC = () => {
               onClick={() => handleOpenManualOrderWithDate(selectedDateKey)}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#8B0A00] to-[#B30A05] hover:from-[#5C0500] hover:to-[#8B0A00] text-white font-bold text-sm sm:text-base shadow-md shadow-[#8B0A00]/30 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
             >
-              <span className="material-symbols-outlined text-xl sm:text-2xl font-black">add_circle</span>
+              <PlusCircle className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
               <span>Create Manual Order</span>
             </button>
           </div>
@@ -308,66 +338,105 @@ export const AdminDashboardPage: React.FC = () => {
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Summary Counters">
           
           {/* Chip 1: New Requests Count */}
-          <div className="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between border-l-4 border-l-amber-500 shadow-warm">
+          <div className="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between border-l-4 border-l-amber-500 shadow-warm min-h-[110px]">
             <div>
               <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-800">
                 New Online Requests
               </p>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-3xl sm:text-4xl font-serif font-black text-amber-900">
-                  {newRequests.length}
-                </span>
-                <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
-                  Action needed
-                </span>
-              </div>
-              <p className="text-xs text-[#785A48] mt-1">Awaiting kitchen confirmation</p>
+              {isLoading ? (
+                <div className="space-y-2 mt-1.5">
+                  <div className="flex items-center gap-2">
+                    <AdminShimmer className="h-8 w-14 rounded-md" />
+                    <AdminShimmer className="h-5 w-24 rounded-md" />
+                  </div>
+                  <AdminShimmer className="h-3.5 w-40 rounded" />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-3xl sm:text-4xl font-serif font-black text-amber-900">
+                      {newRequests.length}
+                    </span>
+                    {newRequests.length > 0 ? (
+                      <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                        Action needed
+                      </span>
+                    ) : (
+                      <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                        All clear
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-[#785A48] mt-1">Awaiting kitchen confirmation</p>
+                </>
+              )}
             </div>
             <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 border border-amber-300">
-              <span className="material-symbols-outlined text-3xl">notifications_active</span>
+              <BellRing className="w-7 h-7" />
             </div>
           </div>
 
           {/* Chip 2: Confirmed This Month */}
-          <div className="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between border-l-4 border-l-green-600 shadow-warm">
+          <div className="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between border-l-4 border-l-green-600 shadow-warm min-h-[110px]">
             <div>
               <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-green-800">
                 Confirmed This Month
               </p>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-3xl sm:text-4xl font-serif font-black text-green-900">
-                  {confirmedThisMonth.length}
-                </span>
-                <span className="text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-md">
-                  {confirmedThisMonthPlates.toLocaleString('en-IN')} Plates
-                </span>
-              </div>
-              <p className="text-xs text-[#785A48] mt-1">
-                {format(calendarDate, 'MMMM yyyy')} Muhurthams
-              </p>
+              {isLoading ? (
+                <div className="space-y-2 mt-1.5">
+                  <div className="flex items-center gap-2">
+                    <AdminShimmer className="h-8 w-14 rounded-md" />
+                    <AdminShimmer className="h-5 w-24 rounded-md" />
+                  </div>
+                  <AdminShimmer className="h-3.5 w-36 rounded" />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-3xl sm:text-4xl font-serif font-black text-green-900">
+                      {confirmedThisMonth.length}
+                    </span>
+                    <span className="text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-md">
+                      {confirmedThisMonthPlates.toLocaleString('en-IN')} Plates
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#785A48] mt-1">
+                    {format(calendarDate, 'MMMM yyyy')} Muhurthams
+                  </p>
+                </>
+              )}
             </div>
             <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-green-100 text-green-800 flex items-center justify-center shrink-0 border border-green-300">
-              <span className="material-symbols-outlined text-3xl">verified</span>
+              <CheckCircle2 className="w-7 h-7" />
             </div>
           </div>
 
           {/* Chip 3: Next Event Date */}
-          <div className="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between border-l-4 border-l-[#8B0A00] shadow-warm">
+          <div className="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between border-l-4 border-l-[#8B0A00] shadow-warm min-h-[110px]">
             <div>
               <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#8B0A00]">
                 Next Confirmed Event
               </p>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-2xl sm:text-3xl font-serif font-black text-[#5C0500]">
-                  {nextConfirmedOrder ? format(parseISO(nextConfirmedOrder.eventDate), 'd MMM yyyy') : format(new Date(), 'd MMM yyyy')}
-                </span>
-              </div>
-              <p className="text-xs font-semibold text-[#2D1810] mt-1 truncate max-w-[200px]">
-                {nextConfirmedOrder ? `${nextConfirmedOrder.eventType} (${nextConfirmedOrder.guestCount} plts)` : 'Griha Pravesh (100 plts)'}
-              </p>
+              {isLoading ? (
+                <div className="space-y-2 mt-1.5">
+                  <AdminShimmer className="h-8 w-36 rounded-md" />
+                  <AdminShimmer className="h-3.5 w-28 rounded" />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-2xl sm:text-3xl font-serif font-black text-[#5C0500]">
+                      {nextConfirmedOrder ? format(parseISO(nextConfirmedOrder.eventDate), 'd MMM yyyy') : 'No upcoming event'}
+                    </span>
+                  </div>
+                  <p className="text-xs font-semibold text-[#2D1810] mt-1 truncate max-w-[200px]">
+                    {nextConfirmedOrder ? `${nextConfirmedOrder.eventType} (${nextConfirmedOrder.guestCount} plts)` : 'Kitchen slots available'}
+                  </p>
+                </>
+              )}
             </div>
             <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-red-100 text-[#8B0A00] flex items-center justify-center shrink-0 border border-red-300">
-              <span className="material-symbols-outlined text-3xl">event_available</span>
+              <CalendarCheck className="w-7 h-7" />
             </div>
           </div>
 
@@ -387,7 +456,7 @@ export const AdminDashboardPage: React.FC = () => {
             {/* Calendar Header & Navigation Controls */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#EADBC8]">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-2xl text-[#8B0A00]">calendar_month</span>
+                <CalendarDays className="w-6 h-6 text-[#8B0A00] shrink-0" />
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2D1810]">
                   {format(calendarDate, 'MMMM yyyy')}
                 </h2>
@@ -401,7 +470,7 @@ export const AdminDashboardPage: React.FC = () => {
                   onClick={() => handleMonthChange(-1)}
                   className="h-10 px-3.5 rounded-xl border border-[#EADBC8] bg-white hover:bg-[#F7EFE2] font-bold text-sm text-[#2D1810] transition-all flex items-center gap-1 shadow-xs active:scale-95 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-lg">chevron_left</span>
+                  <ChevronLeft className="w-4 h-4" />
                   <span className="hidden sm:inline">Prev</span>
                 </button>
                 <button
@@ -418,7 +487,7 @@ export const AdminDashboardPage: React.FC = () => {
                   className="h-10 px-3.5 rounded-xl border border-[#EADBC8] bg-white hover:bg-[#F7EFE2] font-bold text-sm text-[#2D1810] transition-all flex items-center gap-1 shadow-xs active:scale-95 cursor-pointer"
                 >
                   <span className="hidden sm:inline">Next</span>
-                  <span className="material-symbols-outlined text-lg">chevron_right</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -520,7 +589,7 @@ export const AdminDashboardPage: React.FC = () => {
             {/* Small Notice for Non-Tech Owners */}
             <div className="mt-4 pt-3 border-t border-[#EADBC8]/60 flex items-center justify-between text-xs text-[#785A48] flex-wrap gap-2">
               <span className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm text-amber-700">touch_app</span>
+                <MousePointerClick className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                 <span>Tap any date to see catering menu & client details on the right</span>
               </span>
               <span className="font-semibold text-[#2D1810]">
@@ -555,13 +624,42 @@ export const AdminDashboardPage: React.FC = () => {
                   className="p-2 px-3 bg-white hover:bg-[#F7EFE2] border border-[#EADBC8] rounded-xl text-[#8B0A00] text-xs font-bold flex items-center gap-1 shadow-xs cursor-pointer active:scale-95"
                   title="Add order for this date"
                 >
-                  <span className="material-symbols-outlined text-base">add</span>
+                  <Plus className="w-4 h-4" />
                   <span>Add Feast</span>
                 </button>
               </div>
 
               {/* List of Confirmed Orders for This Date */}
-              {selectedDateOrders.length > 0 ? (
+              {isLoading ? (
+                <div className="mt-4 space-y-3">
+                  <div className="p-4 rounded-xl bg-white/70 border border-[#EADBC8] space-y-3 shadow-xs">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1.5">
+                        <AdminShimmer className="h-5 w-36 rounded-md" />
+                        <AdminShimmer className="h-3.5 w-24 rounded" />
+                      </div>
+                      <AdminShimmer className="h-6 w-20 rounded-full" />
+                    </div>
+                    <div className="pt-2 border-t border-[#EADBC8]/50 flex items-center justify-between">
+                      <AdminShimmer className="h-4 w-28 rounded" />
+                      <AdminShimmer className="h-4 w-16 rounded" />
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/70 border border-[#EADBC8] space-y-3 shadow-xs">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1.5">
+                        <AdminShimmer className="h-5 w-36 rounded-md" />
+                        <AdminShimmer className="h-3.5 w-24 rounded" />
+                      </div>
+                      <AdminShimmer className="h-6 w-20 rounded-full" />
+                    </div>
+                    <div className="pt-2 border-t border-[#EADBC8]/50 flex items-center justify-between">
+                      <AdminShimmer className="h-4 w-28 rounded" />
+                      <AdminShimmer className="h-4 w-16 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ) : selectedDateOrders.length > 0 ? (
                 <div className="mt-4 space-y-3">
                   {selectedDateOrders.map((ord) => (
                     <Link
@@ -573,7 +671,7 @@ export const AdminDashboardPage: React.FC = () => {
                         <div>
                           <h4 className="font-bold text-base text-[#2D1810] group-hover:text-[#8B0A00] flex items-center gap-1.5">
                             <span>{ord.customerName}</span>
-                            <span className="material-symbols-outlined text-sm text-green-700">verified</span>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-green-700 shrink-0" />
                           </h4>
                           <p className="text-xs font-medium text-[#785A48] mt-0.5">
                             {ord.eventType}
@@ -595,9 +693,7 @@ export const AdminDashboardPage: React.FC = () => {
                               ? 'bg-blue-50 text-blue-800 border-blue-200'
                               : 'bg-amber-100 text-amber-900 border-amber-300'
                           } border px-2 py-0.5 rounded font-semibold flex items-center gap-1`}>
-                            <span className="material-symbols-outlined text-[12px]">
-                              {ord.source === 'Online' ? 'language' : 'edit_note'}
-                            </span>
+                            {ord.source === 'Online' ? <Globe className="w-3 h-3" /> : <FileEdit className="w-3 h-3" />}
                             {ord.source}
                           </span>
                         </div>
@@ -617,7 +713,7 @@ export const AdminDashboardPage: React.FC = () => {
                 /* Empty State for Dates with No Confirmed Orders */
                 <div className="py-10 px-4 text-center space-y-3">
                   <div className="w-14 h-14 mx-auto rounded-full bg-[#F7EFE2] text-[#785A48] flex items-center justify-center">
-                    <span className="material-symbols-outlined text-3xl">event_busy</span>
+                    <CalendarX className="w-8 h-8" />
                   </div>
                   <p className="text-base font-bold text-[#2D1810]">No confirmed orders on this date.</p>
                   <p className="text-xs text-[#785A48] max-w-xs mx-auto">
@@ -645,7 +741,7 @@ export const AdminDashboardPage: React.FC = () => {
                   onClick={() => setBeoOrder(selectedDateOrders[0])}
                   className="font-bold text-[#8B0A00] hover:underline flex items-center gap-1 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-sm">soup_kitchen</span>
+                  <ChefHat className="w-4 h-4" />
                   <span>Print Kitchen Dispatch</span>
                 </button>
               ) : (
@@ -668,19 +764,48 @@ export const AdminDashboardPage: React.FC = () => {
           <section className="glass-card rounded-2xl p-4 sm:p-6 shadow-warm border border-[#EADBC8]">
             <div className="flex items-center justify-between pb-3 border-b border-[#EADBC8]">
               <div className="flex items-center gap-2.5">
-                <span className="material-symbols-outlined text-2xl text-amber-600">inbox</span>
+                <Inbox className="w-6 h-6 text-amber-600 shrink-0" />
                 <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#2D1810]">
                   New Requests
                 </h3>
-                <span className="status-badge-new text-xs px-2.5 py-0.5 rounded-full font-extrabold">
-                  {newRequests.length} Pending
-                </span>
+                {isLoading ? (
+                  <AdminShimmer className="h-5 w-20 rounded-full" />
+                ) : (
+                  <span className="status-badge-new text-xs px-2.5 py-0.5 rounded-full font-extrabold">
+                    {newRequests.length} Pending
+                  </span>
+                )}
               </div>
               <span className="text-xs font-semibold text-[#785A48]">Incoming online enquiries</span>
             </div>
 
             {/* List of Incoming Requests */}
-            {newRequests.length > 0 ? (
+            {isLoading ? (
+              <div className="mt-4 space-y-3.5">
+                <div className="p-4 rounded-xl bg-white/70 border border-[#EADBC8] space-y-3">
+                  <div className="flex justify-between items-center">
+                    <AdminShimmer className="h-5 w-36 rounded" />
+                    <AdminShimmer className="h-7 w-20 rounded-xl" />
+                  </div>
+                  <AdminShimmer className="h-4 w-48 rounded" />
+                  <div className="pt-2 border-t border-[#EADBC8]/40 flex justify-between">
+                    <AdminShimmer className="h-4 w-28 rounded" />
+                    <AdminShimmer className="h-4 w-20 rounded" />
+                  </div>
+                </div>
+                <div className="p-4 rounded-xl bg-white/70 border border-[#EADBC8] space-y-3">
+                  <div className="flex justify-between items-center">
+                    <AdminShimmer className="h-5 w-36 rounded" />
+                    <AdminShimmer className="h-7 w-20 rounded-xl" />
+                  </div>
+                  <AdminShimmer className="h-4 w-48 rounded" />
+                  <div className="pt-2 border-t border-[#EADBC8]/40 flex justify-between">
+                    <AdminShimmer className="h-4 w-28 rounded" />
+                    <AdminShimmer className="h-4 w-20 rounded" />
+                  </div>
+                </div>
+              </div>
+            ) : newRequests.length > 0 ? (
               <div className="mt-4 space-y-3.5">
                 {newRequests.map((req) => (
                   <div 
@@ -700,7 +825,7 @@ export const AdminDashboardPage: React.FC = () => {
                             href={`tel:${req.customerPhone}`}
                             className="flex items-center gap-1 font-semibold text-[#2D1810] hover:text-[#8B0A00]"
                           >
-                            <span className="material-symbols-outlined text-xs text-[#8B0A00]">call</span>
+                            <Phone className="w-3 h-3 text-[#8B0A00] shrink-0" />
                             <span>{req.customerPhone}</span>
                           </a>
                           <span>·</span>
@@ -717,7 +842,7 @@ export const AdminDashboardPage: React.FC = () => {
                         className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-1 shrink-0 cursor-pointer active:scale-95"
                       >
                         <span>Review</span>
-                        <span className="material-symbols-outlined text-base">arrow_forward</span>
+                        <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
 
@@ -740,7 +865,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             ) : (
               <div className="py-8 text-center text-[#785A48]">
-                <span className="material-symbols-outlined text-4xl text-amber-700/50 mb-1">mark_email_read</span>
+                <MailCheck className="w-10 h-10 text-amber-700/50 mb-1" />
                 <p className="font-bold text-[#2D1810]">No new requests right now.</p>
                 <p className="text-xs">All customer enquiries have been reviewed or scheduled.</p>
               </div>
@@ -753,7 +878,7 @@ export const AdminDashboardPage: React.FC = () => {
           <section className="glass-card rounded-2xl p-4 sm:p-6 shadow-warm border border-[#EADBC8]">
             <div className="flex items-center justify-between pb-3 border-b border-[#EADBC8]">
               <div className="flex items-center gap-2.5">
-                <span className="material-symbols-outlined text-2xl text-[#8B0A00]">pending_actions</span>
+                <Clock className="w-6 h-6 text-[#8B0A00] shrink-0" />
                 <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#2D1810]">
                   Active Orders
                 </h3>
@@ -763,49 +888,79 @@ export const AdminDashboardPage: React.FC = () => {
                 className="text-xs font-bold text-[#8B0A00] hover:underline flex items-center gap-0.5"
               >
                 <span>View All ({orders.length})</span>
-                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             {/* List of Active Orders */}
             <div className="mt-4 space-y-3">
-              {activeOrders.slice(0, 4).map((ord) => {
-                const isUnderDiscussion = ord.status === 'Under Discussion'
-                return (
-                  <Link
-                    key={ord.id}
-                    to={`/admin/orders/${ord.id}`}
-                    className="block p-3.5 rounded-xl bg-white border border-[#EADBC8] hover:border-[#8B0A00] transition-all cursor-pointer shadow-xs group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-bold text-sm sm:text-base text-[#2D1810] group-hover:text-[#8B0A00]">
-                          {ord.customerName}
-                        </h4>
-                        <p className="text-xs text-[#785A48]">
-                          {ord.eventType} · {ord.guestCount} Plates
-                        </p>
+              {isLoading ? (
+                <>
+                  <div className="p-3.5 rounded-xl bg-white/70 border border-[#EADBC8] space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <AdminShimmer className="h-5 w-32 rounded" />
+                      <AdminShimmer className="h-5 w-20 rounded-full" />
+                    </div>
+                    <div className="pt-2 border-t border-[#EADBC8]/40 flex justify-between">
+                      <AdminShimmer className="h-4 w-28 rounded" />
+                      <AdminShimmer className="h-4 w-16 rounded" />
+                    </div>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-white/70 border border-[#EADBC8] space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <AdminShimmer className="h-5 w-32 rounded" />
+                      <AdminShimmer className="h-5 w-20 rounded-full" />
+                    </div>
+                    <div className="pt-2 border-t border-[#EADBC8]/40 flex justify-between">
+                      <AdminShimmer className="h-4 w-28 rounded" />
+                      <AdminShimmer className="h-4 w-16 rounded" />
+                    </div>
+                  </div>
+                </>
+              ) : activeOrders.length > 0 ? (
+                activeOrders.slice(0, 4).map((ord) => {
+                  const isUnderDiscussion = ord.status === 'Under Discussion'
+                  return (
+                    <Link
+                      key={ord.id}
+                      to={`/admin/orders/${ord.id}`}
+                      className="block p-3.5 rounded-xl bg-white border border-[#EADBC8] hover:border-[#8B0A00] transition-all cursor-pointer shadow-xs group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-bold text-sm sm:text-base text-[#2D1810] group-hover:text-[#8B0A00]">
+                            {ord.customerName}
+                          </h4>
+                          <p className="text-xs text-[#785A48]">
+                            {ord.eventType} · {ord.guestCount} Plates
+                          </p>
+                        </div>
+                        <span className={`text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 shrink-0 ${
+                          isUnderDiscussion ? 'status-badge-discussion' : 'status-badge-confirmed'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isUnderDiscussion ? 'bg-yellow-600' : 'bg-green-600'}`}></span>
+                          {ord.status}
+                        </span>
                       </div>
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 shrink-0 ${
-                        isUnderDiscussion ? 'status-badge-discussion' : 'status-badge-confirmed'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${isUnderDiscussion ? 'bg-yellow-600' : 'bg-green-600'}`}></span>
-                        {ord.status}
-                      </span>
-                    </div>
 
-                    <div className="mt-2.5 pt-2 border-t border-[#EADBC8]/60 flex items-center justify-between text-xs text-[#785A48]">
-                      <span>Date: <strong>{format(parseISO(ord.eventDate), 'd MMM yyyy')}</strong></span>
-                      <span className="text-[#2D1810] font-semibold truncate max-w-[150px]">
-                        {ord.notes || (isUnderDiscussion ? 'Tasting scheduled' : 'Dispatched to hall')}
-                      </span>
-                      <span className="font-bold text-[#8B0A00] text-sm font-serif">
-                        ₹{ord.totalAmount.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  </Link>
-                )
-              })}
+                      <div className="mt-2.5 pt-2 border-t border-[#EADBC8]/60 flex items-center justify-between text-xs text-[#785A48]">
+                        <span>Date: <strong>{format(parseISO(ord.eventDate), 'd MMM yyyy')}</strong></span>
+                        <span className="text-[#2D1810] font-semibold truncate max-w-[150px]">
+                          {ord.notes || (isUnderDiscussion ? 'Tasting scheduled' : 'Dispatched to hall')}
+                        </span>
+                        <span className="font-bold text-[#8B0A00] text-sm font-serif">
+                          ₹{ord.totalAmount.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    </Link>
+                  )
+                })
+              ) : (
+                <div className="py-8 text-center text-[#785A48]">
+                  <p className="font-bold text-[#2D1810]">No active orders right now.</p>
+                  <p className="text-xs">Confirmed orders and active discussions will show here.</p>
+                </div>
+              )}
             </div>
           </section>
 
@@ -847,64 +1002,66 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* ========================================================
-           MODAL 1: CREATE MANUAL ORDER (Accessible, 56px Inputs)
+           MODAL 1: CREATE MANUAL ORDER (Compact & No-Scroll)
            ======================================================== */}
       {isManualModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border-2 border-[#EADBC8] space-y-6 max-h-[90vh] overflow-y-auto animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-[#EADBC8] space-y-3.5 animate-in fade-in duration-200">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#EADBC8]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#8B0A00]/10 text-[#8B0A00] flex items-center justify-center font-bold">
-                  <span className="material-symbols-outlined text-2xl">post_add</span>
+            <div className="flex items-center justify-between pb-2.5 border-b border-[#EADBC8]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#8B0A00]/10 text-[#8B0A00] flex items-center justify-center font-bold">
+                  <FilePlus className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-2xl font-bold text-[#2D1810]">Create Manual Order</h3>
-                  <p className="text-xs text-[#785A48]">For direct phone bookings, walk-ins, and temple elders</p>
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2D1810]">Create Manual Order</h3>
+                  <p className="text-[11px] text-[#785A48]">For direct phone bookings, walk-ins, and temple elders</p>
                 </div>
               </div>
               <button 
                 type="button"
                 onClick={() => setIsManualModalOpen(false)}
-                className="w-9 h-9 rounded-full bg-[#F7EFE2] text-[#785A48] hover:text-[#2D1810] flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-full bg-[#F7EFE2] text-[#785A48] hover:text-[#2D1810] flex items-center justify-center cursor-pointer transition-colors"
               >
-                <span className="material-symbols-outlined text-xl">close</span>
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Inputs */}
-            <form onSubmit={handleCreateManualOrder} className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-[#2D1810] mb-1">Customer / Host Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Nagaraja Dixit"
-                  value={manualName}
-                  onChange={(e) => setManualName(e.target.value)}
-                  className="w-full h-14 px-4 rounded-xl border-2 border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-base font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form onSubmit={handleCreateManualOrder} className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-bold text-[#2D1810] mb-1">Mobile Number *</label>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Customer / Host Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Nagaraja Dixit"
+                    value={manualName}
+                    onChange={(e) => setManualName(e.target.value)}
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Mobile Number *</label>
                   <input
                     type="tel"
                     required
                     placeholder="10-digit number"
                     value={manualPhone}
                     onChange={(e) => setManualPhone(e.target.value)}
-                    className="w-full h-14 px-4 rounded-xl border-2 border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-base font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-bold text-[#2D1810] mb-1">Occasion Type *</label>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Occasion Type *</label>
                   <select
                     value={manualOccasion}
                     onChange={(e) => setManualOccasion(e.target.value)}
-                    className="w-full h-14 px-4 rounded-xl border-2 border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-base font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810] cursor-pointer"
                   >
                     <option value="Griha Pravesh">Griha Pravesh</option>
                     <option value="Muhurtham Wedding">Muhurtham Wedding</option>
@@ -914,21 +1071,21 @@ export const AdminDashboardPage: React.FC = () => {
                     <option value="Other Feast">Other Feast</option>
                   </select>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-[#2D1810] mb-1">Feast Date *</label>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Feast Date *</label>
                   <input
                     type="date"
                     required
                     value={manualDate}
                     onChange={(e) => setManualDate(e.target.value)}
-                    className="w-full h-14 px-4 rounded-xl border-2 border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-base font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-bold text-[#2D1810] mb-1">Number of Plates *</label>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Number of Plates *</label>
                   <input
                     type="number"
                     min="10"
@@ -936,28 +1093,27 @@ export const AdminDashboardPage: React.FC = () => {
                     required
                     value={manualPlates}
                     onChange={(e) => setManualPlates(Number(e.target.value))}
-                    className="w-full h-14 px-4 rounded-xl border-2 border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-base font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#2D1810] mb-1">Delivery Address / Hall Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Raghavendra Kalyana Mantapa, Mysore"
+                    value={manualAddress}
+                    onChange={(e) => setManualAddress(e.target.value)}
+                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
                   />
                 </div>
               </div>
 
+              {/* Order Status */}
               <div>
-                <label className="block text-sm font-bold text-[#2D1810] mb-1">Delivery Address / Hall Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Raghavendra Kalyana Mantapa, Mysore"
-                  value={manualAddress}
-                  onChange={(e) => setManualAddress(e.target.value)}
-                  className="w-full h-14 px-4 rounded-xl border-2 border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-base font-semibold bg-[#FFF9F0]/40 text-[#2D1810]"
-                />
-              </div>
-
-              {/* Initial Status */}
-              <div>
-                <label className="block text-sm font-bold text-[#2D1810] mb-1">Order Status</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                    manualStatus === 'Confirmed' ? 'border-green-500 bg-green-50/80' : 'border-[#EADBC8] bg-white'
+                <label className="block text-xs font-bold text-[#2D1810] mb-1">Order Status</label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${
+                    manualStatus === 'Confirmed' ? 'border-green-500 bg-green-50/80 ring-1 ring-green-500/20' : 'border-[#EADBC8] bg-white hover:bg-slate-50'
                   }`}>
                     <input
                       type="radio"
@@ -965,12 +1121,12 @@ export const AdminDashboardPage: React.FC = () => {
                       value="Confirmed"
                       checked={manualStatus === 'Confirmed'}
                       onChange={() => setManualStatus('Confirmed')}
-                      className="text-green-600 focus:ring-green-500"
+                      className="text-green-600 focus:ring-green-500 w-3.5 h-3.5"
                     />
-                    <span className="text-sm font-bold text-green-900">Mark as Confirmed</span>
+                    <span className="text-xs font-bold text-green-900">Mark as Confirmed</span>
                   </label>
-                  <label className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                    manualStatus === 'Under Discussion' ? 'border-yellow-400 bg-yellow-50/80' : 'border-[#EADBC8] bg-white'
+                  <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${
+                    manualStatus === 'Under Discussion' ? 'border-amber-500 bg-amber-50/80 ring-1 ring-amber-500/20' : 'border-[#EADBC8] bg-white hover:bg-slate-50'
                   }`}>
                     <input
                       type="radio"
@@ -978,25 +1134,25 @@ export const AdminDashboardPage: React.FC = () => {
                       value="Under Discussion"
                       checked={manualStatus === 'Under Discussion'}
                       onChange={() => setManualStatus('Under Discussion')}
-                      className="text-yellow-600 focus:ring-yellow-500"
+                      className="text-amber-600 focus:ring-amber-500 w-3.5 h-3.5"
                     />
-                    <span className="text-sm font-bold text-yellow-900">Under Discussion</span>
+                    <span className="text-xs font-bold text-amber-900">Under Discussion</span>
                   </label>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 flex items-center justify-end gap-3">
+              <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-[#EADBC8]">
                 <button
                   type="button"
                   onClick={() => setIsManualModalOpen(false)}
-                  className="px-5 py-3.5 rounded-xl border border-[#EADBC8] text-[#2D1810] font-bold text-base hover:bg-[#F7EFE2] cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[#EADBC8] text-[#2D1810] font-semibold text-xs hover:bg-[#F7EFE2] cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#8B0A00] to-[#B30A05] text-white font-bold text-base shadow-md shadow-[#8B0A00]/30 hover:scale-[1.01] cursor-pointer"
+                  className="px-5 py-2 rounded-lg bg-gradient-to-r from-[#8B0A00] to-[#B30A05] text-white font-bold text-xs shadow-md shadow-[#8B0A00]/25 hover:brightness-105 active:scale-95 cursor-pointer transition-all"
                 >
                   Save &amp; Add Order
                 </button>
@@ -1011,89 +1167,244 @@ export const AdminDashboardPage: React.FC = () => {
            MODAL 2: REVIEW INCOMING REQUEST
            ======================================================== */}
       {reviewOrder && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border-2 border-[#EADBC8] space-y-5 animate-in fade-in duration-200">
-            <div className="flex items-start justify-between pb-3 border-b border-[#EADBC8]">
-              <div>
-                <span className="status-badge-new text-xs px-2 py-0.5 rounded font-bold">
-                  Review Customer Request
-                </span>
-                <h3 className="font-serif text-2xl font-bold text-[#2D1810] mt-1">
+        <div 
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="review-order-modal-title"
+        >
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl border-2 border-[#EADBC8] animate-in fade-in zoom-in-95 duration-200 overflow-hidden my-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between p-5 sm:p-6 pb-4 border-b border-[#EADBC8] bg-[#FDFBF7] shrink-0">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="status-badge-new text-xs px-2.5 py-0.5 rounded-full font-bold">
+                    Review Customer Request
+                  </span>
+                  <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-[#F7EFE2] text-[#785A48] border border-[#EADBC8]">
+                    {reviewOrder.id}
+                  </span>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                    {reviewOrder.source}
+                  </span>
+                </div>
+                <h3 id="review-order-modal-title" className="font-serif text-2xl sm:text-3xl font-bold text-[#2D1810]">
                   {reviewOrder.customerName}
                 </h3>
-                <p className="text-xs text-[#785A48]">Phone: +91 {reviewOrder.customerPhone}</p>
+                <div className="flex flex-wrap items-center gap-3 text-xs text-[#785A48] pt-0.5">
+                  <a
+                    href={`tel:${reviewOrder.customerPhone}`}
+                    className="inline-flex items-center gap-1.5 font-bold text-[#8B0A00] hover:underline"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>+91 {reviewOrder.customerPhone}</span>
+                  </a>
+                  <span>•</span>
+                  <span>Received {format(parseISO(reviewOrder.createdAt || reviewOrder.eventDate), 'd MMM yyyy, h:mm a')}</span>
+                </div>
               </div>
+
               <button
                 type="button"
                 onClick={() => setReviewOrder(null)}
-                className="w-8 h-8 rounded-full bg-[#F7EFE2] text-[#785A48] hover:text-[#2D1810] flex items-center justify-center cursor-pointer"
+                aria-label="Close review modal"
+                className="w-9 h-9 rounded-full bg-[#F7EFE2] text-[#785A48] hover:text-[#2D1810] hover:bg-[#EADBC8] flex items-center justify-center cursor-pointer transition-colors shrink-0"
               >
-                <span className="material-symbols-outlined text-lg">close</span>
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs space-y-1">
-              <p className="font-bold text-amber-950">Customer Enquiry Summary:</p>
-              <p className="text-amber-900">
-                Occasion: {reviewOrder.eventType} | Date: {format(parseISO(reviewOrder.eventDate), 'd MMM yyyy')} | Headcount: {reviewOrder.guestCount} Plates | Est: ₹{reviewOrder.totalAmount.toLocaleString('en-IN')}
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-[#2D1810] uppercase tracking-wider">
-                Choose Next Action:
-              </label>
+            {/* Scrollable Modal Body (Entire Order Summary + Actions) */}
+            <div className="overflow-y-auto p-5 sm:p-6 space-y-5 flex-1 divide-y divide-[#EADBC8]/60">
               
-              <button
-                type="button"
-                onClick={handleConfirmEnquiry}
-                className="w-full flex items-center justify-between p-3.5 rounded-xl border-2 border-green-500 bg-green-50/70 hover:bg-green-100 transition-all text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-2xl text-green-700">check_circle</span>
-                  <div>
-                    <p className="font-bold text-sm text-green-950">Confirm &amp; Add to Calendar</p>
-                    <p className="text-xs text-green-800">Leaves date marked as Confirmed with red bubble</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-green-800">chevron_right</span>
-              </button>
+              {/* SECTION 1: Event & Logistics Summary */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-[#2D1810] uppercase tracking-wider flex items-center gap-1.5">
+                  <Armchair className="w-4 h-4 text-[#8B0A00]" />
+                  <span>Occasion &amp; Logistics Overview</span>
+                </h4>
 
-              <button
-                type="button"
-                onClick={handleDiscussEnquiry}
-                className="w-full flex items-center justify-between p-3.5 rounded-xl border-2 border-yellow-400 bg-yellow-50/70 hover:bg-yellow-100 transition-all text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-2xl text-yellow-700">phone_in_talk</span>
-                  <div>
-                    <p className="font-bold text-sm text-yellow-950">Mark as "Under Discussion"</p>
-                    <p className="text-xs text-yellow-800">Called client; finalizing muhurtham or dishes</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div className="p-3 rounded-xl bg-[#FDFBF7] border border-[#EADBC8]">
+                    <span className="text-[10.5px] font-semibold text-[#785A48] block">Occasion</span>
+                    <span className="text-xs sm:text-sm font-bold text-[#2D1810] block truncate mt-0.5">
+                      {reviewOrder.eventType || 'Banqueting Feast'}
+                    </span>
                   </div>
-                </div>
-                <span className="material-symbols-outlined text-yellow-800">chevron_right</span>
-              </button>
 
-              <button
-                type="button"
-                onClick={handleCancelEnquiry}
-                className="w-full flex items-center justify-between p-3.5 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100 transition-all text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-xl text-red-600">cancel</span>
-                  <div>
-                    <p className="font-bold text-xs text-red-950">Decline / Cancel Request</p>
-                    <p className="text-[11px] text-red-800">Slot full or out of delivery zone</p>
+                  <div className="p-3 rounded-xl bg-[#FDFBF7] border border-[#EADBC8]">
+                    <span className="text-[10.5px] font-semibold text-[#785A48] block">Event Date</span>
+                    <span className="text-xs sm:text-sm font-bold text-[#8B0A00] block truncate mt-0.5">
+                      {format(parseISO(reviewOrder.eventDate), 'dd MMM yyyy')}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-[#FDFBF7] border border-[#EADBC8]">
+                    <span className="text-[10.5px] font-semibold text-[#785A48] block">Time Slot</span>
+                    <span className="text-xs sm:text-sm font-bold text-[#2D1810] block truncate mt-0.5">
+                      {reviewOrder.eventTime} Service
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-[#FDFBF7] border border-[#EADBC8]">
+                    <span className="text-[10.5px] font-semibold text-[#785A48] block">Headcount</span>
+                    <span className="text-xs sm:text-sm font-bold text-[#2D1810] block truncate mt-0.5">
+                      {reviewOrder.guestCount} Plates
+                    </span>
                   </div>
                 </div>
-              </button>
+
+                {/* Venue Address */}
+                <div className="p-3 rounded-xl bg-[#FDFBF7] border border-[#EADBC8] flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-[#8B0A00] shrink-0 mt-0.5" />
+                  <div className="min-w-0 text-xs">
+                    <span className="font-bold text-[#2D1810] block">Delivery / Banquet Venue:</span>
+                    <p className="text-[#5A4033] mt-0.5">
+                      {reviewOrder.venueAddress || 'Venue address pending customer confirmation during consultation.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Notes if present */}
+                {Boolean(reviewOrder.notes || reviewOrder.specialInstructions || reviewOrder.enquiryNotes) && (
+                  <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200 flex items-start gap-2.5">
+                    <FileText className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                    <div className="min-w-0 text-xs">
+                      <span className="font-bold text-amber-950 block">Customer Special Instructions:</span>
+                      <p className="text-amber-900 mt-0.5">
+                        {reviewOrder.notes || reviewOrder.specialInstructions || reviewOrder.enquiryNotes}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION 2: Selected Menu Breakdown */}
+              <div className="pt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-[#2D1810] uppercase tracking-wider flex items-center gap-1.5">
+                    <Utensils className="w-4 h-4 text-[#8B0A00]" />
+                    <span>Selected Menu ({reviewOrder.items?.length || 0} Delicacies)</span>
+                  </h4>
+                  <span className="text-xs font-bold text-[#8B0A00]">
+                    ₹{reviewOrder.perPlateTotal || Math.round(reviewOrder.totalAmount / (reviewOrder.guestCount || 1))}/plate
+                  </span>
+                </div>
+
+                {reviewOrder.items && reviewOrder.items.length > 0 ? (
+                  <div className="border border-[#EADBC8] rounded-xl overflow-hidden divide-y divide-[#EADBC8]/60 bg-[#FDFBF7]">
+                    <div className="grid grid-cols-12 px-3.5 py-2 text-[10.5px] font-bold uppercase tracking-wider text-[#785A48] bg-[#F7EFE2]">
+                      <span className="col-span-8">Dish Name</span>
+                      <span className="col-span-2 text-center">Qty / Leaf</span>
+                      <span className="col-span-2 text-right">Per Plate</span>
+                    </div>
+                    {reviewOrder.items.map((item, idx) => (
+                      <div key={item.id || idx} className="grid grid-cols-12 px-3.5 py-2.5 text-xs text-[#2D1810] hover:bg-white/80 transition-colors items-center">
+                        <div className="col-span-8 font-medium flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#8B0A00] shrink-0"></span>
+                          <span className="truncate">{item.name}</span>
+                        </div>
+                        <span className="col-span-2 text-center text-[11px] text-[#785A48] font-mono">
+                          {item.quantity || 1}
+                        </span>
+                        <span className="col-span-2 text-right font-bold text-[#2D1810]">
+                          ₹{item.pricePerPlate}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl border border-dashed border-[#EADBC8] text-center text-xs text-[#785A48]">
+                    No individual dishes pre-selected. Standard Satvik Banana Leaf Thali selected.
+                  </div>
+                )}
+
+                {/* Financial Summary Strip */}
+                <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#F7EFE2] to-amber-50 border border-[#EADBC8] flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-[#785A48] block">Estimated Banquet Total</span>
+                    <span className="text-[10px] text-[#785A48]">
+                      {reviewOrder.guestCount} plates × ₹{reviewOrder.perPlateTotal || Math.round(reviewOrder.totalAmount / (reviewOrder.guestCount || 1))}/plate
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-serif text-xl sm:text-2xl font-black text-[#8B0A00] block">
+                      ₹{reviewOrder.totalAmount.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-[10px] text-green-700 font-bold block">
+                      No advance collected yet
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3: Choose Next Action */}
+              <div className="pt-4 space-y-2.5">
+                <label className="block text-xs font-bold text-[#2D1810] uppercase tracking-wider">
+                  Choose Next Action:
+                </label>
+                
+                <button
+                  type="button"
+                  onClick={handleConfirmEnquiry}
+                  className="w-full flex items-center justify-between p-3.5 rounded-xl border-2 border-green-500 bg-green-50/70 hover:bg-green-100 transition-all text-left cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="w-6 h-6 text-green-700 group-hover:scale-110 transition-transform" />
+                    <div>
+                      <p className="font-bold text-sm text-green-950">Confirm &amp; Add to Calendar</p>
+                      <p className="text-xs text-green-800">Leaves date marked as Confirmed with red bubble on booking grid</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-green-800 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDiscussEnquiry}
+                  className="w-full flex items-center justify-between p-3.5 rounded-xl border-2 border-yellow-400 bg-yellow-50/70 hover:bg-yellow-100 transition-all text-left cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3">
+                    <PhoneCall className="w-6 h-6 text-yellow-700 group-hover:scale-110 transition-transform" />
+                    <div>
+                      <p className="font-bold text-sm text-yellow-950">Mark as "Under Discussion"</p>
+                      <p className="text-xs text-yellow-800">Called client; finalizing muhurtham timings or menu dishes</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-yellow-800 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCancelEnquiry}
+                  className="w-full flex items-center justify-between p-3.5 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100 transition-all text-left cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3">
+                    <XCircle className="w-5 h-5 text-red-600" />
+                    <div>
+                      <p className="font-bold text-xs text-red-950">Decline / Cancel Request</p>
+                      <p className="text-[11px] text-red-800">Slot full, out of delivery zone, or patron cancelled</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
             </div>
 
-            <div className="pt-2 flex justify-end">
+            {/* Modal Footer */}
+            <div className="p-4 sm:p-5 border-t border-[#EADBC8] bg-[#FDFBF7] flex items-center justify-between shrink-0">
+              <Link
+                to={`/admin/orders/${reviewOrder.id}`}
+                className="text-xs font-bold text-[#8B0A00] hover:underline flex items-center gap-1"
+                onClick={() => setReviewOrder(null)}
+              >
+                <span>Open Full Order Page</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
               <button
                 type="button"
                 onClick={() => setReviewOrder(null)}
-                className="px-5 py-2.5 rounded-xl bg-[#F7EFE2] text-[#2D1810] font-bold text-xs cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[#F7EFE2] hover:bg-[#EADBC8] text-[#2D1810] font-bold text-xs cursor-pointer transition-colors"
               >
                 Dismiss
               </button>

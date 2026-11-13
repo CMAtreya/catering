@@ -1,134 +1,87 @@
-import React from 'react'
-import { Sparkles, Check, ChevronRight } from 'lucide-react'
-import { toast } from 'sonner'
-import type { MenuItem } from '@/data/mockData'
-import { useDraftStore } from '@/store/draftStore'
+import React, { useEffect, useState } from "react";
+import { Sparkles, Check, ChevronRight, Leaf } from "lucide-react";
+import { toast } from "sonner";
+import type { MenuItem } from "@/data/mockData";
+import { useDraftStore } from "@/store/draftStore";
+import { 
+  fetchFeastsAsync, 
+  seedDefaultFeasts, 
+  type Feast 
+} from "@/api/feastApi";
+import { DEFAULT_FEASTS } from "@/components/customer/DefaultFeasts";
+import type { PresetFeast } from "@/types/feast";
 
-export interface PresetFeast {
-  id: string
-  name: string
-  subtitle: string
-  tag: string
-  accentColor: string
-  itemIds: string[]
+/** Map a stored Feast (has `description`) to a PresetFeast (has `subtitle`) */
+function toPresetFeast(f: Feast): PresetFeast {
+  return {
+    id: f.id,
+    name: f.name,
+    subtitle: f.description,
+    tag: f.tag,
+    accentColor: "from-amber-600 to-[var(--brand)]",
+    itemIds: f.itemIds,
+  };
 }
 
-export const PRESET_FEASTS: PresetFeast[] = [
-  {
-    id: 'kalyana-feast',
-    name: 'Royal Mysore Kalyana Feast',
-    subtitle: 'Grand 10-dish wedding banquet with Pure Cow Ghee',
-    tag: '👑 Most Popular',
-    accentColor: 'from-amber-600 via-[var(--brand)] to-[var(--brand-900)]',
-    itemIds: [
-      'item-1',  // Bisi Bele Bath
-      'item-4',  // Curd Rice
-      'item-6',  // Sambar
-      'item-7',  // Rasam
-      'item-8',  // Palya
-      'item-9',  // Kootu
-      'item-10', // Mysore Pak
-      'item-12', // Payasa
-      'item-15', // Medu Vada
-      'item-19'  // Filter Coffee
-    ]
-  },
-  {
-    id: 'muhurtham-breakfast',
-    name: 'Traditional Muhurtham Breakfast',
-    subtitle: 'Hot Malligai Idlis, crispy Vadas & steaming Filter Coffee',
-    tag: '🌅 Morning Feasts',
-    accentColor: 'from-orange-500 to-amber-700',
-    itemIds: [
-      'item-14', // Idli
-      'item-15', // Medu Vada
-      'item-5',  // Pongal
-      'item-11', // Kesari Bath
-      'item-6',  // Sambar
-      'item-19'  // Filter Coffee
-    ]
-  },
-  {
-    id: 'satvik-homam',
-    name: 'Satvik Ayushya Homam',
-    subtitle: 'Pristine pooja spread, strictly no onion/garlic',
-    tag: '🌿 100% Satvik',
-    accentColor: 'from-emerald-700 to-teal-800',
-    itemIds: [
-      'item-2',  // Puliyogare
-      'item-4',  // Curd Rice
-      'item-7',  // Rasam
-      'item-8',  // Palya
-      'item-12', // Payasa
-      'item-20'  // Buttermilk
-    ]
-  },
-  {
-    id: 'grihapravesha-special',
-    name: 'Grihapravesha Banquet',
-    subtitle: 'Auspicious housewarming spread with Mysore Pak',
-    tag: '🏡 Housewarming',
-    accentColor: 'from-rose-600 to-[var(--brand)]',
-    itemIds: [
-      'item-3',  // Lemon Rice
-      'item-1',  // Bisi Bele Bath
-      'item-4',  // Curd Rice
-      'item-6',  // Sambar
-      'item-8',  // Palya
-      'item-10', // Mysore Pak
-      'item-11', // Kesari Bath
-      'item-19'  // Filter Coffee
-    ]
-  }
-]
+const PresetFeastBar: React.FC<{
+  availableItems: MenuItem[];
+  onOpenLeafVisualizer?: () => void;
+}> = ({ availableItems, onOpenLeafVisualizer }) => {
+  const selectedItems = useDraftStore((state) => state.items);
+  const loadPresetFeast = useDraftStore((state) => state.loadPresetFeast);
 
-interface PresetFeastBarProps {
-  availableItems: MenuItem[]
-  onOpenLeafVisualizer?: () => void
-}
+  const [feasts, setFeasts] = useState<PresetFeast[]>([]);
 
-export const PresetFeastBar: React.FC<PresetFeastBarProps> = ({
-  availableItems,
-  onOpenLeafVisualizer
-}) => {
-  const selectedItems = useDraftStore((state) => state.items)
-  const loadPresetFeast = useDraftStore((state) => state.loadPresetFeast)
+  // Seed defaults on first load, then populate state with latest async fetch
+  useEffect(() => {
+    fetchFeastsAsync().then((stored) => {
+      if (stored.length === 0) {
+        const feastsToSeed = DEFAULT_FEASTS.map((f) => ({
+          id: f.id,
+          name: f.name,
+          description: f.subtitle,
+          tag: f.tag,
+          itemIds: f.itemIds,
+        }));
+        seedDefaultFeasts(feastsToSeed);
+        setFeasts(DEFAULT_FEASTS);
+      } else {
+        setFeasts(stored.map(toPresetFeast));
+      }
+    });
+  }, []);
 
   const itemsMap = React.useMemo(() => {
-    const map = new Map<string, MenuItem>()
+    const map = new Map<string, MenuItem>();
     for (const item of availableItems) {
-      map.set(item.id, item)
+      map.set(item.id, item);
     }
-    return map
-  }, [availableItems])
+    return map;
+  }, [availableItems]);
 
   const handleApplyPreset = (preset: PresetFeast) => {
-    const matchedItems: MenuItem[] = []
+    const matchedItems: MenuItem[] = [];
     for (const id of preset.itemIds) {
-      const it = itemsMap.get(id)
-      if (it && it.available) {
-        matchedItems.push(it)
-      }
+      const it = itemsMap.get(id);
+      if (it && it.available) matchedItems.push(it);
     }
-
     if (matchedItems.length === 0) {
-      toast.error('Preset dishes currently unavailable')
-      return
+      toast.error("Preset dishes currently unavailable");
+      return;
     }
-
-    loadPresetFeast(matchedItems, preset.name)
-
-    const totalRate = matchedItems.reduce((acc, curr) => acc + curr.pricePerPlate, 0)
+    loadPresetFeast(matchedItems, preset.name);
+    const totalRate = matchedItems.reduce(
+      (acc, cur) => acc + cur.pricePerPlate,
+      0,
+    );
     toast.success(`Loaded "${preset.name}"`, {
-      description: `${matchedItems.length} curated dishes selected • ₹${totalRate}/plate base price`
-    })
-  }
+      description: `${matchedItems.length} curated dishes selected • ₹${totalRate}/plate base price`,
+    });
+  };
 
-  // Check if a preset is currently active (all its items are selected)
-  const isPresetActive = (preset: PresetFeast) => {
-    if (preset.itemIds.length === 0) return false
-    return preset.itemIds.every((id) => Boolean(selectedItems[id]))
-  }
+  const isPresetActive = (preset: PresetFeast) =>
+    preset.itemIds.length > 0 &&
+    preset.itemIds.every((id) => Boolean(selectedItems[id]));
 
   return (
     <section aria-label="Curated banquet packages" className="space-y-[13px]">
@@ -142,41 +95,42 @@ export const PresetFeastBar: React.FC<PresetFeastBarProps> = ({
               Curated Banquet Feasts
             </h3>
             <p className="text-golden-xs text-slate-500 font-medium hidden sm:block">
-              1-tap authentic South Indian meal packages hand-crafted by our master chefs
+              1-tap authentic South Indian meal packages hand-crafted by our
+              master chefs
             </p>
           </div>
         </div>
-
         {onOpenLeafVisualizer && (
           <button
             type="button"
             onClick={onOpenLeafVisualizer}
             className="px-[13px] py-[8px] rounded-full text-golden-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-all flex items-center gap-[5px] shadow-2xs cursor-pointer shrink-0"
           >
-            <span>🍃</span>
+            <Leaf className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <span>View on Banana Leaf</span>
             <ChevronRight className="w-3.5 h-3.5 text-emerald-600" />
           </button>
         )}
       </div>
 
-      {/* Horizontally scrollable feast cards styled as Golden Rectangles (1.618 : 1) */}
       <div className="flex gap-[13px] overflow-x-auto no-scrollbar pb-[5px] -mx-3 px-3 sm:mx-0 sm:px-0">
-        {PRESET_FEASTS.map((preset) => {
-          const active = isPresetActive(preset)
+        {feasts.map((preset) => {
+          const active = isPresetActive(preset);
           const matchedItems = preset.itemIds
             .map((id) => itemsMap.get(id))
-            .filter((it): it is MenuItem => Boolean(it))
-          const feastRate = matchedItems.reduce((acc, curr) => acc + curr.pricePerPlate, 0)
-
+            .filter((it): it is MenuItem => Boolean(it));
+          const feastRate = matchedItems.reduce(
+            (acc, cur) => acc + cur.pricePerPlate,
+            0,
+          );
           return (
             <div
               key={preset.id}
               onClick={() => handleApplyPreset(preset)}
               className={`w-[270px] sm:w-[290px] aspect-[1.618/1] rounded-[13px] sm:rounded-[21px] p-[13px] sm:p-[16px] border transition-all cursor-pointer relative flex flex-col justify-between group shadow-2xs hover:shadow-md select-none shrink-0 ${
                 active
-                  ? 'bg-gradient-to-br from-amber-50 to-orange-50/70 border-[var(--brand)] ring-2 ring-[var(--brand)]/20 shadow-xs'
-                  : 'bg-white border-slate-200/90 hover:border-slate-300'
+                  ? "bg-gradient-to-br from-amber-50 to-orange-50/70 border-[var(--brand)] ring-2 ring-[var(--brand)]/20 shadow-xs"
+                  : "bg-white border-slate-200/90 hover:border-slate-300"
               }`}
             >
               <div>
@@ -191,7 +145,6 @@ export const PresetFeastBar: React.FC<PresetFeastBarProps> = ({
                     </span>
                   )}
                 </div>
-
                 <h4 className="font-heading font-black text-golden-sm sm:text-golden-base text-slate-900 group-hover:text-[var(--brand)] transition-colors leading-snug">
                   {preset.name}
                 </h4>
@@ -199,33 +152,34 @@ export const PresetFeastBar: React.FC<PresetFeastBarProps> = ({
                   {preset.subtitle}
                 </p>
               </div>
-
               <div className="pt-[8px] border-t border-slate-100 flex items-center justify-between text-xs">
                 <div>
                   <span className="font-heading font-black text-golden-base sm:text-golden-md text-[var(--brand)]">
                     ₹{feastRate}
                   </span>
-                  <span className="text-golden-xs text-slate-400 font-medium"> / plate</span>
+                  <span className="text-golden-xs text-slate-400 font-medium">
+                    {" "}
+                    / plate
+                  </span>
                 </div>
-
                 <button
                   type="button"
                   className={`px-[10px] py-[5px] rounded-full text-golden-xs font-bold transition-all flex items-center gap-[3px] cursor-pointer ${
                     active
-                      ? 'bg-[var(--brand)] text-white shadow-xs'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                      ? "bg-[var(--brand)] text-white shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700"
                   }`}
                 >
-                  <span>{active ? 'Selected' : 'Load Menu'}</span>
+                  <span>{active ? "Selected" : "Load Menu"}</span>
                   <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
             </div>
-          )
+          );
         })}
       </div>
     </section>
-  )
-}
-export default PresetFeastBar
+  );
+};
 
+export default PresetFeastBar;

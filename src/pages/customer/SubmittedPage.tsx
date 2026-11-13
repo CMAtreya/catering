@@ -1,5 +1,15 @@
 import React, { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { 
+  Check, 
+  Clock, 
+  PhoneCall, 
+  MessageCircle, 
+  ChevronRight, 
+  PlusCircle, 
+  ArrowRight,
+  Leaf
+} from 'lucide-react'
 import { AppFooter } from '@/components/common/AppFooter'
 import { BookingStepper } from '@/components/customer/BookingStepper'
 import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
@@ -8,11 +18,13 @@ import { format, parseISO, isValid } from 'date-fns'
 
 import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 
 export const SubmittedPage: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const resetDraft = useDraftStore((state) => state.resetDraft)
+  const settings = useBusinessSettingsStore((state) => state.settings)
 
   // Retrieve submitted order ID from location state or session storage
   const stateOrderId = location.state?.orderId as string | undefined
@@ -63,243 +75,204 @@ export const SubmittedPage: React.FC = () => {
       <CustomerTopNav activeNavTab="enquiry" />
 
       {/* ================= MAIN CONTENT CANVAS ================= */}
-      <main className="flex-grow w-full py-10 md:py-12 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center justify-center">
-        {/* Progressive 3-Step Stepper (All Completed) */}
-        <div className="w-full max-w-4xl mx-auto mb-6">
-          <BookingStepper currentStep={4} />
+      <main className="flex-grow w-full py-6 sm:py-8 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center justify-center">
+        {/* Progressive 3-Step Stepper (All Completed & Non-interactive) */}
+        <div className="w-full max-w-4xl mx-auto mb-4">
+          <BookingStepper currentStep={4} isInteractive={false} />
         </div>
 
         {/* Central High-Fidelity Confirmation Container (max-w-4xl) */}
-        <div className="w-full max-w-4xl mx-auto bg-surface-container-lowest rounded-2xl border border-outline-variant/60 shadow-lg p-6 sm:p-8 md:p-12 relative overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto bg-surface-container-lowest rounded-2xl border border-outline-variant/60 shadow-md p-5 sm:p-7 md:p-8 relative overflow-hidden">
           
-          {/* Top Decorative Rangoli/Kalasam Subtle Background Accent */}
-          <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-surface-container-high/40 blur-2xl pointer-events-none"></div>
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-secondary-container/20 blur-2xl pointer-events-none"></div>
+          {/* Ornate Gold Corner Accents */}
+          <div className="absolute top-3.5 left-3.5 w-4 h-4 border-t-2 border-l-2 border-amber-500/30 rounded-tl pointer-events-none"></div>
+          <div className="absolute top-3.5 right-3.5 w-4 h-4 border-t-2 border-r-2 border-amber-500/30 rounded-tr pointer-events-none"></div>
 
-          {/* Top Header & Enquiry Status Badge */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-8 border-b border-outline-variant/40">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/80 text-primary font-semibold text-xs sm:text-sm tracking-wider flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-primary inline-block"></span>
+          {/* Top Decorative Subtle Background Accents */}
+          <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-surface-container-high/30 blur-2xl pointer-events-none"></div>
+          <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-secondary-container/15 blur-2xl pointer-events-none"></div>
+
+          {/* Top Header Strip - Clean & Dignified */}
+          <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-outline-variant/30">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant/60 text-primary font-bold text-xs tracking-wider shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                 #{displayId}
               </span>
-              <span className="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold">
-                Request submitted! • Muhurtham Banqueting Desk
-              </span>
-              <span className="px-3 py-1 rounded-full bg-tertiary/10 border border-tertiary/30 text-tertiary text-xs font-bold flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                No advance required
+              <span className="text-xs font-serif italic text-on-surface-variant hidden sm:inline-block">
+                TKS Heritage Banquet Desk
               </span>
             </div>
-            <div className="flex items-center gap-2 text-on-surface-variant text-xs sm:text-sm">
-              <span className="material-symbols-outlined text-tertiary-container text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                verified
-              </span>
-              <span>Mysuru Kitchen Assigned</span>
-            </div>
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-900 border border-amber-500/30 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span> 100% Pure Veg
+            </span>
           </div>
 
-          {/* Hero Auspicious Icon & Confirmation Heading */}
-          <div className="text-center py-8 px-2 sm:px-4 flex flex-col items-center">
-            {/* Auspicious green animated/styled checkmark circle emblem with sacred rings */}
-            <div className="relative mb-6">
-              <div className="w-24 h-24 rounded-full bg-tertiary-fixed/40 flex items-center justify-center">
-                <div className="w-18 h-18 rounded-full bg-tertiary-container text-on-tertiary flex items-center justify-center shadow-lg border-2 border-surface-container-lowest">
-                  <span className="material-symbols-outlined text-4xl font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    check
-                  </span>
-                </div>
+          {/* Hero Auspicious Confirmation Section */}
+          <div className="text-center pt-5 pb-5 px-2 flex flex-col items-center">
+            {/* Royal Mysore Heritage Emblem Seal */}
+            <div className="relative w-14 h-14 mx-auto mb-3 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-amber-400/20 blur-md pointer-events-none"></div>
+              <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-[#8B0A00] via-[#5C0A04] to-[#3B0502] border-2 border-amber-400/80 shadow-md shadow-amber-950/25 flex items-center justify-center ring-2 ring-amber-300/30">
+                <Check className="w-7 h-7 text-[#F5DB9C] stroke-[2.5]" />
               </div>
-              {/* Sacred decorative ring indicators */}
-              <div 
-                className="absolute inset-0 rounded-full border-2 border-dashed border-tertiary-container/30 animate-spin" 
-                style={{ animationDuration: '24s' }}
-              ></div>
             </div>
 
             {/* Headline & Warm Copy */}
-            <h1 className="font-headline text-3xl sm:text-4xl text-primary text-center font-bold tracking-tight mb-3">
-              Request received
+            <h1 className="font-serif text-3xl sm:text-4xl text-primary text-center font-bold tracking-tight mb-1.5">
+              Request Received
             </h1>
-            <p className="text-sm sm:text-base text-on-surface-variant max-w-2xl text-center leading-relaxed mb-4">
-              Namaskara! Our catering team will contact you within 24 hours to curate your auspicious banquet feast.
+            <p className="font-serif italic text-xs sm:text-sm md:text-base text-on-surface-variant max-w-xl text-center leading-relaxed">
+              &ldquo;Namaskara! Our catering team will contact you within 24 hours to curate your auspicious banquet feast.&rdquo;
             </p>
-
-            {/* Pill Notices: SMS Confirmation & No Advance Policy */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5">
-              <div className="inline-flex items-center gap-2.5 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/60 text-on-surface text-xs sm:text-sm">
-                <span className="material-symbols-outlined text-primary text-lg">sms</span>
-                <span>
-                  SMS confirmation sent to registered mobile <strong className="font-semibold text-on-surface">{displayPhone}</strong>
-                </span>
-              </div>
-              <div className="inline-flex items-center gap-2 bg-emerald-50/80 border border-emerald-600/30 text-emerald-800 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
-                <span className="material-symbols-outlined text-emerald-700 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  check_circle
-                </span>
-                <span>No advance required • Pay post-muhurtham feast</span>
-              </div>
-            </div>
           </div>
 
           {/* Two-Column Cards Grid: Enquiry Summary (Left) & Direct Kitchen Contact (Right) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          {/* Two-Column Cards Grid: Celebration Summary (Left) & Concierge (Right) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mt-1">
             
-            {/* CARD A (Left): Enquiry Summary (Received) */}
-            <div className="bg-surface-container-low/70 rounded-2xl p-6 border border-outline-variant/70 shadow-xs flex flex-col justify-between">
+            {/* CARD A (Left): Celebration Summary */}
+            <div className="bg-surface-container-low/50 rounded-2xl p-4 sm:p-5 border border-outline-variant/50 shadow-xs flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between pb-4 border-b border-outline-variant/50">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">receipt_long</span>
-                    <h3 className="font-semibold text-base sm:text-lg text-on-surface">Enquiry Summary (Received)</h3>
-                  </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-semibold">
-                    Pure Veg
+                <div className="flex items-center justify-between pb-3 border-b border-outline-variant/30">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Celebration Summary
                   </span>
+                  <span className="text-[11px] text-on-surface-variant font-medium">Order Desk Verified</span>
                 </div>
 
-                {/* Details List with Sacred South Indian Visual Cues */}
-                <ul className="divide-y divide-outline-variant/30 mt-3 text-xs sm:text-sm">
-                  <li className="py-3 flex justify-between items-start gap-4">
-                    <span className="text-on-surface-variant flex items-center gap-1.5 shrink-0">
-                      <span className="material-symbols-outlined text-base text-secondary">celebration</span>
-                      Occasion:
-                    </span>
-                    <div className="text-right">
-                      <span className="font-semibold text-on-surface block">{displayOccasion}</span>
-                    </div>
-                  </li>
+                {/* Details List */}
+                <dl className="divide-y divide-outline-variant/20 text-xs sm:text-sm mt-1">
+                  <div className="py-2.5 flex items-center justify-between gap-3">
+                    <dt className="text-on-surface-variant font-medium">Occasion</dt>
+                    <dd className="font-semibold text-on-surface text-right">{displayOccasion}</dd>
+                  </div>
 
-                  <li className="py-3 flex justify-between items-start gap-4">
-                    <span className="text-on-surface-variant flex items-center gap-1.5 shrink-0">
-                      <span className="material-symbols-outlined text-base text-secondary">event</span>
-                      Event Date &amp; Time:
-                    </span>
-                    <div className="text-right">
-                      <span className="font-semibold text-on-surface block">
-                        {storeOrder?.eventDate && isValid(parseISO(storeOrder.eventDate))
-                          ? format(parseISO(storeOrder.eventDate), 'EEE, dd MMM yyyy')
-                          : (storeOrder?.eventDate || '18 Nov 2025')}
+                  <div className="py-2.5 flex items-center justify-between gap-3">
+                    <dt className="text-on-surface-variant font-medium">Muhurtham Date</dt>
+                    <dd className="font-semibold text-on-surface text-right">
+                      {storeOrder?.eventDate && isValid(parseISO(storeOrder.eventDate))
+                        ? format(parseISO(storeOrder.eventDate), 'EEEE, dd MMMM yyyy')
+                        : (storeOrder?.eventDate || 'Friday, 27 November 2026')}
+                      <span className="text-on-surface-variant text-[11px] block font-normal">
+                        ({storeOrder?.eventTime || 'Morning'} Service{storeOrder?.specificTime ? ` • ${storeOrder.specificTime}` : ''})
                       </span>
-                      <span className="text-on-surface-variant text-xs block">
-                        {storeOrder?.eventTime || 'Morning'} Service{storeOrder?.specificTime ? ` • ${storeOrder.specificTime}` : ''}
+                    </dd>
+                  </div>
+
+                  <div className="py-2.5 flex items-center justify-between gap-3">
+                    <dt className="text-on-surface-variant font-medium">Scale &amp; Seating</dt>
+                    <dd className="font-semibold text-on-surface text-right">
+                      {guestCount} Plantain Leaves
+                      <span className="text-primary text-[11px] block font-normal">(Traditional Leaf Dining)</span>
+                    </dd>
+                  </div>
+
+                  <div className="py-2.5 flex items-center justify-between gap-3">
+                    <dt className="text-on-surface-variant font-medium">Curated Delicacies</dt>
+                    <dd className="font-semibold text-on-surface text-right max-w-[200px] leading-snug">
+                      {itemCount} Traditional Items
+                      <span className="text-[11px] text-on-surface-variant block font-normal truncate" title={itemSummary}>
+                        ({itemSummary})
                       </span>
-                    </div>
-                  </li>
+                    </dd>
+                  </div>
+                </dl>
 
-                  <li className="py-3 flex justify-between items-start gap-4">
-                    <span className="text-on-surface-variant flex items-center gap-1.5 shrink-0">
-                      <span className="material-symbols-outlined text-base text-secondary">restaurant</span>
-                      Catering Plates:
-                    </span>
-                    <div className="text-right">
-                      <span className="font-semibold text-on-surface block">{guestCount} Plates</span>
-                      <span className="text-tertiary-container text-xs block font-medium">(Pure Plantain Leaf)</span>
-                    </div>
-                  </li>
-
-                  <li className="py-3 flex justify-between items-start gap-4">
-                    <span className="text-on-surface-variant flex items-center gap-1.5 shrink-0">
-                      <span className="material-symbols-outlined text-base text-secondary">soup_kitchen</span>
-                      Curated Feasts:
-                    </span>
-                    <div className="text-right max-w-[210px] leading-snug">
-                      <span className="font-semibold text-on-surface block">{itemCount} items</span>
-                      <span className="text-xs text-on-surface-variant block font-normal">({itemSummary})</span>
-                    </div>
-                  </li>
-
-                  <li className="py-3 flex justify-between items-start gap-4">
-                    <span className="text-on-surface-variant flex items-center gap-1.5 shrink-0">
-                      <span className="material-symbols-outlined text-base text-secondary">payments</span>
-                      Estimated Food Total:
-                    </span>
-                    <div className="text-right">
-                      <span className="font-headline font-bold text-lg sm:text-xl text-primary">₹{totalAmount.toLocaleString('en-IN')}</span>
-                      <span className="text-xs text-on-surface-variant block font-normal">(₹{perPlate}/leaf service • No advance required)</span>
-                    </div>
-                  </li>
-                </ul>
+                {/* Customer Contact Footnote */}
+                <div className="mt-3 pt-2.5 border-t border-outline-variant/30 flex items-center justify-between text-xs text-on-surface-variant">
+                  <span>Host: <strong className="text-on-surface font-semibold">{customerName}</strong></span>
+                  <span className="text-on-surface font-medium">{displayPhone}</span>
+                </div>
               </div>
 
-              {/* Customer Contact Footnote */}
-              <div className="mt-4 pt-3 border-t border-outline-variant/50 flex items-center gap-2.5 bg-surface-container-lowest/80 p-3 rounded-xl border border-outline-variant/40">
-                <span className="material-symbols-outlined text-primary text-xl shrink-0">person_check</span>
-                <div className="text-xs min-w-0">
-                  <span className="text-on-surface-variant block">Customer Contact:</span>
-                  <span className="font-semibold text-on-surface truncate block">{customerName} ({displayPhone} Verified)</span>
+              {/* Investment Callout Bar */}
+              <div className="mt-3.5 p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-[#880000] via-[#6e0503] to-[#45070B] text-white border border-amber-400/40 shadow-sm flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-200 block">
+                    Estimated Feast Total
+                  </span>
+                  <span className="text-xs text-amber-100/80 font-normal">
+                    ₹{perPlate}/plate
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="font-serif text-2xl sm:text-3xl font-bold text-amber-200 tracking-tight">
+                    ₹{totalAmount.toLocaleString('en-IN')}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* CARD B (Right): Urgent Assistance & Fast Navigation Actions */}
-            <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/70 shadow-xs flex flex-col justify-between">
+            {/* CARD B (Right): Direct Kitchen Concierge & Fast Actions */}
+            <div className="bg-surface-container-low/50 rounded-2xl p-4 sm:p-5 border border-outline-variant/50 shadow-xs flex flex-col justify-between space-y-4">
               <div>
-                {/* Banner: Need it urgently? Call us */}
-                <div className="bg-surface-container-high/60 rounded-xl p-4 border border-outline-variant/60 mb-5">
-                  <div className="flex items-center gap-2 text-primary font-bold text-sm sm:text-base mb-1">
-                    <span className="material-symbols-outlined text-primary">timer</span>
-                    Need it urgently? Call us
+                {/* Concierge Header */}
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5 text-primary font-bold text-xs uppercase tracking-wider">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span>Direct Kitchen Concierge</span>
                   </div>
-                  <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                    For auspicious dates within 48 hours or instant kitchen consultation with our head supervisor.
-                  </p>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-900 text-[10px] font-bold border border-amber-400/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse"></span> Active Desk
+                  </span>
                 </div>
+                <p className="text-xs text-on-surface-variant leading-relaxed mb-3.5">
+                  Need urgent muhurtham adjustments within 48h? Connect directly with our Mysuru head supervisor.
+                </p>
 
                 {/* Direct Contact Buttons */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-2.5">
                   {/* Phone Button */}
                   <a 
-                    className="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#8B0A00] via-[#E0000F] to-[#8B0A00] text-white py-3 px-4 rounded-xl font-bold text-xs sm:text-sm shadow-md active:scale-98 transition-transform duration-150" 
-                    href="tel:+918212448920"
+                    className="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#880000] via-[#9E1C24] to-[#630C13] hover:from-[#9E1C24] hover:to-[#750E17] text-white font-semibold py-3 px-4 rounded-xl text-xs sm:text-sm tracking-wide transition-all shadow-sm active:scale-[0.99] border border-amber-400/30" 
+                    href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`}
                   >
-                    <span className="material-symbols-outlined text-xl">phone_in_talk</span>
-                    <span>Call Kitchen: +91 821 244 8920</span>
+                    <PhoneCall className="w-4 h-4 text-amber-200" />
+                    <span>Call Kitchen: {settings.phone}</span>
                   </a>
 
                   {/* WhatsApp Button */}
                   <a 
-                    className="w-full flex items-center justify-center gap-2.5 bg-surface-container-low border border-outline-variant text-on-surface py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm hover:bg-surface-container-high transition-colors active:scale-98" 
-                    href="https://wa.me/918212448920" 
+                    className="w-full flex items-center justify-center gap-2 bg-surface-container-lowest hover:bg-surface-container border border-outline-variant/60 hover:border-amber-400/50 text-on-surface font-semibold py-2.5 px-3 rounded-xl text-xs transition-all shadow-2xs active:scale-[0.99]" 
+                    href={`https://wa.me/${(settings.mobile || settings.phone).replace(/\D/g, '')}`} 
                     rel="noopener noreferrer" 
                     target="_blank"
                   >
-                    <span className="material-symbols-outlined text-tertiary-container" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      chat
-                    </span>
-                    <span>WhatsApp TKS</span>
+                    <MessageCircle className="w-4 h-4 text-emerald-700" />
+                    <span>WhatsApp {settings.businessName.split(' ')[0] || 'Catering'} Desk</span>
                   </a>
                 </div>
               </div>
 
               {/* Fast Navigation Actions */}
-              <div className="pt-4 border-t border-outline-variant/40 space-y-2.5">
-                <span className="text-[11px] font-semibold text-on-surface-variant block uppercase tracking-wider">Fast Actions</span>
+              <div className="pt-3 border-t border-outline-variant/30 space-y-1.5">
+                <span className="text-[10px] font-bold text-on-surface-variant block uppercase tracking-wider">Fast Actions</span>
                 
                 {/* Primary Action: View My Past Requests */}
                 <button 
                   type="button"
                   onClick={handleViewPastRequests}
-                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-primary font-semibold text-xs sm:text-sm transition-colors border border-outline-variant/50 cursor-pointer"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container border border-outline-variant/40 hover:border-primary/40 text-xs text-on-surface font-medium transition-all group cursor-pointer"
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg">schedule</span>
-                    View My Past Requests
+                  <span className="group-hover:text-primary transition-colors flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span>View Past Requests</span>
                   </span>
-                  <span className="material-symbols-outlined text-lg">chevron_right</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-on-surface-variant group-hover:text-primary group-hover:translate-x-0.5 transition-transform" />
                 </button>
 
-                {/* Secondary Ghost Action: Place Another Catering Request */}
+                {/* Secondary Action: Place Another Catering Request */}
                 <button 
                   type="button"
                   onClick={handlePlaceAnother}
-                  className="w-full flex items-center justify-between px-4 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low font-medium text-xs sm:text-sm transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container border border-outline-variant/40 hover:border-primary/40 text-xs text-on-surface font-medium transition-all group cursor-pointer"
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg">add_circle</span>
-                    Place Another Catering Request
+                  <span className="group-hover:text-primary transition-colors flex items-center gap-2">
+                    <PlusCircle className="w-3.5 h-3.5 text-primary" />
+                    <span>Place Another Catering Request</span>
                   </span>
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-on-surface-variant group-hover:text-primary group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
             </div>
@@ -307,15 +280,15 @@ export const SubmittedPage: React.FC = () => {
           </div>
 
           {/* Sacred Quality Guarantee Footer Banner */}
-          <div className="mt-8 pt-6 border-t border-outline-variant/40 text-center">
-            <p className="font-headline text-sm sm:text-base text-primary tracking-wide flex items-center justify-center gap-2 flex-wrap font-semibold">
-              <span>🌿 100% Sattvic</span>
-              <span className="text-outline-variant">•</span>
+          <div className="mt-5 pt-3.5 border-t border-outline-variant/30 text-center">
+            <p className="font-headline text-xs sm:text-sm text-primary tracking-wide flex items-center justify-center gap-2 flex-wrap font-semibold">
+              <span className="flex items-center gap-1"><Leaf className="w-3.5 h-3.5 text-tertiary-container" /> 100% Sattvic</span>
+              <span className="text-outline-variant/60">•</span>
               <span>Pure Cow Ghee</span>
-              <span className="text-outline-variant">•</span>
+              <span className="text-outline-variant/60">•</span>
               <span>Estd. 1984</span>
-              <span className="text-outline-variant">•</span>
-              <span>Mysuru</span>
+              <span className="text-outline-variant/60">•</span>
+              <span className="text-primary font-semibold">Mysuru Heritage Banquet</span>
             </p>
           </div>
 

@@ -20,14 +20,19 @@ import { calculateOrderPricing } from '@/lib/pricing'
 import { buildInvoicePdf } from '@/lib/pdfInvoice'
 import { StatusChip } from '@/components/admin/StatusChip'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
+import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
+import { generateInvoiceInSupabase } from '@/api/supabaseService'
+import { isSupabaseConfigured } from '@/lib/supabase'
 
 export const AdminInvoicePage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [order, setOrder] = useState<Order | null>(null)
+  const [dbInvoiceNumber, setDbInvoiceNumber] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isDownloading, setIsDownloading] = useState<boolean>(false)
   const [isSharing, setIsSharing] = useState<boolean>(false)
+  const settings = useBusinessSettingsStore((state) => state.settings)
 
   // Fetch Order
   useEffect(() => {
@@ -41,6 +46,15 @@ export const AdminInvoicePage: React.FC = () => {
           return
         }
         setOrder(res)
+        if ((res.status === 'Confirmed' || res.status === 'Completed') && isSupabaseConfigured) {
+          generateInvoiceInSupabase(res.id)
+            .then((invRes) => {
+              if (invRes?.invoice_number) {
+                setDbInvoiceNumber(invRes.invoice_number)
+              }
+            })
+            .catch((e) => console.warn('[Invoice] Notice generating invoice in Supabase:', e))
+        }
       })
       .catch(() => {
         toast.error('Failed to load order')
@@ -136,7 +150,7 @@ export const AdminInvoicePage: React.FC = () => {
     if (!order) return
     setIsDownloading(true)
     try {
-      const doc = buildInvoicePdf(order, pricing)
+      const doc = buildInvoicePdf(order, pricing, dbInvoiceNumber || undefined)
       doc.save(pdfFileName)
       toast.success(`Downloaded ${pdfFileName}`)
     } catch (err) {
@@ -152,7 +166,7 @@ export const AdminInvoicePage: React.FC = () => {
     if (!order) return
     setIsSharing(true)
     try {
-      const doc = buildInvoicePdf(order, pricing)
+      const doc = buildInvoicePdf(order, pricing, dbInvoiceNumber || undefined)
       const pdfBlob = doc.output('blob')
       const pdfFile = new File([pdfBlob], pdfFileName, { type: 'application/pdf' })
 
@@ -312,13 +326,13 @@ export const AdminInvoicePage: React.FC = () => {
             </div>
             <div className="space-y-0.5">
               <h1 className="font-heading font-black text-xl sm:text-2xl text-white tracking-tight">
-                TKS Iyengars Catering
+                {settings.businessName}
               </h1>
               <p className="text-[11px] sm:text-xs text-amber-100 font-medium leading-tight">
-                142/A, Krishnamurthy Puram, Mysuru, Karnataka 570004
+                {settings.address}
               </p>
               <p className="text-[11px] sm:text-xs text-amber-200/90 font-medium">
-                Phone: +91 90000 00000 • GSTIN: 29AAAAA0000A1Z5
+                Phone: {settings.phone} • GSTIN: {settings.gstin}
               </p>
             </div>
           </div>
@@ -329,7 +343,7 @@ export const AdminInvoicePage: React.FC = () => {
               INVOICE
             </span>
             <p className="text-xs font-bold text-amber-100">
-              Invoice #{cleanId}
+              Invoice #{dbInvoiceNumber || cleanId}
             </p>
             <p className="text-[11px] text-amber-200/80 font-medium">
               Date: {new Date().toLocaleDateString('en-IN', {

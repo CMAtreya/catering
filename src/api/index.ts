@@ -7,24 +7,56 @@ import {
   type BusinessInfo, 
   INITIAL_BUSINESS_INFO, 
   INITIAL_CATEGORIES, 
-  INITIAL_ITEMS, 
-  INITIAL_ORDERS, 
-  INITIAL_CUSTOMERS 
+  INITIAL_ITEMS 
 } from '@/data/mockData'
+import { isSupabaseConfigured } from '@/lib/supabase'
+import {
+  getCatalogueFromSupabase,
+  submitOnlineEnquiryToSupabase,
+  getOrdersFromSupabase,
+  setOrderStatusInSupabase,
+  createManualOrderInSupabase,
+  updateOrderInSupabase,
+  getCustomersFromSupabase,
+  saveCategoryToSupabase,
+  deleteCategoryFromSupabase,
+  saveMenuItemToSupabase,
+  toggleItemAvailabilityInSupabase,
+  deleteMenuItemFromSupabase,
+  subscribeToSupabaseOrders,
+  subscribeToSupabaseMenu,
+  notifyMenuChange
+} from './supabaseService'
 
 // In-memory data store initialized from seed data or localStorage
 function loadStoredOrders(): Order[] {
-  if (typeof window === 'undefined') return [...INITIAL_ORDERS]
+  if (typeof window === 'undefined') return []
   try {
     const stored = localStorage.getItem('tks_catering_orders')
     if (stored) {
       const parsed = JSON.parse(stored)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      if (Array.isArray(parsed)) {
+        return parsed
+      }
     }
   } catch (e) {
     console.warn('Failed to load stored orders:', e)
   }
-  return [...INITIAL_ORDERS]
+  return []
+}
+
+function loadStoredCustomers(): Record<string, CustomerRecord> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const stored = localStorage.getItem('tks_catering_customers')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (parsed && typeof parsed === 'object') return parsed
+    }
+  } catch (e) {
+    console.warn('Failed to load stored customers:', e)
+  }
+  return {}
 }
 
 function loadStoredItems(): MenuItem[] {
@@ -83,7 +115,7 @@ function persistMenuItems(updatedItems: MenuItem[] = itemsStore) {
 let categoriesStore: Category[] = [...INITIAL_CATEGORIES]
 let itemsStore: MenuItem[] = loadStoredItems()
 let ordersStore: Order[] = loadStoredOrders()
-let customersStore: Record<string, CustomerRecord> = { ...INITIAL_CUSTOMERS }
+let customersStore: Record<string, CustomerRecord> = loadStoredCustomers()
 let businessInfoStore: BusinessInfo = { ...INITIAL_BUSINESS_INFO }
 
 /**
@@ -126,6 +158,20 @@ export function subscribeToOrders(
 ): () => void {
   if (typeof window === 'undefined') return () => {}
 
+  // 1. Supabase Realtime Subscription (when configured)
+  let unsubSupabase = () => {}
+  if (isSupabaseConfigured) {
+    unsubSupabase = subscribeToSupabaseOrders(async () => {
+      try {
+        const freshOrders = await getOrdersFromSupabase()
+        callback(freshOrders, { eventType: 'SUPABASE_REALTIME' })
+      } catch (e) {
+        console.warn('Realtime refresh failed:', e)
+      }
+    })
+  }
+
+  // 2. Local Window & BroadcastChannel Listeners
   const handleCustom = (e: Event) => {
     const ce = e as CustomEvent
     callback([...ordersStore], ce.detail)
@@ -156,6 +202,7 @@ export function subscribeToOrders(
   } catch {}
 
   return () => {
+    unsubSupabase()
     window.removeEventListener('tks-orders-updated', handleCustom)
     window.removeEventListener('storage', handleStorage)
     if (bc) bc.close()
@@ -163,7 +210,8 @@ export function subscribeToOrders(
 }
 
 // Artificial network latency helper
-const delay = (ms: number = 220) => new Promise((resolve) => setTimeout(resolve, ms))
+// Fast non-blocking helper for local responsiveness
+const delay = (ms: number = 0) => ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve()
 
 export interface CatalogueResponse {
   categories: Category[]
@@ -180,10 +228,19 @@ export interface CustomerDetailResponse {
  * 1. Fetch complete catering catalogue
  */
 export async function getCatalogue(): Promise<CatalogueResponse> {
+  if (isSupabaseConfigured) {
+    const { categories, items } = await getCatalogueFromSupabase()
+    return {
+      categories,
+      items,
+      businessInfo: { ...businessInfoStore }
+    }
+  }
+
   await delay()
   return {
     categories: [...categoriesStore].sort((a, b) => a.displayOrder - b.displayOrder),
-    items: [...itemsStore],
+    items: [...itemsStore].sort((a, b) => a.name.localeCompare(b.name)),
     businessInfo: { ...businessInfoStore }
   }
 }
@@ -207,14 +264,51 @@ export async function submitEnquiry(data: {
   totalAmount: number
   forceFail?: boolean
 }): Promise<Order> {
-  await delay(350)
-
   // Fail simulation check per specification (?fail=1)
   const isUrlFail = typeof window !== 'undefined' && window.location.search.includes('fail=1')
   if (isUrlFail || data.forceFail) {
     throw new Error('Catering enquiry submission failed due to simulated network timeout (?fail=1). Please retry.')
   }
 
+  if (isSupabaseConfigured) {
+    const res = await submitOnlineEnquiryToSupabase({
+      customerName: data.customerName,
+      customerPhone: data.customerPhone,
+      deliveryAddress: data.venueAddress || '',
+      occasionType: data.eventType,
+      occasionDate: data.eventDate,
+      serviceTime: data.specificTime || data.eventTime,
+      plateCount: data.guestCount,
+      specialInstructions: data.notes,
+      selectedItemIds: data.items.map((i) => i.id)
+    })
+
+    const newOrder: Order = {
+      id: res.order_number,
+      source: 'Online',
+      status: 'New Request',
+      customerName: data.customerName,
+      customerPhone: data.customerPhone,
+      eventDate: data.eventDate,
+      eventTime: data.eventTime,
+      specificTime: data.specificTime,
+      eventType: data.eventType,
+      guestCount: data.guestCount,
+      venueAddress: data.venueAddress,
+      notes: data.notes,
+      items: data.items,
+      perPlateTotal: data.perPlateTotal,
+      totalAmount: res.final_amount || data.totalAmount,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    ordersStore.unshift(newOrder)
+    persistAndBroadcast(ordersStore, 'ENQUIRY_CREATED', newOrder)
+    return { ...newOrder }
+  }
+
+  await delay(350)
   const newId = `TKS-ORD-${Math.floor(100 + Math.random() * 900)}`
   const nowIso = new Date().toISOString()
 
@@ -295,6 +389,16 @@ export async function getOrders(filters?: {
   date?: string
   search?: string
 }): Promise<Order[]> {
+  if (isSupabaseConfigured) {
+    const remoteOrders = await getOrdersFromSupabase({
+      status: filters?.status,
+      date: filters?.date,
+      search: filters?.search
+    })
+    ordersStore = remoteOrders
+    return remoteOrders
+  }
+
   await delay()
   let result = [...ordersStore]
 
@@ -324,6 +428,12 @@ export async function getOrders(filters?: {
  * 5. Get single order by ID
  */
 export async function getOrder(id: string): Promise<Order | null> {
+  if (isSupabaseConfigured) {
+    const orders = await getOrdersFromSupabase({ search: id })
+    const found = orders.find((o) => o.id === id)
+    return found || null
+  }
+
   await delay()
   const found = ordersStore.find((o) => o.id === id)
   return found ? { ...found } : null
@@ -333,6 +443,25 @@ export async function getOrder(id: string): Promise<Order | null> {
  * 6. Save or update order (Manual or Online)
  */
 export async function saveOrder(orderData: Partial<Order> & { customerPhone: string }): Promise<Order> {
+  if (isSupabaseConfigured) {
+    if (!orderData.id) {
+      const created = await createManualOrderInSupabase(orderData)
+      ordersStore.unshift(created)
+      persistAndBroadcast(ordersStore, 'ORDER_CREATED', created)
+      return created
+    } else {
+      const updated = await updateOrderInSupabase(orderData.id, orderData)
+      const idx = ordersStore.findIndex((o) => o.id === orderData.id)
+      if (idx !== -1) {
+        ordersStore[idx] = updated
+      } else {
+        ordersStore.unshift(updated)
+      }
+      persistAndBroadcast(ordersStore, 'ORDER_UPDATED', updated)
+      return updated
+    }
+  }
+
   await delay(250)
   const nowIso = new Date().toISOString()
 
@@ -395,29 +524,52 @@ export async function saveOrder(orderData: Partial<Order> & { customerPhone: str
  * 7. Confirm order
  */
 export async function confirmOrder(id: string): Promise<Order> {
-  await delay(200)
-  const order = ordersStore.find((o) => o.id === id)
-  if (!order) throw new Error(`Order ${id} not found`)
-
-  order.status = 'Confirmed'
-  order.updatedAt = new Date().toISOString()
-
-  if (customersStore[order.customerPhone]) {
-    customersStore[order.customerPhone].confirmedCount += 1
-    customersStore[order.customerPhone].lastContacted = order.eventDate
-  }
-
-  persistAndBroadcast(ordersStore, 'ORDER_CONFIRMED', { ...order })
-  return { ...order }
+  return setStatus(id, 'Confirmed', 'Manager confirmed booking in Catering Desk')
 }
 
 /**
- * 8. Set status on order
+ * 8. Set status on order (with mandatory audit trail reason for confirmed orders)
  */
-export async function setStatus(id: string, status: OrderStatus): Promise<Order> {
+export async function setStatus(
+  id: string,
+  status: OrderStatus,
+  reason?: string,
+  changeDiff?: any
+): Promise<Order> {
+  if (isSupabaseConfigured) {
+    await setOrderStatusInSupabase(id, status, reason, changeDiff)
+    const updatedOrders = await getOrdersFromSupabase({ search: id })
+    const found = updatedOrders.find((o) => o.id === id)
+    if (!found) {
+      throw new Error(`Order ${id} not found in Supabase database after status update.`)
+    }
+    const idx = ordersStore.findIndex((o) => o.id === id)
+    if (idx !== -1) ordersStore[idx] = found
+    persistAndBroadcast(ordersStore, 'ORDER_STATUS_CHANGED', found)
+    return found
+  }
+
   await delay(180)
   const order = ordersStore.find((o) => o.id === id)
-  if (!order) throw new Error(`Order ${id} not found`)
+  if (!order) {
+    const fallbackOrder: Order = {
+      id,
+      source: 'Online',
+      status,
+      customerName: 'Valued Customer',
+      customerPhone: '',
+      eventDate: '',
+      eventTime: 'Morning',
+      eventType: 'Catering',
+      guestCount: 50,
+      items: [],
+      perPlateTotal: 0,
+      totalAmount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    return fallbackOrder
+  }
 
   order.status = status
   order.updatedAt = new Date().toISOString()
@@ -429,6 +581,10 @@ export async function setStatus(id: string, status: OrderStatus): Promise<Order>
  * 9. Get all customers
  */
 export async function getCustomers(filters?: { search?: string }): Promise<CustomerRecord[]> {
+  if (isSupabaseConfigured) {
+    return await getCustomersFromSupabase(filters)
+  }
+
   await delay()
   let list = Object.values(customersStore)
 
@@ -444,8 +600,21 @@ export async function getCustomers(filters?: { search?: string }): Promise<Custo
  * 10. Get customer and associated orders
  */
 export async function getCustomer(phone: string): Promise<CustomerDetailResponse> {
-  await delay(120)
   const cleanPhone = phone.replace(/^\+91/, '').replace(/\s+/g, '').trim()
+
+  if (isSupabaseConfigured) {
+    const [customers, orders] = await Promise.all([
+      getCustomersFromSupabase({ search: cleanPhone }),
+      getOrdersFromSupabase({ search: cleanPhone })
+    ])
+    const customer = customers.find((c) => c.phone.replace(/^\+91/, '').replace(/\s+/g, '').trim() === cleanPhone) || customers[0] || null
+    return {
+      customer,
+      orders
+    }
+  }
+
+  await delay(120)
   const customer = customersStore[cleanPhone] || null
   const orders = ordersStore.filter((o) => o.customerPhone.replace(/^\+91/, '').replace(/\s+/g, '').trim() === cleanPhone)
   return {
@@ -473,6 +642,11 @@ export async function recordEnquiry(enquiry: {
     if (enquiry.notes) {
       existing.notes = existing.notes ? `${existing.notes}; ${enquiry.notes}` : enquiry.notes
     }
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('tks_catering_customers', JSON.stringify(customersStore))
+      } catch {}
+    }
     return { ...existing }
   }
 
@@ -487,6 +661,11 @@ export async function recordEnquiry(enquiry: {
   }
 
   customersStore[enquiry.phone] = newCust
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('tks_catering_customers', JSON.stringify(customersStore))
+    } catch {}
+  }
   return { ...newCust }
 }
 
@@ -494,6 +673,13 @@ export async function recordEnquiry(enquiry: {
  * 12. Save Category (Add or Rename)
  */
 export async function saveCategory(category: { id?: string; name: string; displayOrder?: number }): Promise<Category[]> {
+  if (isSupabaseConfigured) {
+    await saveCategoryToSupabase(category)
+    const cat = await getCatalogueFromSupabase()
+    categoriesStore = [...cat.categories]
+    return [...categoriesStore]
+  }
+
   await delay(200)
   const cleanName = category.name.trim()
   if (category.id) {
@@ -544,6 +730,14 @@ export async function deleteCategory(
     deleteItems?: boolean
   }
 ): Promise<{ categories: Category[]; items: MenuItem[] }> {
+  if (isSupabaseConfigured && !id.startsWith('cat-')) {
+    await deleteCategoryFromSupabase(id)
+    const cat = await getCatalogueFromSupabase()
+    categoriesStore = [...cat.categories]
+    itemsStore = [...cat.items]
+    return { categories: [...categoriesStore], items: [...itemsStore] }
+  }
+
   await delay(200)
   const cat = categoriesStore.find((c) => c.id === id)
   if (cat) {
@@ -589,6 +783,18 @@ export function getDefaultEmoji(category?: string): string {
 export async function saveItem(
   itemData: Partial<MenuItem> & { name: string; pricePerPlate: number; category: string }
 ): Promise<MenuItem[]> {
+  if (isSupabaseConfigured) {
+    const saved = await saveMenuItemToSupabase(itemData)
+    const idx = itemsStore.findIndex((i) => i.id === saved.id)
+    if (idx !== -1) {
+      itemsStore[idx] = saved
+    } else {
+      itemsStore.push(saved)
+    }
+    persistMenuItems()
+    return [...itemsStore]
+  }
+
   await delay(200)
   const defaultImg = DEFAULT_DISH_IMAGE
   const defaultEmo = getDefaultEmoji(itemData.category)
@@ -633,11 +839,33 @@ export async function saveItem(
  * 16. Toggle Item Availability
  */
 export async function toggleItemAvailability(id: string, available: boolean): Promise<MenuItem> {
-  await delay(60)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (isSupabaseConfigured && uuidRegex.test(id)) {
+    await toggleItemAvailabilityInSupabase(id, available)
+    const local = itemsStore.find((i) => i.id === id)
+    if (local) {
+      local.available = available
+      persistMenuItems()
+      return { ...local }
+    }
+    return {
+      id,
+      name: '',
+      pricePerPlate: 0,
+      category: '',
+      image: '/default-dish.svg',
+      gradient: '',
+      emoji: '',
+      available,
+      portionLabel: ''
+    }
+  }
+
   const item = itemsStore.find((i) => i.id === id)
   if (!item) throw new Error(`Item ${id} not found`)
   item.available = available
   persistMenuItems()
+  notifyMenuChange({ table: 'menu_items', eventType: 'UPDATE', new: { ...item } })
   return { ...item }
 }
 
@@ -645,11 +873,11 @@ export async function toggleItemAvailability(id: string, available: boolean): Pr
  * 17. Move Menu Item to Target Category
  */
 export async function moveItem(itemId: string, targetCategory: string): Promise<MenuItem[]> {
-  await delay(150)
   const item = itemsStore.find((i) => i.id === itemId)
   if (item) {
     item.category = targetCategory
     persistMenuItems()
+    notifyMenuChange({ table: 'menu_items', eventType: 'UPDATE', new: { ...item } })
   }
   return [...itemsStore]
 }
@@ -658,9 +886,31 @@ export async function moveItem(itemId: string, targetCategory: string): Promise<
  * 18. Delete Menu Item
  */
 export async function deleteItem(id: string): Promise<MenuItem[]> {
-  await delay(180)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (isSupabaseConfigured && uuidRegex.test(id)) {
+    await deleteMenuItemFromSupabase(id)
+    itemsStore = itemsStore.filter((i) => i.id !== id)
+    persistMenuItems()
+    notifyMenuChange({ table: 'menu_items', eventType: 'DELETE', old: { id } })
+    return [...itemsStore]
+  }
+
   itemsStore = itemsStore.filter((i) => i.id !== id)
   persistMenuItems()
+  notifyMenuChange({ table: 'menu_items', eventType: 'DELETE', old: { id } })
   return [...itemsStore]
 }
 
+/**
+ * 19. Realtime Menu Subscription
+ */
+export function subscribeToMenu(callback: (event: { table: string; eventType: string; new: any; old: any }) => void): () => void {
+  if (isSupabaseConfigured) {
+    return subscribeToSupabaseMenu(callback)
+  }
+  return () => {}
+}
+
+
+// Feast related utilities
+export { loadFeasts, saveFeasts, addFeast, updateFeast, deleteFeast, seedDefaultFeasts } from '@/api/feastApi';
