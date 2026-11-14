@@ -1,6 +1,7 @@
 # TKS Iyengars Motion & Quiet Luxury Design System
 
 ## Overview
+
 This document specifies the motion design system, quiet luxury tokens, multi-tier device adaptability, and performance benchmarks implemented across the **TKS Iyengars Catering** application.
 
 The design elevates the entire interface into a serene, boutique hotel and royal wedding banquet experience while preserving the familiar quick-commerce architecture (sticky category tabs, 2-column cards, bottom checkout bars, admin tab bar).
@@ -12,6 +13,7 @@ The design elevates the entire interface into a serene, boutique hotel and royal
 Ad-hoc motion and transition values are strictly disallowed. All motion adheres to these deterministic tokens:
 
 ### Durations
+
 - **instant**: `120ms` (toggles, micro feedback, reduced-motion fallbacks)
 - **quick**: `200ms` (hover states, small badges, button presses)
 - **base**: `320ms` (sheet reveals, drawer expansions, card enters)
@@ -19,12 +21,14 @@ Ad-hoc motion and transition values are strictly disallowed. All motion adheres 
 - **hero**: `900ms` (invitation unfold, ceremonial 3D hero reveals)
 
 ### Easings & Springs
+
 - **standard**: `cubic-bezier(0.2, 0.8, 0.2, 1)` (general layout and transitions)
 - **entrance**: `cubic-bezier(0.16, 1, 0.3, 1)` (screen entrances, modal reveals)
 - **tap spring**: `{ type: 'spring', stiffness: 380, damping: 32 }` (taps, sheet snaps)
 - **soft spring**: `{ type: 'spring', stiffness: 170, damping: 26 }` (shared-layout moves, tab pills)
 
 ### Stagger Rules
+
 - **stagger delay**: `50ms` between items.
 - **cap**: At most `8` items per group (to keep mobile frame rates high).
 - Only `transform` and `opacity` are animated per frame (never blur radius).
@@ -35,11 +39,11 @@ Ad-hoc motion and transition values are strictly disallowed. All motion adheres 
 
 The application dynamically classifies the user's device and preferences into three tiers:
 
-| Tier | Criteria | Allowed Motions |
-| :--- | :--- | :--- |
-| **`full`** | Modern phones, fast laptops, desktop browsers | Full springs, 3D WebGL brass lamp, parabolic arcs, shared-layout morphing, card parallax, smooth Lenis scrolling |
-| **`lite`** | Low-end devices, Save-Data mode enabled, low hardware concurrency (<4 cores or <4GB RAM) | 2D fades and short slides (8-12px), static SVG poster fallback for 3D lamp, no parallax, instant thumbnail badge update |
-| **`reduced`** | User explicitly enabled `prefers-reduced-motion: reduce` in OS or browser | Opacity cross-fades only (`0 -> 1`), instant layout updates, 0ms springs, no scaling, no rotation |
+| Tier          | Criteria                                                                                 | Allowed Motions                                                                                                         |
+| :------------ | :--------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
+| **`full`**    | Modern phones, fast laptops, desktop browsers                                            | Full springs, 3D WebGL brass lamp, parabolic arcs, shared-layout morphing, card parallax, smooth Lenis scrolling        |
+| **`lite`**    | Low-end devices, Save-Data mode enabled, low hardware concurrency (<4 cores or <4GB RAM) | 2D fades and short slides (8-12px), static SVG poster fallback for 3D lamp, no parallax, instant thumbnail badge update |
+| **`reduced`** | User explicitly enabled `prefers-reduced-motion: reduce` in OS or browser                | Opacity cross-fades only (`0 -> 1`), instant layout updates, 0ms springs, no scaling, no rotation                       |
 
 The entire application is wrapped in `<MotionConfig reducedMotion="user">` inside `MotionProvider.tsx`.
 
@@ -88,6 +92,7 @@ The entire application is wrapped in `<MotionConfig reducedMotion="user">` insid
 ## 5. Performance Budgets & Production Verification
 
 Verified via production build (`npm run build`):
+
 - **Customer First Load JS**: **152 kB** gzipped (`index-*.js` 108.8 kB + `react-*.js` 43.6 kB). Budget: < 200 kB gzipped. **PASS** (24% under budget).
 - **3D Chunk Isolation**: Isolated into `hero-3d-*.js` (lazy-loaded). Completely excluded from PWA precache list in `dist/sw.js`.
 - **Max Backdrop Filter Layers**: Restricted to at most 2 visible at once (`CollapsingHeader` and `FloatingBottomBar`).
