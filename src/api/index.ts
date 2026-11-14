@@ -390,13 +390,17 @@ export async function getOrders(filters?: {
   search?: string
 }): Promise<Order[]> {
   if (isSupabaseConfigured) {
-    const remoteOrders = await getOrdersFromSupabase({
-      status: filters?.status,
-      date: filters?.date,
-      search: filters?.search
-    })
-    ordersStore = remoteOrders
-    return remoteOrders
+    try {
+      const remoteOrders = await getOrdersFromSupabase({
+        status: filters?.status,
+        date: filters?.date,
+        search: filters?.search
+      })
+      ordersStore = remoteOrders
+      return remoteOrders
+    } catch (err) {
+      console.warn('[Orders][WARN] Failed to load orders from Supabase:', err)
+    }
   }
 
   await delay()

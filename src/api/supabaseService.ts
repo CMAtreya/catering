@@ -271,19 +271,43 @@ export async function deleteMenuItemFromSupabase(id: string): Promise<void> {
 export async function getFeastsFromSupabase(): Promise<Feast[]> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
 
-  const { data: dbFeasts, error } = await supabase
+  // 1. Direct query on feasts table (flat, zero nested join dependencies)
+  const { data: dbFeasts, error: feastsErr } = await supabase
     .from('feasts')
-    .select('*, feast_items(menu_item_id)')
+    .select('id, name, description, tag, created_at')
     .order('created_at', { ascending: true })
 
-  if (error) throw error
+  if (feastsErr) {
+    console.error('[Feasts][ERROR] Supabase feasts query failed:', feastsErr)
+    throw feastsErr
+  }
+
+  // 2. Separate resilient query for feast_items
+  const itemsByFeast = new Map<string, string[]>()
+  try {
+    const { data: dbItems, error: itemsErr } = await supabase
+      .from('feast_items')
+      .select('feast_id, menu_item_id')
+
+    if (itemsErr) {
+      console.warn('[Feasts][WARN] feast_items query warning:', itemsErr)
+    } else if (dbItems) {
+      dbItems.forEach((row: any) => {
+        const existing = itemsByFeast.get(row.feast_id) || []
+        existing.push(row.menu_item_id)
+        itemsByFeast.set(row.feast_id, existing)
+      })
+    }
+  } catch (err) {
+    console.warn('[Feasts][WARN] Could not fetch feast_items relation:', err)
+  }
 
   return (dbFeasts || []).map((f: any) => ({
     id: f.id,
     name: f.name,
     description: f.description || '',
     tag: f.tag || 'Most Popular',
-    itemIds: (f.feast_items || []).map((fi: any) => fi.menu_item_id)
+    itemIds: itemsByFeast.get(f.id) || []
   }))
 }
 

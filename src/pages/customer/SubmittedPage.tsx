@@ -75,27 +75,30 @@ export const SubmittedPage: React.FC = () => {
       <CustomerTopNav activeNavTab="enquiry" />
 
       {/* ================= MAIN CONTENT CANVAS ================= */}
-      <main className="flex-grow w-full py-6 sm:py-8 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center justify-center">
+      <main className="flex-grow w-full py-6 sm:py-8 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center justify-center relative">
+        {/* Subtle Ambient Radial Backdrops for Glass Refraction */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-gradient-to-br from-amber-400/12 via-[#8B0A00]/6 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+
         {/* Progressive 3-Step Stepper (All Completed & Non-interactive) */}
-        <div className="w-full max-w-4xl mx-auto mb-4">
+        <div className="w-full max-w-4xl mx-auto mb-4 relative z-10">
           <BookingStepper currentStep={4} isInteractive={false} />
         </div>
 
         {/* Central High-Fidelity Confirmation Container (max-w-4xl) */}
-        <div className="w-full max-w-4xl mx-auto bg-surface-container-lowest rounded-2xl border border-outline-variant/60 shadow-md p-5 sm:p-7 md:p-8 relative overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto bg-surface-container-lowest/85 backdrop-blur-xl rounded-3xl border border-[#EADBC8]/90 shadow-[0_16px_48px_-12px_rgba(107,8,0,0.10)] p-5 sm:p-7 md:p-8 relative overflow-hidden ring-1 ring-white/80 z-10">
           
           {/* Ornate Gold Corner Accents */}
-          <div className="absolute top-3.5 left-3.5 w-4 h-4 border-t-2 border-l-2 border-amber-500/30 rounded-tl pointer-events-none"></div>
-          <div className="absolute top-3.5 right-3.5 w-4 h-4 border-t-2 border-r-2 border-amber-500/30 rounded-tr pointer-events-none"></div>
+          <div className="absolute top-3.5 left-3.5 w-4 h-4 border-t-2 border-l-2 border-amber-500/40 rounded-tl pointer-events-none"></div>
+          <div className="absolute top-3.5 right-3.5 w-4 h-4 border-t-2 border-r-2 border-amber-500/40 rounded-tr pointer-events-none"></div>
 
           {/* Top Decorative Subtle Background Accents */}
-          <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-surface-container-high/30 blur-2xl pointer-events-none"></div>
-          <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-secondary-container/15 blur-2xl pointer-events-none"></div>
+          <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-amber-400/15 blur-2xl pointer-events-none"></div>
+          <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-[#8B0A00]/8 blur-2xl pointer-events-none"></div>
 
           {/* Top Header Strip - Clean & Dignified */}
           <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-outline-variant/30">
             <div className="flex items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant/60 text-primary font-bold text-xs tracking-wider shadow-2xs">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-xs border border-[#EADBC8] text-primary font-bold text-xs tracking-wider shadow-2xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                 #{displayId}
               </span>
@@ -127,12 +130,11 @@ export const SubmittedPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Two-Column Cards Grid: Enquiry Summary (Left) & Direct Kitchen Contact (Right) */}
-          {/* Two-Column Cards Grid: Celebration Summary (Left) & Concierge (Right) */}
+          {/* Two-Column Cards Grid: Celebration Summary (Left) & Concierge (Right) with Royal Frosted Glass */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mt-1">
             
-            {/* CARD A (Left): Celebration Summary */}
-            <div className="bg-surface-container-low/50 rounded-2xl p-4 sm:p-5 border border-outline-variant/50 shadow-xs flex flex-col justify-between">
+            {/* CARD A (Left): Celebration Summary (Royal Frosted Glass) */}
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-[#EADBC8]/90 shadow-[0_8px_24px_-4px_rgba(107,8,0,0.06)] ring-1 ring-white/80 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between pb-3 border-b border-outline-variant/30">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
@@ -204,8 +206,8 @@ export const SubmittedPage: React.FC = () => {
               </div>
             </div>
 
-            {/* CARD B (Right): Direct Kitchen Concierge & Fast Actions */}
-            <div className="bg-surface-container-low/50 rounded-2xl p-4 sm:p-5 border border-outline-variant/50 shadow-xs flex flex-col justify-between space-y-4">
+            {/* CARD B (Right): Direct Kitchen Concierge & Fast Actions (Royal Frosted Glass) */}
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-[#EADBC8]/90 shadow-[0_8px_24px_-4px_rgba(107,8,0,0.06)] ring-1 ring-white/80 flex flex-col justify-between space-y-4">
               <div>
                 {/* Concierge Header */}
                 <div className="flex items-center justify-between mb-1">
@@ -234,7 +236,7 @@ export const SubmittedPage: React.FC = () => {
 
                   {/* WhatsApp Button */}
                   <a 
-                    className="w-full flex items-center justify-center gap-2 bg-surface-container-lowest hover:bg-surface-container border border-outline-variant/60 hover:border-amber-400/50 text-on-surface font-semibold py-2.5 px-3 rounded-xl text-xs transition-all shadow-2xs active:scale-[0.99]" 
+                    className="w-full flex items-center justify-center gap-2 bg-white/90 hover:bg-white border border-[#EADBC8] hover:border-amber-400/50 text-on-surface font-semibold py-2.5 px-3 rounded-xl text-xs transition-all shadow-2xs active:scale-[0.99] backdrop-blur-xs" 
                     href={`https://wa.me/${(settings.mobile || settings.phone).replace(/\D/g, '')}`} 
                     rel="noopener noreferrer" 
                     target="_blank"
@@ -253,7 +255,7 @@ export const SubmittedPage: React.FC = () => {
                 <button 
                   type="button"
                   onClick={handleViewPastRequests}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container border border-outline-variant/40 hover:border-primary/40 text-xs text-on-surface font-medium transition-all group cursor-pointer"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white/90 hover:bg-white border border-[#EADBC8]/80 hover:border-primary/40 text-xs text-on-surface font-medium transition-all group cursor-pointer shadow-2xs backdrop-blur-xs"
                 >
                   <span className="group-hover:text-primary transition-colors flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5 text-primary" />
@@ -266,7 +268,7 @@ export const SubmittedPage: React.FC = () => {
                 <button 
                   type="button"
                   onClick={handlePlaceAnother}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container border border-outline-variant/40 hover:border-primary/40 text-xs text-on-surface font-medium transition-all group cursor-pointer"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white/90 hover:bg-white border border-[#EADBC8]/80 hover:border-primary/40 text-xs text-on-surface font-medium transition-all group cursor-pointer shadow-2xs backdrop-blur-xs"
                 >
                   <span className="group-hover:text-primary transition-colors flex items-center gap-2">
                     <PlusCircle className="w-3.5 h-3.5 text-primary" />

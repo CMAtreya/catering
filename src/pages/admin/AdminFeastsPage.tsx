@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { AdminAppShell } from '@/components/admin/AdminAppShell';
-import { fetchFeastsAsync, deleteFeast, resetToDefaultFeasts, type Feast } from '@/api/feastApi';
+import { fetchFeastsAsync, deleteFeast, type Feast } from '@/api/feastApi';
 import { getCatalogue } from '@/api';
 import { type MenuItem } from '@/data/mockData';
 import { FeastForm } from '@/components/admin/FeastForm';
@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import {
   CalendarDays,
   Plus,
-  RotateCcw,
   Search,
   Edit2,
   Trash2,
@@ -61,16 +60,6 @@ export const AdminFeastsPage: React.FC = () => {
       deleteFeast(feast.id);
       toast.success(`Removed "${feast.name}"`);
       refreshFeasts();
-    }
-  };
-
-  const handleResetDefaults = () => {
-    if (window.confirm('Reset all feasts to traditional defaults (Royal Kalyana, Muhurtham, Homam, Grihapravesha)?')) {
-      const defaults = resetToDefaultFeasts();
-      setFeasts(defaults);
-      setSelectedTag('all');
-      setSearchQuery('');
-      toast.success('Restored 4 traditional predefined feasts');
     }
   };
 
@@ -249,19 +238,6 @@ export const AdminFeastsPage: React.FC = () => {
                 );
               })}
             </div>
-
-            {/* Bottom Actions inside Sidebar */}
-            <div className="p-3 border-t border-outline-variant/40 bg-surface-container-low/20 space-y-2">
-              <button
-                type="button"
-                onClick={handleResetDefaults}
-                className="w-full flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold text-on-surface-variant hover:text-primary hover:bg-surface-container border border-outline-variant/40 transition-all cursor-pointer"
-                title="Restore original Kalyana, Muhurtham, Homam, Grihapravesha feasts"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-secondary" />
-                <span>Restore Default Feasts</span>
-              </button>
-            </div>
           </section>
 
           {/* 2. RIGHT PANEL: Feasts Workspace Canvas */}
@@ -324,7 +300,7 @@ export const AdminFeastsPage: React.FC = () => {
                 <p className="text-xs text-on-surface-variant max-w-sm leading-relaxed">
                   {searchQuery || selectedTag !== 'all'
                     ? 'No feasts match your active search or occasion filter. Try resetting search keywords or switching categories.'
-                    : 'Create your first predefined feast spread or restore the 4 traditional temple banquets.'}
+                    : 'Create your first predefined feast spread to display in the customer feast menu.'}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <button

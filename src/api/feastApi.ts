@@ -44,7 +44,7 @@ export const fetchFeastsAsync = async (): Promise<Feast[]> => {
   if (isSupabaseConfigured) {
     try {
       const dbFeasts = await getFeastsFromSupabase();
-      if (dbFeasts && dbFeasts.length > 0) {
+      if (dbFeasts) {
         saveFeasts(dbFeasts);
         return dbFeasts;
       }
@@ -100,8 +100,4 @@ export const seedDefaultFeasts = (defaults: Feast[]) => {
   }
 };
 
-/** Explicitly restore default feasts. */
-export const resetToDefaultFeasts = (): Feast[] => {
-  saveFeasts([]);
-  return [];
-};
+

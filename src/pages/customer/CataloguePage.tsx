@@ -24,6 +24,7 @@ import {
   ArrowRight,
   MessageCircle
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
 import { getCatalogue, subscribeToMenu, type CatalogueResponse } from '@/api'
 import type { MenuItem } from '@/data/mockData'
 import { useDraftStore } from '@/store/draftStore'
@@ -31,7 +32,6 @@ import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
 import { ItemCard } from '@/components/customer/ItemCard'
 import { CustomerDesktopShell } from '@/components/customer/CustomerDesktopShell'
 import { CustomerTopNav } from '@/components/customer/CustomerTopNav'
-import { BookingStepper } from '@/components/customer/BookingStepper'
 import { AppFooter } from '@/components/common/AppFooter'
 import { CatalogueSkeleton } from '@/components/ui/skeletons'
 import { VirtualBananaLeafModal } from '@/components/customer/VirtualBananaLeafModal'
@@ -291,13 +291,6 @@ export const CataloguePage: React.FC = () => {
 
       {/* MAIN FULL-PAGE CONTAINER */}
       <main className="w-full flex-1 flex flex-col">
-        {/* PROGRESSIVE 3-STEP STEPPER */}
-        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-24 pt-4 pb-2">
-          <div className="max-w-7xl mx-auto">
-            <BookingStepper currentStep={1} />
-          </div>
-        </div>
-        
         {/* SECTION B: FEAST PACKAGES PORTION (Portion 3 from Navbar, Full Page Width) */}
         <section 
           id="muhurtham" 
@@ -623,85 +616,83 @@ export const CataloguePage: React.FC = () => {
       {/* 9. TRADITIONAL HERITAGE FOOTER (Full Page Width with all 10 legal and dietary details) */}
       <AppFooter hasFloatingBar={true} onTastingModalOpen={() => setIsTastingModalOpen(true)} />
 
-      {/* 10. FLOATING BOTTOM SUMMARY BAR (Generous Wide Layout) */}
-      <aside 
-        id="floating-order-bar"
-        data-floating-bar="true"
-        aria-label="Banquet feast selection summary" 
-        className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-6xl z-50 pointer-events-auto"
-      >
-        <div className="w-full bg-surface/95 backdrop-blur-md border border-outline-variant/20 rounded-2xl sm:rounded-full p-2.5 sm:p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 ring-1 ring-black/5">
-          {/* Left: Delicacies Count & Service Info */}
-          <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto min-w-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
-              <UtensilsCrossed className="w-5 h-5 text-on-primary" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="font-headline font-bold text-xs sm:text-sm text-primary block truncate">
-                {selectedCount} Delicacies Selected
-              </span>
-              <span className="text-[9px] sm:text-[10px] text-outline block truncate">
-                Includes Banana Leaf Service &amp; Rasam
-              </span>
-            </div>
-          </div>
+      {/* 10. FLOATING ACTION SUMMARY BAR (Appears only when at least 1 delicacy is selected) */}
+      <AnimatePresence>
+        {selectedCount > 0 && (
+          <motion.aside 
+            key="floating-order-bar"
+            id="floating-order-bar"
+            data-floating-bar="true"
+            aria-label="Banquet feast selection summary" 
+            initial={{ opacity: 0, y: 50, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.98 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-6 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-6xl z-50 pointer-events-auto"
+          >
+            <div className="w-full bg-surface/95 backdrop-blur-md border border-outline-variant/20 rounded-2xl sm:rounded-full p-2.5 sm:p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 ring-1 ring-black/5">
+              {/* Left: Delicacies Count & Service Info */}
+              <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto min-w-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+                  <UtensilsCrossed className="w-5 h-5 text-on-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="font-headline font-bold text-xs sm:text-sm text-primary block truncate">
+                    {selectedCount} Delicacies Selected
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] text-outline block truncate">
+                    Includes Banana Leaf Service &amp; Rasam
+                  </span>
+                </div>
+              </div>
 
-          {/* Center / Right: Per Plate Price, WhatsApp & Primary Proceed CTA */}
-          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto border-t sm:border-t-0 border-outline-variant/10 pt-2 sm:pt-0">
-            <div className="text-left sm:text-right shrink-0">
-              <span className="text-[9px] uppercase font-bold text-outline tracking-wider block leading-none">
-                Per Plate Price
-              </span>
-              <div className="flex items-baseline gap-0.5 justify-start sm:justify-end mt-0.5">
-                <span className="font-headline font-black text-xs sm:text-base text-primary leading-tight">
-                  ₹{displayPerPlate}
-                </span>
-                <span className="text-[10px] text-outline font-medium">/ plate</span>
+              {/* Center / Right: Per Plate Price, WhatsApp & Primary Proceed CTA */}
+              <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto border-t sm:border-t-0 border-outline-variant/10 pt-2 sm:pt-0">
+                <div className="text-left sm:text-right shrink-0">
+                  <span className="text-[9px] uppercase font-bold text-outline tracking-wider block leading-none">
+                    Per Plate Price
+                  </span>
+                  <div className="flex items-baseline gap-0.5 justify-start sm:justify-end mt-0.5">
+                    <span className="font-headline font-black text-xs sm:text-base text-primary leading-tight">
+                      ₹{displayPerPlate}
+                    </span>
+                    <span className="text-[10px] text-outline font-medium">/ plate</span>
+                  </div>
+                </div>
+
+                {/* WhatsApp Share Button */}
+                <a 
+                  href={whatsappUrl}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Share feast requirements on WhatsApp"
+                  className="px-2.5 sm:px-3 py-2 rounded-full bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-xs flex items-center gap-1 border border-[#25D366]/30 transition-colors shrink-0 cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="hidden xs:inline">WhatsApp</span>
+                </a>
+
+                {/* Primary Proceed Button */}
+                <button
+                  id="proceed-to-request-btn"
+                  type="button"
+                  disabled={isProceeding}
+                  onClick={handleProceed}
+                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg active:scale-95 cursor-pointer shrink-0 transition-all ${
+                    isProceeding ? 'scale-95 opacity-90' : ''
+                  }`}
+                  style={{
+                    transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
+                  }}
+                >
+                  <span>Proceed</span>
+                  <ArrowRight className={`w-3.5 h-3.5 transition-transform duration-300 ${isProceeding ? 'translate-x-1.5' : ''}`} />
+                </button>
               </div>
             </div>
-
-            {/* WhatsApp Share Button */}
-            <a 
-              href={whatsappUrl}
-              target="_blank" 
-              rel="noopener noreferrer"
-              aria-label="Share feast requirements on WhatsApp"
-              className="px-2.5 sm:px-3 py-2 rounded-full bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold text-xs flex items-center gap-1 border border-[#25D366]/30 transition-colors shrink-0 cursor-pointer"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span className="hidden xs:inline">WhatsApp</span>
-            </a>
-
-            {/* Primary Proceed Button (Maintains strict Playwright test compatibility) */}
-            {selectedCount === 0 ? (
-              <button
-                id="proceed-to-request-btn"
-                type="button"
-                disabled={true}
-                className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-surface-container-high text-outline text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-75 shrink-0"
-              >
-                <span>Select at least one item</span>
-              </button>
-            ) : (
-              <button
-                id="proceed-to-request-btn"
-                type="button"
-                disabled={isProceeding}
-                onClick={handleProceed}
-                className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg active:scale-95 cursor-pointer shrink-0 transition-all ${
-                  isProceeding ? 'scale-95 opacity-90' : ''
-                }`}
-                style={{
-                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
-                }}
-              >
-                <span>Proceed</span>
-                <ArrowRight className={`w-3.5 h-3.5 transition-transform duration-300 ${isProceeding ? 'translate-x-1.5' : ''}`} />
-              </button>
-            )}
-          </div>
-        </div>
-      </aside>
+          </motion.aside>
+        )}
+      </AnimatePresence>
 
       {/* Modals for Banana Leaf Preview & Tasting Box */}
       {isLeafModalOpen && (
