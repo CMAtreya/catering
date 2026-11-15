@@ -191,8 +191,8 @@ export const CataloguePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Active top nav tab state
-  const [activeNavTab, setActiveNavTab] = useState<NavTab>("menus");
+  // Active top nav tab state (Feast Packages is the first portion at the top)
+  const [activeNavTab, setActiveNavTab] = useState<NavTab>("muhurtham");
 
   // Filter & search state
   const [activeCategoryId, setActiveCategoryId] = useState<string>("cat-all");
@@ -496,7 +496,10 @@ export const CataloguePage: React.FC = () => {
                       {/* Poster Style Big Number Statistics - Tightly spaced */}
                       <div className="grid grid-cols-2 gap-2 mb-2 p-2.5 rounded-xl bg-surface-container/70 border border-outline-variant/20 text-center">
                         <div>
-                          <div className="font-serif text-2xl font-black text-primary leading-tight">
+                          <div
+                            className="font-serif font-black text-primary leading-tight"
+                            style={{ fontSize: "x-large" }}
+                          >
                             {resolvedDishes.length || feast.itemIds.length}
                           </div>
                           <div className="text-[10px] uppercase font-bold tracking-wider text-on-surface-variant">
@@ -504,7 +507,10 @@ export const CataloguePage: React.FC = () => {
                           </div>
                         </div>
                         <div className="border-l border-outline-variant/30">
-                          <div className="font-serif text-2xl font-black text-primary leading-tight">
+                          <div
+                            className="font-serif font-black text-primary leading-tight"
+                            style={{ fontSize: "x-large" }}
+                          >
                             ₹{feastPrice > 0 ? feastPrice : 445}
                           </div>
                           <div className="text-[10px] uppercase font-bold tracking-wider text-on-surface-variant">

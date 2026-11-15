@@ -721,38 +721,87 @@ export async function updateOrderInSupabase(
 export async function getCustomersFromSupabase(filters?: { search?: string }): Promise<CustomerRecord[]> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
 
-  let query = supabase
+  // 1. Fetch directly from customers table
+  let custQuery = supabase
     .from('customers')
     .select(`
       *,
       catering_records (id, status, occasion_date)
     `)
-    .order('last_contacted_at', { ascending: false })
 
   if (filters?.search) {
     const q = filters.search.trim()
-    query = query.or(`name.ilike.%${q}%,mobile_number.ilike.%${q}%,notes.ilike.%${q}%`)
+    custQuery = custQuery.or(`name.ilike.%${q}%,mobile_number.ilike.%${q}%,notes.ilike.%${q}%`)
   }
 
-  const { data, error } = await query
-  if (error) throw error
+  const { data: dbCustomers, error: custErr } = await custQuery
+  if (custErr) throw custErr
 
-  return (data || []).map((c: any) => {
+  // 2. Also fetch catering_records with joined customers to ensure no unlinked or distinct order customer is missed
+  const { data: dbOrders, error: ordErr } = await supabase
+    .from('catering_records')
+    .select(`
+      id,
+      order_number,
+      status,
+      occasion_date,
+      created_at,
+      delivery_address,
+      customer_id,
+      customers (id, name, mobile_number, address)
+    `)
+
+  const customerMap = new Map<string, CustomerRecord>()
+
+  // Populate from customers table
+  for (const c of dbCustomers || []) {
+    const rawPhone = (c.mobile_number || '').trim()
+    if (!rawPhone) continue
+    const cleanKey = rawPhone.replace(/\D/g, '').slice(-10) || rawPhone
+
     const records = c.catering_records || []
     const enquiryCount = records.length
     const confirmedCount = records.filter((r: any) => r.status === 'CONFIRMED' || r.status === 'COMPLETED').length
 
-    return {
-      phone: c.mobile_number,
-      name: c.name,
+    customerMap.set(cleanKey, {
+      phone: rawPhone.startsWith('+91') ? rawPhone : `+91 ${cleanKey}`,
+      name: c.name || 'Valued Patron',
       address: c.address || '',
       firstContacted: c.first_contacted_at ? c.first_contacted_at.split('T')[0] : '',
       lastContacted: c.last_contacted_at ? c.last_contacted_at.split('T')[0] : '',
       enquiryCount,
       confirmedCount,
       notes: c.notes || ''
+    })
+  }
+
+  // Cross-reference catering_records for any additional patrons not yet indexed
+  if (!ordErr && dbOrders) {
+    for (const ord of dbOrders) {
+      const custRaw: any = ord.customers
+      const custObj = Array.isArray(custRaw) ? custRaw[0] : custRaw
+      if (custObj && custObj.mobile_number) {
+        const rawPhone = String(custObj.mobile_number).trim()
+        const cleanKey = rawPhone.replace(/\D/g, '').slice(-10) || rawPhone
+
+        if (!customerMap.has(cleanKey)) {
+          customerMap.set(cleanKey, {
+            phone: rawPhone.startsWith('+91') ? rawPhone : `+91 ${cleanKey}`,
+            name: custObj.name || 'Valued Patron',
+            address: custObj.address || ord.delivery_address || '',
+            firstContacted: ord.created_at ? ord.created_at.split('T')[0] : '',
+            lastContacted: ord.created_at ? ord.created_at.split('T')[0] : '',
+            enquiryCount: 1,
+            confirmedCount: ord.status === 'CONFIRMED' || ord.status === 'COMPLETED' ? 1 : 0,
+            notes: ''
+          })
+        }
+      }
     }
-  })
+  }
+
+  const result = Array.from(customerMap.values())
+  return result.sort((a, b) => (b.lastContacted || '').localeCompare(a.lastContacted || ''))
 }
 
 // ============================================================================
