@@ -118,6 +118,10 @@ let ordersStore: Order[] = loadStoredOrders()
 let customersStore: Record<string, CustomerRecord> = loadStoredCustomers()
 let businessInfoStore: BusinessInfo = { ...INITIAL_BUSINESS_INFO }
 
+export function getStoredOrdersCount(): number {
+  return ordersStore.length
+}
+
 /**
  * Persist orders to localStorage and notify all real-time listeners across tabs/components
  */

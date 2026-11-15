@@ -198,6 +198,11 @@ export const RequestPage: React.FC = () => {
   const [customOccasion, setCustomOccasion] = useState<string>(initialOccasion.customText)
 
   const [eventDate, setEventDate] = useState<string>(requirements.eventDate || '')
+
+  // Ensure scroll is at top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
   const [eventTime, setEventTime] = useState<'Morning' | 'Afternoon' | 'Evening'>(requirements.eventTime || 'Morning')
   const [guestCount, setGuestCount] = useState<number | ''>(requirements.guestCount || 100)
   const [venueAddress, setVenueAddress] = useState<string>(requirements.venueAddress || '')

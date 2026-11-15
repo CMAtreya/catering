@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import {
-  CalendarDays,
   Plus,
   Utensils,
   ChevronUp,
@@ -24,6 +23,7 @@ import {
 import { toast } from 'sonner'
 import imageCompression from 'browser-image-compression'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
+import { CustomSelect } from '@/components/ui/custom-select'
 
 import { 
   getCatalogue, 
@@ -53,9 +53,42 @@ const DISH_TAG_MAP: Record<string, string> = {
 
 export const AdminMenuPage: React.FC = () => {
   // Data State
-  const [categories, setCategories] = useState<Category[]>([])
-  const [items, setItems] = useState<MenuItem[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [categories, setCategories] = useState<Category[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('tks_catering_menu_categories')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed
+        }
+      } catch {}
+    }
+    return []
+  })
+  const [items, setItems] = useState<MenuItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('tks_catering_menu_items')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed
+        }
+      } catch {}
+    }
+    return []
+  })
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('tks_catering_menu_items')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed) && parsed.length > 0) return false
+        }
+      } catch {}
+    }
+    return true
+  })
 
   // Active Category Selection ('cat-all' for All Dishes)
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('cat-all')
@@ -79,6 +112,10 @@ export const AdminMenuPage: React.FC = () => {
   const [isCompressingImage, setIsCompressingImage] = useState<boolean>(false)
   const [isSavingItem, setIsSavingItem] = useState<boolean>(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Inline Category Creation in Drawer
+  const [isInlineCategoryCreateOpen, setIsInlineCategoryCreateOpen] = useState<boolean>(false)
+  const [newCategoryInput, setNewCategoryInput] = useState<string>('')
 
   // Modals State
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false)
@@ -243,6 +280,27 @@ export const AdminMenuPage: React.FC = () => {
   // DISH ACTIONS
   // ==========================================================
 
+  // Quick Create Category directly from Drawer
+  const handleQuickCreateCategory = async () => {
+    const clean = newCategoryInput.trim()
+    if (!clean) {
+      toast.error('Please enter a category name')
+      return
+    }
+
+    try {
+      const updated = await saveCategory({ name: clean })
+      setCategories(updated)
+      setDrawerCategory(clean)
+      setNewCategoryInput('')
+      setIsInlineCategoryCreateOpen(false)
+      toast.success(`Category '${clean}' created and selected`)
+    } catch (err) {
+      console.error('Failed to create category:', err)
+      toast.error('Failed to create category')
+    }
+  }
+
   // Open Add Item Drawer
   const handleOpenAddItem = () => {
     setEditingItem(null)
@@ -252,6 +310,8 @@ export const AdminMenuPage: React.FC = () => {
     setDrawerImage(DEFAULT_DISH_IMAGE)
     setDrawerHeritageTag('Temple Heritage')
     setDrawerAvailable(true)
+    setIsInlineCategoryCreateOpen(false)
+    setNewCategoryInput('')
     setIsDrawerOpen(true)
   }
 
@@ -264,6 +324,8 @@ export const AdminMenuPage: React.FC = () => {
     setDrawerImage(item.image || DEFAULT_DISH_IMAGE)
     setDrawerHeritageTag(item.heritageTag || DISH_TAG_MAP[item.id] || 'Temple Heritage')
     setDrawerAvailable(item.available)
+    setIsInlineCategoryCreateOpen(false)
+    setNewCategoryInput('')
     setIsDrawerOpen(true)
     setActiveDropdownId(null)
   }
@@ -520,32 +582,10 @@ export const AdminMenuPage: React.FC = () => {
         `}</style>
 
         {/* ============================================================== */}
-        {/* WORKSPACE: TOP BAR + DUAL-PANEL CONTENT                         */}
+        {/* WORKSPACE: DUAL-PANEL CONTENT                                   */}
         {/* ============================================================== */}
         <div className="flex-1 flex flex-col h-full bg-surface-bright min-w-0">
           
-          {/* TOP BAR */}
-          <header className="h-20 bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/40 px-4 md:px-6 flex items-center justify-between gap-4 shrink-0 z-20">
-            {/* Left Greeting & Thithi */}
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="font-serif text-xl md:text-2xl text-on-surface font-bold tracking-tight">
-                    Namaskara
-                  </h2>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-tertiary-fixed text-on-tertiary-fixed font-bold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></span>
-                    <span>Kitchen Live &amp; Menu Synced</span>
-                  </span>
-                </div>
-                <p className="text-xs text-on-surface-variant flex items-center gap-2 mt-0.5 font-medium truncate">
-                  <CalendarDays className="w-3.5 h-3.5 text-secondary shrink-0" />
-                  <span>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })} · Mysuru Central Matha Unit</span>
-                </p>
-              </div>
-            </div>
-          </header>
-
           {/* TWO-COLUMN WORKSPACE CANVAS */}
           <main className="flex-1 flex flex-col md:flex-row overflow-hidden min-w-0">
             
@@ -1011,7 +1051,7 @@ export const AdminMenuPage: React.FC = () => {
                             ) : (
                               <div className="absolute inset-0 bg-inverse-surface/35 backdrop-blur-[1px] flex items-center justify-center p-2 text-center">
                                 <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-error-container text-on-error-container border border-error/20 shadow-xs">
-                                  Kitchen Paused · Out of Season
+                                  Marked Unavailable
                                 </span>
                               </div>
                             )}
@@ -1208,51 +1248,85 @@ export const AdminMenuPage: React.FC = () => {
                       <label htmlFor="dish-category-select" className="block text-xs font-bold text-on-surface mb-1">
                         Menu Category <span className="text-error">*</span>
                       </label>
-                      <select
+                      <CustomSelect
                         id="dish-category-select"
                         value={drawerCategory}
-                        onChange={(e) => setDrawerCategory(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background text-xs font-semibold focus:border-primary focus:ring-1 focus:ring-primary outline-none cursor-pointer"
-                      >
-                        {realCategories.map((cat, i) => (
-                          <option key={cat.id} value={cat.name}>
-                            {i + 1}. {cat.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => setDrawerCategory(val)}
+                        options={realCategories.map((cat) => ({
+                          value: cat.name,
+                          label: cat.name,
+                        }))}
+                        actionOption={{
+                          label: '+ Add New Category',
+                          onSelect: () => setIsInlineCategoryCreateOpen(true),
+                        }}
+                        sortAlphabetical={true}
+                        placeholder="Select Category..."
+                      />
+
+                      {/* Inline Quick Category Creator */}
+                      {isInlineCategoryCreateOpen && (
+                        <div className="mt-2 p-2.5 bg-amber-50/80 border border-amber-200/90 rounded-xl space-y-2 animate-in fade-in duration-150 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-bold text-amber-900">Add New Category</span>
+                            <button
+                              type="button"
+                              onClick={() => setIsInlineCategoryCreateOpen(false)}
+                              className="text-stone-400 hover:text-stone-600 cursor-pointer"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={newCategoryInput}
+                              onChange={(e) => setNewCategoryInput(e.target.value)}
+                              placeholder="e.g. Traditional Payasam"
+                              className="flex-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-xs font-semibold text-[#2D1810] focus:outline-none focus:ring-1 focus:ring-[#8B0A00]"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault()
+                                  handleQuickCreateCategory()
+                                }
+                              }}
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={handleQuickCreateCategory}
+                              className="px-3 py-1.5 bg-[#8B0A00] text-white text-xs font-bold rounded-lg hover:bg-[#6D0800] transition-colors cursor-pointer shrink-0 shadow-2xs"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Dish Tag / Speciality Badge */}
                   <div>
-                    <label htmlFor="dish-tag-input" className="block text-xs font-bold text-on-surface mb-1">
+                    <label htmlFor="dish-tag-select" className="block text-xs font-bold text-on-surface mb-1">
                       Dish Tag / Speciality Badge
                     </label>
-                    <div className="flex gap-2">
-                      <input
-                        id="dish-tag-input"
-                        type="text"
-                        value={drawerHeritageTag}
-                        onChange={(e) => setDrawerHeritageTag(e.target.value)}
-                        placeholder="e.g. Temple Signature"
-                        className="flex-1 px-3 py-2 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background text-xs font-semibold focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                      />
-                      <select
-                        value={drawerHeritageTag}
-                        onChange={(e) => setDrawerHeritageTag(e.target.value)}
-                        className="px-2.5 py-2 rounded-xl border border-outline-variant bg-surface-container text-xs font-medium focus:border-primary outline-none cursor-pointer text-on-surface"
-                      >
-                        <option value="Temple Heritage">Temple Heritage</option>
-                        <option value="Temple Signature">Temple Signature</option>
-                        <option value="Pure Ghee Special">Pure Ghee Special</option>
-                        <option value="Mysuru Classic">Mysuru Classic</option>
-                        <option value="Heritage Sweet">Heritage Sweet</option>
-                        <option value="Cooling Finish">Cooling Finish</option>
-                        <option value="Traditional Snack">Traditional Snack</option>
-                        <option value="Melkote Recipe">Melkote Recipe</option>
-                        <option value="Chef Special">Chef Special</option>
-                      </select>
-                    </div>
+                    <CustomSelect
+                      id="dish-tag-select"
+                      value={drawerHeritageTag}
+                      onChange={(val) => setDrawerHeritageTag(val)}
+                      options={[
+                        'Temple Heritage',
+                        'Temple Signature',
+                        'Pure Ghee Special',
+                        'Mysuru Classic',
+                        'Heritage Sweet',
+                        'Cooling Finish',
+                        'Traditional Snack',
+                        'Melkote Recipe',
+                        'Chef Special'
+                      ]}
+                      sortAlphabetical={true}
+                    />
                   </div>
 
                   {/* Food Photography - Compact Horizontal Row */}

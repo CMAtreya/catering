@@ -35,8 +35,9 @@ export const SubmittedPage: React.FC = () => {
     targetOrderId ? state.getEnquiryById(targetOrderId) : state.enquiries[0]
   )
 
-  // Celebratory confetti on mount - fires smoothly across all devices
+  // Celebratory confetti on mount & ensure scroll to top
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     confetti({
       particleCount: 65,
       spread: 75,

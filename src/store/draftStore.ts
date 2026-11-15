@@ -281,7 +281,12 @@ export const useDraftStore = create<DraftState>()(
       }
     }),
     {
-      name: 'tks-catering-draft-selection'
+      name: 'tks-catering-draft-selection',
+      // Only persist selected menu delicacies in localStorage;
+      // Event requirements (date, address, guest count) and contact info start fresh for new requests
+      partialize: (state) => ({
+        items: state.items
+      })
     }
   )
 )

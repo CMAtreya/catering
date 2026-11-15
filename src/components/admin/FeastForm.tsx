@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { addFeast, updateFeast, type Feast } from "@/api/feastApi";
 import type { MenuItem } from "@/data/mockData";
 import { X, Search, Check, Sparkles } from "lucide-react";
+import { CustomSelect } from "@/components/ui/custom-select";
 
 interface FeastFormProps {
   open: boolean;
@@ -214,19 +215,18 @@ export const FeastForm: React.FC<FeastFormProps> = ({
                   Tag / Occasion Badge <span className="text-error">*</span>
                 </label>
                 <div className="flex gap-2">
-                  <select
-                    id="feast-tag-select"
-                    value={tag}
-                    onChange={(e) => setTag(e.target.value)}
-                    className="flex-1 px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container text-xs font-semibold focus:border-primary outline-none cursor-pointer text-on-surface"
-                  >
-                    {PRESET_TAG_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                    <option value="Custom">Custom Badge...</option>
-                  </select>
+                  <div className="flex-1">
+                    <CustomSelect
+                      id="feast-tag-select"
+                      value={tag}
+                      onChange={(val) => setTag(val)}
+                      options={[
+                        ...PRESET_TAG_OPTIONS.map((opt) => ({ value: opt, label: opt })),
+                        { value: 'Custom', label: 'Custom Badge...' }
+                      ]}
+                      sortAlphabetical={true}
+                    />
+                  </div>
                   {tag === "Custom" && (
                     <input
                       type="text"
@@ -234,7 +234,7 @@ export const FeastForm: React.FC<FeastFormProps> = ({
                       value={customTag}
                       onChange={(e) => setCustomTag(e.target.value)}
                       placeholder="e.g. Special Puja"
-                      className="flex-1 px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background text-xs font-semibold focus:border-primary outline-none"
+                      className="flex-1 px-3 py-2 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-background text-xs font-semibold focus:border-primary outline-none"
                     />
                   )}
                 </div>
@@ -294,20 +294,18 @@ export const FeastForm: React.FC<FeastFormProps> = ({
                   )}
                 </div>
 
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-3 py-2 rounded-xl border border-outline-variant bg-surface-container text-xs font-semibold focus:border-primary outline-none cursor-pointer text-on-surface shrink-0"
-                >
-                  <option value="all">
-                    All Categories ({allItems.length})
-                  </option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                <div className="w-52 shrink-0">
+                  <CustomSelect
+                    value={selectedCategory}
+                    onChange={(val) => setSelectedCategory(val)}
+                    options={[
+                      { value: 'all', label: `All Categories (${allItems.length})` },
+                      ...categories.map((cat) => ({ value: cat, label: cat }))
+                    ]}
+                    sortAlphabetical={false}
+                    align="right"
+                  />
+                </div>
               </div>
 
               {/* Dishes Grid List */}

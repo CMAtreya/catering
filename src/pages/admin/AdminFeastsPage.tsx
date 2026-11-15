@@ -1,24 +1,25 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { AdminAppShell } from '@/components/admin/AdminAppShell';
-import { fetchFeastsAsync, deleteFeast, type Feast } from '@/api/feastApi';
+import { fetchFeastsAsync, deleteFeast, loadFeasts, type Feast } from '@/api/feastApi';
 import { getCatalogue } from '@/api';
 import { type MenuItem } from '@/data/mockData';
 import { FeastForm } from '@/components/admin/FeastForm';
 import { toast } from 'sonner';
+import { FeastGridSkeleton } from '@/components/ui/loading-state';
+import { EmptyFeastsState } from '@/components/ui/empty-state';
 import {
-  CalendarDays,
   Plus,
   Search,
   Edit2,
   Trash2,
   PartyPopper,
   Sparkles,
-  UtensilsCrossed,
   ChefHat,
 } from 'lucide-react';
 
 export const AdminFeastsPage: React.FC = () => {
-  const [feasts, setFeasts] = useState<Feast[]>([]);
+  const [feasts, setFeasts] = useState<Feast[]>(() => loadFeasts());
+  const [isLoading, setIsLoading] = useState<boolean>(() => loadFeasts().length === 0);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Feast | null>(null);
@@ -34,12 +35,20 @@ export const AdminFeastsPage: React.FC = () => {
       .catch(() => toast.error('Failed to load menu items'));
   }, []);
 
-  const refreshFeasts = () => {
-    fetchFeastsAsync().then((data) => setFeasts(data));
+  const refreshFeasts = (showLoading = false) => {
+    if (showLoading) setIsLoading(true);
+    fetchFeastsAsync()
+      .then((data) => {
+        setFeasts(data);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
+      });
   };
 
   useEffect(() => {
-    refreshFeasts();
+    refreshFeasts(loadFeasts().length === 0);
   }, []);
 
   /** Sum pricePerPlate for all selected item IDs */
@@ -105,38 +114,7 @@ export const AdminFeastsPage: React.FC = () => {
       <div className="flex-1 flex flex-col h-full bg-surface-bright min-w-0">
         
         {/* ============================================================== */}
-        {/* 1. TOP BAR (Matching Menu Management Page)                      */}
-        {/* ============================================================== */}
-        <header className="h-20 bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/40 px-4 md:px-6 flex items-center justify-between gap-4 shrink-0 z-20">
-          <div className="flex items-center gap-4 min-w-0">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="font-serif text-xl md:text-2xl text-on-surface font-bold tracking-tight">
-                  Namaskara
-                </h2>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-tertiary-fixed text-on-tertiary-fixed font-bold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></span>
-                  <span>Kitchen Live &amp; Predefined Feasts Synced</span>
-                </span>
-              </div>
-              <p className="text-xs text-on-surface-variant flex items-center gap-2 mt-0.5 font-medium truncate">
-                <CalendarDays className="w-3.5 h-3.5 text-secondary shrink-0" />
-                <span>
-                  {new Date().toLocaleDateString('en-IN', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })}{' '}
-                  · Mysuru Central Matha Unit
-                </span>
-              </p>
-            </div>
-          </div>
-        </header>
-
-        {/* ============================================================== */}
-        {/* 2. DUAL-PANEL WORKSPACE (Categories on Left, Feasts on Right)   */}
+        {/* DUAL-PANEL WORKSPACE (Occasions on Left, Feasts on Right)       */}
         {/* ============================================================== */}
         <main className="flex-1 flex flex-col md:flex-row overflow-hidden min-w-0">
           
@@ -152,9 +130,13 @@ export const AdminFeastsPage: React.FC = () => {
                     Curated banquet styles &amp; occasions
                   </p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold">
-                  {feasts.length} Feasts
-                </span>
+                {isLoading && feasts.length === 0 ? (
+                  <span className="w-16 h-6 rounded-full bg-amber-100/70 animate-pulse" />
+                ) : (
+                  <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold">
+                    {feasts.length} Feasts
+                  </span>
+                )}
               </div>
             </div>
 
@@ -289,38 +271,18 @@ export const AdminFeastsPage: React.FC = () => {
             </div>
 
             {/* Feasts Grid View */}
-            {filteredFeasts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-on-surface-variant gap-3 border-2 border-dashed border-outline-variant/60 rounded-3xl bg-surface-container-lowest p-6 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-amber-50 text-primary flex items-center justify-center border border-amber-200">
-                  <UtensilsCrossed className="w-7 h-7" />
-                </div>
-                <h3 className="font-serif text-lg font-bold text-on-surface">
-                  No feast packages found
-                </h3>
-                <p className="text-xs text-on-surface-variant max-w-sm leading-relaxed">
-                  {searchQuery || selectedTag !== 'all'
-                    ? 'No feasts match your active search or occasion filter. Try resetting search keywords or switching categories.'
-                    : 'Create your first predefined feast spread to display in the customer feast menu.'}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedTag('all');
-                    }}
-                    className="px-4 py-2 rounded-xl bg-surface-container-high text-on-surface text-xs font-bold hover:bg-surface-container transition-all cursor-pointer border border-outline-variant"
-                  >
-                    Clear Filters
-                  </button>
-                  <button
-                    type="button"
-                    onClick={openCreate}
-                    className="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-xs hover:bg-primary-container transition-all cursor-pointer"
-                  >
-                    + Create Feast
-                  </button>
-                </div>
+            {isLoading && feasts.length === 0 ? (
+              <FeastGridSkeleton count={3} className="pb-6" />
+            ) : filteredFeasts.length === 0 ? (
+              <div className="py-4">
+                <EmptyFeastsState
+                  hasFilters={Boolean(searchQuery || selectedTag !== 'all')}
+                  onResetFilters={() => {
+                    setSearchQuery('');
+                    setSelectedTag('all');
+                  }}
+                  onCreate={openCreate}
+                />
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-6">

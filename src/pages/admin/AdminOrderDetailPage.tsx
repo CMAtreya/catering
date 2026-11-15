@@ -32,6 +32,7 @@ import {
   XCircle
 } from 'lucide-react'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
+import { CustomSelect } from '@/components/ui/custom-select'
 
 import { getOrder, confirmOrder, setStatus, getCatalogue } from '@/api'
 import type { Order, OrderStatus, OrderItem } from '@/data/mockData'
@@ -481,35 +482,21 @@ export const AdminOrderDetailPage: React.FC = () => {
                     <span>{currentStatus}</span>
                   </span>
 
-                  <select
-                    id="order-status-select"
-                    value={
-                      currentStatus === 'New Request'
-                        ? 'new'
-                        : currentStatus === 'Under Discussion'
-                        ? 'discussion'
-                        : currentStatus === 'Confirmed'
-                        ? 'confirmed'
-                        : currentStatus === 'Completed'
-                        ? 'completed'
-                        : 'cancelled'
-                    }
-                    onChange={(e) => {
-                      const v = e.target.value
-                      if (v === 'new') handleStatusChange('New Request')
-                      else if (v === 'discussion') handleStatusChange('Under Discussion')
-                      else if (v === 'confirmed') handleStatusChange('Confirmed')
-                      else if (v === 'completed') handleStatusChange('Completed')
-                      else if (v === 'cancelled') handleStatusChange('Cancelled')
-                    }}
-                    className="bg-transparent border-0 text-xs font-semibold text-on-surface focus:ring-0 p-0 pr-6 cursor-pointer"
-                  >
-                    <option value="new">New Request (Awaiting Review)</option>
-                    <option value="discussion">Under Discussion (Editing Details)</option>
-                    <option value="confirmed">Confirmed (Invoice Ready)</option>
-                    <option value="completed">Completed (Archived)</option>
-                    <option value="cancelled">Cancelled (Read-only)</option>
-                  </select>
+                  <div className="w-56">
+                    <CustomSelect
+                      id="order-status-select"
+                      value={currentStatus}
+                      onChange={(val) => handleStatusChange(val as OrderStatus)}
+                      options={[
+                        { value: 'New Request', label: 'New Request (Awaiting Review)' },
+                        { value: 'Under Discussion', label: 'Under Discussion (Editing Details)' },
+                        { value: 'Confirmed', label: 'Confirmed (Invoice Ready)' },
+                        { value: 'Completed', label: 'Completed (Archived)' },
+                        { value: 'Cancelled', label: 'Cancelled (Read-only)' }
+                      ]}
+                      sortAlphabetical={false}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -622,18 +609,19 @@ export const AdminOrderDetailPage: React.FC = () => {
                     <label className="block text-on-surface-variant font-semibold mb-1">
                       Occasion Type <span className="text-primary">*</span>
                     </label>
-                    <select
+                    <CustomSelect
                       id="occasion-type"
                       value={occasionType}
-                      onChange={(e) => setOccasionType(e.target.value)}
-                      className="w-full bg-surface-container-lowest border border-outline-variant/80 rounded-xl px-3.5 py-2 text-xs font-medium focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
-                    >
-                      <option>Griha Pravesh</option>
-                      <option>Wedding Muhurtham</option>
-                      <option>Upanayana</option>
-                      <option>Satyanarayana Pooja</option>
-                      <option>Sashtiapthapoorthi (60th Birthday)</option>
-                    </select>
+                      onChange={(val) => setOccasionType(val)}
+                      options={[
+                        'Griha Pravesh',
+                        'Wedding Muhurtham',
+                        'Upanayana',
+                        'Satyanarayana Pooja',
+                        'Sashtiapthapoorthi (60th Birthday)'
+                      ]}
+                      sortAlphabetical={true}
+                    />
                   </div>
 
                   {/* Occasion Date */}

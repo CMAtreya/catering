@@ -8,6 +8,16 @@ export const SmoothScroll: React.FC = () => {
   const { isReduced } = useMotionTier()
   const lenisRef = useRef<Lenis | null>(null)
 
+  // Scroll to top instantly on every route change so new pages always open cleanly from the top
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { immediate: true })
+      }
+    }
+  }, [location.pathname])
+
   useEffect(() => {
     // Strict rules:
     // 1. Reduced motion: disable

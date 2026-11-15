@@ -268,8 +268,20 @@ export async function deleteMenuItemFromSupabase(id: string): Promise<void> {
 // 2. PREDEFINED FEASTS API
 // ============================================================================
 
-export async function getFeastsFromSupabase(): Promise<Feast[]> {
+let feastsCache: { feasts: Feast[]; timestamp: number } | null = null
+const FEASTS_CACHE_TTL_MS = 60000 // 60s memory cache
+
+export function invalidateFeastsCache() {
+  feastsCache = null
+}
+
+export async function getFeastsFromSupabase(forceRefresh = false): Promise<Feast[]> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
+
+  const now = Date.now()
+  if (!forceRefresh && feastsCache && now - feastsCache.timestamp < FEASTS_CACHE_TTL_MS) {
+    return [...feastsCache.feasts]
+  }
 
   // 1. Direct query on feasts table (flat, zero nested join dependencies)
   const { data: dbFeasts, error: feastsErr } = await supabase
@@ -302,17 +314,22 @@ export async function getFeastsFromSupabase(): Promise<Feast[]> {
     console.warn('[Feasts][WARN] Could not fetch feast_items relation:', err)
   }
 
-  return (dbFeasts || []).map((f: any) => ({
+  const mapped = (dbFeasts || []).map((f: any) => ({
     id: f.id,
     name: f.name,
     description: f.description || '',
     tag: f.tag || 'Most Popular',
     itemIds: itemsByFeast.get(f.id) || []
   }))
+
+  feastsCache = { feasts: mapped, timestamp: now }
+  return mapped
 }
 
 export async function saveFeastToSupabase(feast: Feast): Promise<Feast> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
+
+  invalidateFeastsCache()
 
   let feastId = feast.id
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -354,6 +371,8 @@ export async function saveFeastToSupabase(feast: Feast): Promise<Feast> {
 export async function deleteFeastFromSupabase(id: string): Promise<void> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
 
+  invalidateFeastsCache()
+
   const { error } = await supabase.from('feasts').delete().eq('id', id)
   if (error) throw error
 }
@@ -361,6 +380,13 @@ export async function deleteFeastFromSupabase(id: string): Promise<void> {
 // ============================================================================
 // 3. ORDERS & ENQUIRIES API
 // ============================================================================
+
+let ordersCache: { orders: Order[]; timestamp: number } | null = null
+const ORDERS_CACHE_TTL_MS = 30000 // 30 seconds memory cache
+
+export function invalidateOrdersCache() {
+  ordersCache = null
+}
 
 export async function submitOnlineEnquiryToSupabase(payload: {
   customerName: string
@@ -374,6 +400,8 @@ export async function submitOnlineEnquiryToSupabase(payload: {
   selectedItemIds: string[]
 }): Promise<{ success: boolean; order_number: string; record_id: string; final_amount: number }> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
+
+  invalidateOrdersCache()
 
   // Validate and resolve item UUIDs for PostgreSQL RPC
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -423,6 +451,12 @@ export async function getOrdersFromSupabase(filters?: {
   source?: string
 }): Promise<Order[]> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
+
+  const isUnfiltered = !filters || (!filters.status && !filters.date && !filters.search && !filters.source)
+  const now = Date.now()
+  if (isUnfiltered && ordersCache && now - ordersCache.timestamp < ORDERS_CACHE_TTL_MS) {
+    return [...ordersCache.orders]
+  }
 
   let query = supabase
     .from('catering_records')
@@ -500,6 +534,10 @@ export async function getOrdersFromSupabase(filters?: {
     )
   }
 
+  if (isUnfiltered && !filters?.search) {
+    ordersCache = { orders: result, timestamp: now }
+  }
+
   return result
 }
 
@@ -510,6 +548,8 @@ export async function setOrderStatusInSupabase(
   changeDiff?: any
 ): Promise<void> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
+
+  invalidateOrdersCache()
 
   const dbStatus = mapFrontendStatusToDb(newStatus)
   
@@ -546,6 +586,8 @@ export async function setOrderStatusInSupabase(
 
 export async function createManualOrderInSupabase(orderData: Partial<Order> & { customerPhone: string }): Promise<Order> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
+
+  invalidateOrdersCache()
 
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -610,6 +652,8 @@ export async function updateOrderInSupabase(
   orderData: Partial<Order>
 ): Promise<Order> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
+
+  invalidateOrdersCache()
 
   const updates: any = {
     updated_at: new Date().toISOString()
@@ -820,6 +864,7 @@ export function subscribeToSupabaseOrders(callback: () => void): () => void {
       'postgres_changes',
       { event: '*', schema: 'public', table: 'catering_records' },
       () => {
+        invalidateOrdersCache()
         callback()
       }
     )

@@ -39,10 +39,22 @@ import type { Order, OrderStatus } from '@/data/mockData'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
 import { KitchenBEOSheetModal } from '@/components/admin/KitchenBEOSheetModal'
 import { AdminShimmer } from '@/components/admin/AdminSkeletons'
+import { CustomSelect } from '@/components/ui/custom-select'
 
 export const AdminDashboardPage: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [orders, setOrders] = useState<Order[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('tks_catering_orders')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed
+        }
+      } catch {}
+    }
+    return []
+  })
+  const [isLoading, setIsLoading] = useState<boolean>(() => orders.length === 0)
 
   // Calendar navigation state (year & month, 0-indexed) initialized to actual system date
   const [calendarDate, setCalendarDate] = useState<Date>(() => new Date())
@@ -78,7 +90,7 @@ export const AdminDashboardPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true
-    loadData(true)
+    loadData(orders.length === 0)
 
     const unsubscribe = subscribeToOrders((latest) => {
       if (isMounted) setOrders(latest)
@@ -1058,18 +1070,19 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#2D1810] mb-1">Occasion Type *</label>
-                  <select
+                  <CustomSelect
                     value={manualOccasion}
-                    onChange={(e) => setManualOccasion(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810] cursor-pointer"
-                  >
-                    <option value="Griha Pravesh">Griha Pravesh</option>
-                    <option value="Muhurtham Wedding">Muhurtham Wedding</option>
-                    <option value="Satyanarayana Pooja">Satyanarayana Pooja</option>
-                    <option value="Upanayana">Upanayana</option>
-                    <option value="Sashti Poorthi">Sashti Poorthi (60th B'day)</option>
-                    <option value="Other Feast">Other Feast</option>
-                  </select>
+                    onChange={(val) => setManualOccasion(val)}
+                    options={[
+                      'Griha Pravesh',
+                      'Muhurtham Wedding',
+                      'Satyanarayana Pooja',
+                      'Upanayana',
+                      'Sashti Poorthi',
+                      'Other Feast'
+                    ]}
+                    sortAlphabetical={true}
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-[#2D1810] mb-1">Feast Date *</label>

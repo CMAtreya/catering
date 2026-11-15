@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useAdminAuthStore } from '@/store/adminAuthStore'
 import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
-import { getOrders, subscribeToOrders } from '@/api'
+import { getOrders, subscribeToOrders, getStoredOrdersCount } from '@/api'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -49,7 +49,7 @@ export const AdminAppShell: React.FC<AdminAppShellProps> = ({
   const logout = useAdminAuthStore((state) => state.logout)
   const settings = useBusinessSettingsStore((state) => state.settings)
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState<boolean>(false)
-  const [ordersCount, setOrdersCount] = useState<number>(14)
+  const [ordersCount, setOrdersCount] = useState<number>(() => getStoredOrdersCount())
 
   useEffect(() => {
     let isMounted = true

@@ -1,7 +1,8 @@
 import React from 'react'
-import { Users, ChevronDown } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { useDraftStore } from '@/store/draftStore'
 import { formatRupees } from '@/lib/format'
+import { CustomSelect } from '@/components/ui/custom-select'
 
 const OCCASIONS = [
   'Wedding / Muhurtham',
@@ -39,26 +40,17 @@ export const EventPlanningBar: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 flex-1">
           
           {/* 1. Occasion Selector */}
-          <div className="relative">
+          <div>
             <label htmlFor="catering-occasion-select" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
               Occasion
             </label>
-            <div className="relative">
-              <select
-                id="catering-occasion-select"
-                aria-label="Catering occasion type"
-                value={requirements.eventType || 'Wedding / Muhurtham'}
-                onChange={(e) => handleOccasionChange(e.target.value)}
-                className="w-full appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200/90 focus:border-[var(--brand)] rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-800 pr-8 transition-colors cursor-pointer"
-              >
-                {OCCASIONS.map((occ) => (
-                  <option key={occ} value={occ}>
-                    {occ}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <CustomSelect
+              id="catering-occasion-select"
+              value={requirements.eventType || 'Wedding / Muhurtham'}
+              onChange={handleOccasionChange}
+              options={OCCASIONS}
+              sortAlphabetical={false}
+            />
           </div>
 
           {/* 2. Headcount Stepper */}

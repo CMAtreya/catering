@@ -205,6 +205,27 @@
   scrollbar-width: none;
 }
 
+/* Infinite Seamless Circular Dish Marquee */
+@keyframes feast-marquee-loop {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.feast-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: feast-marquee-loop var(--marquee-duration, 24s) linear infinite;
+  will-change: transform;
+}
+
+.feast-marquee-container:hover .feast-marquee-track {
+  animation-play-state: paused;
+}
+
 /* ==========================================================
    ACCESSIBILITY (a11y) & MOBILE PERFORMANCE
    ========================================================== */

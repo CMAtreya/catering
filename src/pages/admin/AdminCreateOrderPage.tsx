@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
+import { CustomSelect } from '@/components/ui/custom-select'
 import { saveOrder, getCustomer } from '@/api'
 import type { CustomerRecord, OrderItem } from '@/data/mockData'
 
@@ -707,20 +708,21 @@ export const AdminCreateOrderPage: React.FC = () => {
                   <label htmlFor="occasion-type" className="block text-xs font-bold text-on-surface mb-2">
                     Occasion Type
                   </label>
-                  <select
+                  <CustomSelect
                     id="occasion-type"
                     value={occasion}
-                    onChange={(e) => setOccasion(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-semibold focus:ring-2 focus:ring-primary focus:outline-none shadow-xs cursor-pointer"
-                  >
-                    <option value="Wedding Muhurtham">Wedding Muhurtham</option>
-                    <option value="Griha Pravesh">Griha Pravesh</option>
-                    <option value="Upanayana Brahmopadesha">Upanayana Brahmopadesha</option>
-                    <option value="Satyanarayana Pooja">Satyanarayana Pooja</option>
-                    <option value="Sashtiapthapoorthi (60th Birthday)">Sashtiapthapoorthi (60th Birthday)</option>
-                    <option value="Seemantham Feast">Seemantham Feast</option>
-                    <option value="Other Traditional Feast">Other Traditional Feast</option>
-                  </select>
+                    onChange={(val) => setOccasion(val)}
+                    options={[
+                      'Wedding Muhurtham',
+                      'Griha Pravesh',
+                      'Upanayana Brahmopadesha',
+                      'Satyanarayana Pooja',
+                      'Sashtiapthapoorthi (60th Birthday)',
+                      'Seemantham Feast',
+                      'Other Traditional Feast'
+                    ]}
+                    sortAlphabetical={true}
+                  />
                 </div>
 
                 {/* Occasion Date Picker */}

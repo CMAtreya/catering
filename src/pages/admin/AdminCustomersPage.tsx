@@ -25,6 +25,7 @@ import { getCustomers, getOrders, recordEnquiry } from '@/api'
 import type { CustomerRecord, Order } from '@/data/mockData'
 import { toast } from 'sonner'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
+import { CustomSelect } from '@/components/ui/custom-select'
 
 interface CustomerMeta {
   area: string
@@ -1216,19 +1217,20 @@ export const AdminCustomersPage: React.FC = () => {
                   <label className="block text-xs font-semibold text-on-surface mb-1">
                     Enquiry Topic / Tentative Occasion
                   </label>
-                  <select
+                  <CustomSelect
                     value={enquiryTopic}
-                    onChange={(e) => setEnquiryTopic(e.target.value)}
-                    className="w-full text-xs rounded-xl bg-surface-container-low border border-outline-variant/80 p-2.5 focus:border-primary focus:ring-1 focus:ring-primary font-medium"
-                  >
-                    <option value="Tentative Wedding (Muhurtham)">Tentative Wedding (Muhurtham)</option>
-                    <option value="Sashti Poorthi (60th Birthday)">Sashti Poorthi (60th Birthday)</option>
-                    <option value="Griha Pravesh (House Warming)">Griha Pravesh (House Warming)</option>
-                    <option value="Upanayana (Munji)">Upanayana (Munji)</option>
-                    <option value="Filter Kaapi & Tiffin Only">Filter Kaapi &amp; Tiffin Only</option>
-                    <option value="General Menu Query">General Menu Query</option>
-                    <option value="Other Event">Other Event</option>
-                  </select>
+                    onChange={(val) => setEnquiryTopic(val)}
+                    options={[
+                      'Tentative Wedding (Muhurtham)',
+                      'Sashti Poorthi (60th Birthday)',
+                      'Griha Pravesh (House Warming)',
+                      'Upanayana (Munji)',
+                      'Filter Kaapi & Tiffin Only',
+                      'General Menu Query',
+                      'Other Event'
+                    ]}
+                    sortAlphabetical={true}
+                  />
                 </div>
               </div>
 

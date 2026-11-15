@@ -58,6 +58,11 @@ export const ContactPage: React.FC = () => {
   // Form states
   const [customerName, setCustomerName] = useState<string>(contact.name || '')
   const [customerPhone, setCustomerPhone] = useState<string>(contact.phone || '')
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
   const [specialRequests, setSpecialRequests] = useState<string>(requirements.notes || '')
 
   // Inline errors & submission states

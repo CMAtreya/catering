@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Flame, PhoneCall, Leaf, Phone, Calendar, ShoppingBag, UtensilsCrossed } from 'lucide-react'
+import { Flame, PhoneCall, Leaf, Phone, UtensilsCrossed } from 'lucide-react'
 import { useDraftStore } from '@/store/draftStore'
 import { useEnquiryStore } from '@/store/enquiryStore'
 import { useBusinessSettingsStore } from '@/store/businessSettingsStore'
@@ -121,16 +121,16 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
             </div>
           </Link>
 
-          {/* 4 Working Middle Nav Links */}
-          <div className="hidden md:flex items-center space-x-8 text-sm font-semibold">
+          {/* 4 Working Middle Nav Links - Modern Premium Segment Control */}
+          <div className="hidden md:flex items-center gap-1.5 lg:gap-2 p-1 rounded-full bg-surface-container-low/70 border border-outline-variant/20 shadow-2xs">
             {/* 1. Tradition */}
             <button
               type="button"
               onClick={() => handleNav('tradition')}
-              className={`pb-1 transition-all cursor-pointer select-none ${
+              className={`px-3.5 py-1.5 rounded-full transition-all text-xs font-bold cursor-pointer select-none ${
                 currentTab === 'tradition'
-                  ? 'text-primary font-bold border-b-2 border-primary'
-                  : 'text-on-surface-variant hover:text-primary'
+                  ? 'bg-primary text-on-primary shadow-xs'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60'
               }`}
             >
               Tradition
@@ -140,10 +140,10 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
             <button
               type="button"
               onClick={() => handleNav('menus')}
-              className={`pb-1 transition-all cursor-pointer select-none ${
+              className={`px-3.5 py-1.5 rounded-full transition-all text-xs font-bold cursor-pointer select-none ${
                 currentTab === 'menus'
-                  ? 'text-primary font-bold border-b-2 border-primary'
-                  : 'text-on-surface-variant hover:text-primary'
+                  ? 'bg-primary text-on-primary shadow-xs'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60'
               }`}
             >
               Catering Menus
@@ -153,13 +153,13 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
             <button
               type="button"
               onClick={() => handleNav('muhurtham')}
-              className={`pb-1 transition-all cursor-pointer select-none flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full transition-all text-xs font-bold cursor-pointer select-none flex items-center gap-1.5 ${
                 currentTab === 'muhurtham'
-                  ? 'text-primary font-bold border-b-2 border-primary'
-                  : 'text-on-surface-variant hover:text-primary'
+                  ? 'bg-primary text-on-primary shadow-xs'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60'
               }`}
             >
-              <Leaf className="w-4 h-4 text-tertiary-container" />
+              <Leaf className={`w-3.5 h-3.5 ${currentTab === 'muhurtham' ? 'text-secondary-fixed' : 'text-tertiary-container'}`} />
               <span>Feast Packages</span>
             </button>
 
@@ -167,69 +167,61 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
             <button
               type="button"
               onClick={() => handleNav('enquiry')}
-              className={`pb-1 transition-all cursor-pointer select-none flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full transition-all text-xs font-bold cursor-pointer select-none flex items-center gap-1.5 ${
                 currentTab === 'enquiry'
-                  ? 'text-primary font-bold border-b-2 border-primary'
-                  : 'text-on-surface-variant hover:text-primary'
+                  ? 'bg-primary text-on-primary shadow-xs'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60'
               }`}
             >
               <span>Enquiry</span>
               {enquiriesCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
+                <span className={`w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                  currentTab === 'enquiry' ? 'bg-white text-primary' : 'bg-primary text-white'
+                }`}>
                   {enquiriesCount}
                 </span>
               )}
             </button>
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Right Actions: Clean, Organized & Premium */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Catering Hotline */}
             <a 
-              className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-fixed/30 hover:bg-primary-fixed/50 px-3.5 py-1.5 rounded-full transition-colors border border-primary/10" 
+              className="hidden lg:inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/8 hover:bg-primary/15 px-3 py-1.5 rounded-full transition-all border border-primary/15" 
               href="tel:+918212448920"
             >
-              <Phone className="w-3.5 h-3.5" />
-              +91 821 244 8920
+              <Phone className="w-3.5 h-3.5 text-primary" />
+              <span>+91 821 244 8920</span>
             </a>
 
-            {/* Enquiries Button */}
-            <button 
-              type="button"
-              onClick={() => navigate('/enquiries')}
-              className="relative p-1.5 sm:p-2 rounded-full hover:bg-surface-container-low transition-colors cursor-pointer" 
-              title="My Enquiries"
-              aria-label="View previous banquet enquiries"
-            >
-              <Calendar className="w-5 h-5 text-on-surface" />
-              {enquiriesCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
-              )}
-            </button>
+            {/* Banana Leaf Platter Modal Trigger */}
+            {onOpenLeafModal && (
+              <button
+                type="button"
+                onClick={onOpenLeafModal}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-tertiary-container/15 hover:bg-tertiary-container/25 text-tertiary-container border border-tertiary-container/30 text-xs font-bold transition-all shadow-2xs cursor-pointer select-none"
+                title="Preview platter on sacred banana leaf"
+              >
+                <Leaf className="w-3.5 h-3.5" />
+                <span>Banana Leaf</span>
+              </button>
+            )}
 
-            {/* Shopping Bag Button */}
+            {/* Live Delicacy Selection / Plate Badge */}
             <button 
               type="button"
               onClick={handleBagClick}
-              className="relative p-1.5 sm:p-2 rounded-full hover:bg-surface-container-low transition-colors cursor-pointer" 
-              title="Selected Items"
+              className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full transition-all text-xs font-bold shadow-2xs cursor-pointer select-none ${
+                selectedCount > 0 
+                  ? 'bg-primary text-on-primary hover:bg-primary-container shadow-xs' 
+                  : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high border border-outline-variant/25'
+              }`}
+              title="View selected delicacies"
               aria-label={`Selected delicacies: ${selectedCount}`}
             >
-              <ShoppingBag className="w-5 h-5 text-on-surface" />
-              {selectedCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-on-primary rounded-full text-[10px] flex items-center justify-center font-bold">
-                  {selectedCount}
-                </span>
-              )}
-            </button>
-
-            {/* Plan Event Banquet Button */}
-            <button 
-              type="button"
-              onClick={handlePlanEventBanquet}
-              className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-primary to-[#b30a05] text-on-primary text-xs font-bold px-3.5 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap"
-            >
-              <UtensilsCrossed className="w-4 h-4" />
-              <span>Plan Event Banquet</span>
+              <UtensilsCrossed className="w-3.5 h-3.5" />
+              <span>{selectedCount > 0 ? `${selectedCount} Delicacies` : 'Curate Leaf'}</span>
             </button>
           </div>
         </div>

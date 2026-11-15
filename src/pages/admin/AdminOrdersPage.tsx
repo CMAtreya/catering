@@ -7,7 +7,6 @@ import {
   Table,
   Search,
   CalendarRange,
-  ChevronDown,
   FilterX,
   Globe,
   PhoneCall,
@@ -24,6 +23,7 @@ import { toast } from 'sonner'
 import { getOrders, saveOrder, setStatus, subscribeToOrders } from '@/api'
 import type { Order, OrderStatus } from '@/data/mockData'
 import { AdminAppShell } from '@/components/admin/AdminAppShell'
+import { CustomSelect } from '@/components/ui/custom-select'
 
 type ViewMode = 'table' | 'cards' | 'skeleton' | 'empty'
 type DateFilter = 'all' | 'this-month' | 'upcoming' | 'past'
@@ -88,8 +88,30 @@ function getCleanTel(phone: string): string {
 export const AdminOrdersPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [orders, setOrders] = useState<Order[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('tks_catering_orders')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed
+        }
+      } catch {}
+    }
+    return []
+  })
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('tks_catering_orders')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed) && parsed.length > 0) return false
+        }
+      } catch {}
+    }
+    return true
+  })
 
   // View state: 'table' | 'cards' | 'skeleton' | 'empty'
   const [viewMode, setViewMode] = useState<ViewMode>('table')
@@ -166,7 +188,7 @@ export const AdminOrdersPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true
-    loadOrders(true)
+    loadOrders(orders.length === 0)
 
     const unsubscribe = subscribeToOrders((latest) => {
       if (isMounted && latest) {
@@ -563,23 +585,22 @@ export const AdminOrdersPage: React.FC = () => {
             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
               
               {/* Date Range Selector */}
-              <div className="relative">
-                <select
+              <div className="w-52 shrink-0">
+                <CustomSelect
                   id="dateRangeFilter"
                   value={dateFilter}
-                  onChange={(e) => {
-                    setDateFilter(e.target.value as DateFilter)
+                  onChange={(val) => {
+                    setDateFilter(val as DateFilter)
                     setCurrentPage(1)
                   }}
-                  className="appearance-none pl-9 pr-8 py-2.5 text-xs font-medium bg-surface-container-lowest border border-outline-variant/70 rounded-xl text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
-                >
-                  <option value="all">All Dates</option>
-                  <option value="this-month">This Month (Nov 2025)</option>
-                  <option value="upcoming">Upcoming Muhurthams</option>
-                  <option value="past">Past Events</option>
-                </select>
-                <CalendarRange className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none" />
-                <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none" />
+                  options={[
+                    { value: 'all', label: 'All Dates', icon: <CalendarRange className="w-3.5 h-3.5 text-stone-500" /> },
+                    { value: 'this-month', label: 'This Month', icon: <CalendarRange className="w-3.5 h-3.5 text-stone-500" /> },
+                    { value: 'upcoming', label: 'Upcoming Muhurthams', icon: <CalendarRange className="w-3.5 h-3.5 text-stone-500" /> },
+                    { value: 'past', label: 'Past Events', icon: <CalendarRange className="w-3.5 h-3.5 text-stone-500" /> }
+                  ]}
+                  sortAlphabetical={false}
+                />
               </div>
 
               {/* Source Filter Pill Toggle */}
@@ -1266,18 +1287,21 @@ export const AdminOrdersPage: React.FC = () => {
                     Update Order Status:
                   </label>
                   <div className="flex items-center gap-2">
-                    <select
-                      id="drawerStatusSelect"
-                      value={drawerStatus}
-                      onChange={(e) => setDrawerStatus(e.target.value as OrderStatus)}
-                      className="flex-1 py-2 px-3 text-xs bg-surface-container-low border border-outline-variant/70 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
-                    >
-                      <option value="New Request">New Request (Awaiting Call)</option>
-                      <option value="Under Discussion">Under Discussion (Menu Tuning)</option>
-                      <option value="Confirmed">Confirmed (Advance Received)</option>
-                      <option value="Completed">Completed (Feast Concluded)</option>
-                      <option value="Cancelled">Cancelled</option>
-                    </select>
+                    <div className="flex-1">
+                      <CustomSelect
+                        id="drawerStatusSelect"
+                        value={drawerStatus}
+                        onChange={(val) => setDrawerStatus(val as OrderStatus)}
+                        options={[
+                          { value: 'New Request', label: 'New Request (Awaiting Call)' },
+                          { value: 'Under Discussion', label: 'Under Discussion (Menu Tuning)' },
+                          { value: 'Confirmed', label: 'Confirmed (Advance Received)' },
+                          { value: 'Completed', label: 'Completed (Feast Concluded)' },
+                          { value: 'Cancelled', label: 'Cancelled' }
+                        ]}
+                        sortAlphabetical={false}
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={handleSaveStatusChange}
@@ -1380,18 +1404,19 @@ export const AdminOrdersPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#2D1810] mb-1">Occasion Type *</label>
-                  <select
+                  <CustomSelect
                     value={manualOccasion}
-                    onChange={(e) => setManualOccasion(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg border border-[#EADBC8] focus:border-[#8B0A00] focus:outline-none text-xs sm:text-sm font-semibold bg-[#FFF9F0]/40 text-[#2D1810] cursor-pointer"
-                  >
-                    <option value="Griha Pravesh">Griha Pravesh</option>
-                    <option value="Muhurtham Wedding">Muhurtham Wedding</option>
-                    <option value="Satyanarayana Pooja">Satyanarayana Pooja</option>
-                    <option value="Upanayana">Upanayana</option>
-                    <option value="Sashti Poorthi">Sashti Poorthi (60th B'day)</option>
-                    <option value="Other Feast">Other Feast</option>
-                  </select>
+                    onChange={(val) => setManualOccasion(val)}
+                    options={[
+                      'Griha Pravesh',
+                      'Muhurtham Wedding',
+                      'Satyanarayana Pooja',
+                      'Upanayana',
+                      'Sashti Poorthi',
+                      'Other Feast'
+                    ]}
+                    sortAlphabetical={true}
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-[#2D1810] mb-1">Feast Date *</label>
