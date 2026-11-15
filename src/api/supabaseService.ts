@@ -492,36 +492,40 @@ export async function getOrdersFromSupabase(filters?: {
   const { data, error } = await query
   if (error) throw error
 
-  let result: Order[] = (data || []).map((row: any) => ({
-    id: row.order_number || row.id,
-    source: (row.source === 'ONLINE' ? 'Online' : 'Manual') as OrderSource,
-    status: mapDbStatusToFrontend(row.status),
-    customerName: row.customers?.name || 'Valued Customer',
-    customerPhone: row.customers?.mobile_number || '',
-    eventDate: row.occasion_date || '',
-    eventTime: (row.service_time?.includes('Eve') ? 'Evening' : row.service_time?.includes('Aft') ? 'Afternoon' : 'Morning') as any,
-    specificTime: row.service_time,
-    eventType: row.occasion_type || 'Traditional Feast',
-    guestCount: row.plate_count || 0,
-    venueAddress: row.delivery_address || row.customers?.address || '',
-    notes: row.specialInstructions || row.special_instructions || '',
-    specialInstructions: row.special_instructions,
-    enquiryNotes: row.enquiry_notes,
-    finalInstructions: row.final_instructions,
-    items: (row.catering_record_items || []).map((item: any) => ({
-      id: item.menu_item_id || item.id,
-      name: item.item_name_snapshot,
-      pricePerPlate: Number(item.price_per_plate_snapshot),
-      quantity: item.plate_count
-    })),
-    perPlateTotal: Number(row.food_subtotal) / (Number(row.plate_count) || 1),
-    deliveryCharges: Number(row.delivery_charges) || 0,
-    customizationCharges: Number(row.customization_charges) || 0,
-    gstAmount: Number(row.gst_amount) || 0,
-    totalAmount: Number(row.final_amount) || 0,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
-  }))
+  let result: Order[] = (data || []).map((row: any) => {
+    const custRaw = row.customers
+    const cust = Array.isArray(custRaw) ? custRaw[0] : custRaw
+    return {
+      id: row.order_number || row.id,
+      source: (row.source === 'ONLINE' ? 'Online' : 'Manual') as OrderSource,
+      status: mapDbStatusToFrontend(row.status),
+      customerName: cust?.name || 'Customer',
+      customerPhone: cust?.mobile_number || '',
+      eventDate: row.occasion_date || '',
+      eventTime: (row.service_time?.includes('Eve') ? 'Evening' : row.service_time?.includes('Aft') ? 'Afternoon' : 'Morning') as any,
+      specificTime: row.service_time,
+      eventType: row.occasion_type || 'Catering Banquet',
+      guestCount: row.plate_count || 0,
+      venueAddress: row.delivery_address || cust?.address || '',
+      notes: row.specialInstructions || row.special_instructions || '',
+      specialInstructions: row.special_instructions,
+      enquiryNotes: row.enquiry_notes,
+      finalInstructions: row.final_instructions,
+      items: (row.catering_record_items || []).map((item: any) => ({
+        id: item.menu_item_id || item.id,
+        name: item.item_name_snapshot,
+        pricePerPlate: Number(item.price_per_plate_snapshot),
+        quantity: item.plate_count
+      })),
+      perPlateTotal: Number(row.food_subtotal) / (Number(row.plate_count) || 1),
+      deliveryCharges: Number(row.delivery_charges) || 0,
+      customizationCharges: Number(row.customization_charges) || 0,
+      gstAmount: Number(row.gst_amount) || 0,
+      totalAmount: Number(row.final_amount) || 0,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }
+  })
 
   if (filters?.search) {
     const q = filters.search.toLowerCase()
@@ -718,8 +722,20 @@ export async function updateOrderInSupabase(
 // 4. CUSTOMER CRM API
 // ============================================================================
 
+let customersCache: { customers: CustomerRecord[]; timestamp: number } | null = null
+
+export function invalidateCustomersCache(): void {
+  customersCache = null
+}
+
 export async function getCustomersFromSupabase(filters?: { search?: string }): Promise<CustomerRecord[]> {
   if (!isSupabaseConfigured) throw new Error('Supabase not configured')
+
+  const isUnfiltered = !filters || !filters.search
+  const now = Date.now()
+  if (isUnfiltered && customersCache && now - customersCache.timestamp < 30_000) {
+    return customersCache.customers
+  }
 
   // 1. Fetch directly from customers table
   let custQuery = supabase
@@ -800,8 +816,11 @@ export async function getCustomersFromSupabase(filters?: { search?: string }): P
     }
   }
 
-  const result = Array.from(customerMap.values())
-  return result.sort((a, b) => (b.lastContacted || '').localeCompare(a.lastContacted || ''))
+  const result = Array.from(customerMap.values()).sort((a, b) => (b.lastContacted || '').localeCompare(a.lastContacted || ''))
+  if (isUnfiltered) {
+    customersCache = { customers: result, timestamp: now }
+  }
+  return result
 }
 
 // ============================================================================

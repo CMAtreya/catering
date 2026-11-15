@@ -51,7 +51,7 @@ const getOccasionDotColor = (occasion: string): string => {
 }
 
 function getKannadaSubtext(order: Order): string {
-  return order.venueAddress ? order.venueAddress.split(',')[0].trim() : 'Mysuru Urban'
+  return order.venueAddress ? order.venueAddress.split(',')[0].trim() : ''
 }
 
 function formatDisplayDate(dateStr: string): string {
@@ -66,7 +66,7 @@ function formatDisplayDate(dateStr: string): string {
 }
 
 function formatPhone(phone: string): string {
-  if (!phone) return '+91 98450 12345'
+  if (!phone) return ''
   const digits = phone.replace(/\D/g, '')
   if (digits.length === 10) {
     return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`
@@ -78,7 +78,7 @@ function formatPhone(phone: string): string {
 }
 
 function getCleanTel(phone: string): string {
-  if (!phone) return 'tel:+919845012345'
+  if (!phone) return ''
   const digits = phone.replace(/\D/g, '')
   if (digits.length === 10) return `tel:+91${digits}`
   if (digits.length === 12 && digits.startsWith('91')) return `tel:+${digits}`
@@ -434,7 +434,7 @@ export const AdminOrdersPage: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-serif text-2xl sm:text-3xl font-bold text-primary tracking-tight">
-                  Namaskara
+                  All Orders
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>

@@ -214,7 +214,7 @@ export const AdminCustomersPage: React.FC = () => {
         `"${custId}"`,
         `"${c.name}"`,
         `"${c.phone}"`,
-        `"${c.address || "Mysuru"}"`,
+        `"${c.address || ""}"`,
         `"${c.firstContacted}"`,
         `"${c.lastContacted}"`,
         c.enquiryCount,
@@ -457,7 +457,7 @@ export const AdminCustomersPage: React.FC = () => {
                               .replace(/\D/g, "")
                               .slice(-10);
                             const custId = `#CUST-${cleanMobile.slice(-4)}`;
-                            const areaName = c.address || "Mysuru Urban";
+                            const areaName = c.address || "Not specified";
                             const initials = getInitials(c.name);
                             const isSelected =
                               selectedCustomer?.phone
@@ -602,7 +602,7 @@ export const AdminCustomersPage: React.FC = () => {
                     {filteredCustomers.map((c) => {
                       const cleanMobile = c.phone.replace(/\D/g, "").slice(-10);
                       const custId = `#CUST-${cleanMobile.slice(-4)}`;
-                      const areaName = c.address || "Mysuru Urban";
+                      const areaName = c.address || "Not specified";
                       const isSelected =
                         selectedCustomer?.phone
                           .replace(/\D/g, "")
@@ -694,7 +694,20 @@ export const AdminCustomersPage: React.FC = () => {
               {/* ============================================================== */}
               {/* STATE 2: CUSTOMER DETAIL PROFILE                               */}
               {/* ============================================================== */}
-              {viewState === "detail" && (
+              {viewState === "detail" && !selectedCustomer && (
+                <div className="p-8 text-center bg-surface-container-low rounded-2xl border border-outline-variant/40 flex flex-col items-center justify-center gap-3">
+                  <p className="text-sm font-semibold text-primary">No patron selected from directory.</p>
+                  <button
+                    type="button"
+                    onClick={() => setViewState("directory")}
+                    className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-container transition-all"
+                  >
+                    Return to Directory
+                  </button>
+                </div>
+              )}
+
+              {viewState === "detail" && selectedCustomer && (
                 <div className="flex flex-col gap-6" id="view-detail">
                   {/* Back Link */}
                   <div>
@@ -716,49 +729,34 @@ export const AdminCustomersPage: React.FC = () => {
                       {/* Left Profile Identity */}
                       <div className="flex items-start gap-4">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary via-primary-container to-primary text-white flex items-center justify-center font-bold text-2xl sm:text-3xl shrink-0 shadow-lg shadow-primary/20 border-2 border-secondary-fixed">
-                          {getInitials(selectedCustomer?.name || "Patron")}
+                          {getInitials(selectedCustomer.name)}
                         </div>
                         <div>
                           <div className="flex flex-wrap items-center gap-2 mb-1">
                             <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-surface-container text-primary border border-outline-variant/60">
-                              #CUST-
-                              {(selectedCustomer?.phone || "")
-                                .replace(/\D/g, "")
-                                .slice(-4) || "0000"}
+                              #CUST-{selectedCustomer.phone.replace(/\D/g, "").slice(-4)}
                             </span>
-                            {selectedCustomer &&
-                            selectedCustomer.confirmedCount > 0 ? (
+                            {selectedCustomer.confirmedCount > 0 ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                                 <span>
-                                  Confirmed Patron (
-                                  {selectedCustomer.confirmedCount}{" "}
-                                  {selectedCustomer.confirmedCount === 1
-                                    ? "Banquet"
-                                    : "Banquets"}
-                                  )
+                                  Confirmed Patron ({selectedCustomer.confirmedCount} {selectedCustomer.confirmedCount === 1 ? "Banquet" : "Banquets"})
                                 </span>
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant border border-outline-variant/60">
                                 <span>
-                                  Enquiry Patron (
-                                  {selectedCustomer?.enquiryCount || 0}{" "}
-                                  {selectedCustomer?.enquiryCount === 1
-                                    ? "Enquiry"
-                                    : "Enquiries"}
-                                  )
+                                  Enquiry Patron ({selectedCustomer.enquiryCount} {selectedCustomer.enquiryCount === 1 ? "Enquiry" : "Enquiries"})
                                 </span>
                               </span>
                             )}
                           </div>
                           <h2 className="font-serif text-2xl sm:text-3xl text-primary font-bold tracking-tight">
-                            {selectedCustomer?.name || "Valued Patron"}
+                            {selectedCustomer.name}
                           </h2>
                           <div className="flex items-center gap-1.5 text-xs text-on-surface-variant mt-2">
                             <MapPin className="w-4 h-4 text-outline shrink-0" />
                             <span>
-                              {selectedCustomer?.address ||
-                                "Address not specified"}
+                              {selectedCustomer.address || "Address not specified"}
                             </span>
                           </div>
                         </div>
@@ -812,7 +810,7 @@ export const AdminCustomersPage: React.FC = () => {
                           First Contacted
                         </span>
                         <span className="font-serif text-lg sm:text-xl text-on-surface font-bold block">
-                          {selectedCustomer?.firstContacted || "N/A"}
+                          {selectedCustomer.firstContacted || "N/A"}
                         </span>
                         <span className="text-[11px] text-outline font-medium">
                           Initial interaction
@@ -824,7 +822,7 @@ export const AdminCustomersPage: React.FC = () => {
                           Last Contacted
                         </span>
                         <span className="font-serif text-lg sm:text-xl text-primary font-bold block">
-                          {selectedCustomer?.lastContacted || "N/A"}
+                          {selectedCustomer.lastContacted || "N/A"}
                         </span>
                         <span className="text-[11px] text-primary font-semibold">
                           Latest activity
@@ -836,7 +834,7 @@ export const AdminCustomersPage: React.FC = () => {
                           Total Enquiries
                         </span>
                         <span className="font-serif text-lg sm:text-xl text-on-surface font-bold block">
-                          {selectedCustomer?.enquiryCount || 0} Enquiries
+                          {selectedCustomer.enquiryCount} Enquiries
                         </span>
                         <span className="text-[11px] text-outline font-medium">
                           Banquet inquiries
@@ -848,7 +846,7 @@ export const AdminCustomersPage: React.FC = () => {
                           Confirmed Orders
                         </span>
                         <span className="font-serif text-lg sm:text-xl text-emerald-900 font-bold block">
-                          {selectedCustomer?.confirmedCount || 0} Banquets
+                          {selectedCustomer.confirmedCount} Banquets
                         </span>
                         <span className="text-[11px] font-semibold text-emerald-700">
                           ₹{totalFeastValue.toLocaleString("en-IN")} total feast
@@ -1009,13 +1007,13 @@ export const AdminCustomersPage: React.FC = () => {
                       </div>
 
                       {/* Patron Recorded Notes */}
-                      {selectedCustomer?.notes ? (
+                      {selectedCustomer.notes ? (
                         <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/60">
                           <span className="text-xs font-bold text-on-surface uppercase tracking-wider block mb-1.5">
                             Recorded Patron Notes &amp; Preferences
                           </span>
                           <p className="text-xs text-on-surface leading-relaxed">
-                            {selectedCustomer?.notes}
+                            {selectedCustomer.notes}
                           </p>
                         </div>
                       ) : null}
@@ -1124,7 +1122,7 @@ export const AdminCustomersPage: React.FC = () => {
       {/* ============================================================== */}
       {/* STATE 3: RECORD GENERAL ENQUIRY SHEET / MODAL                  */}
       {/* ============================================================== */}
-      {isEnquiryModalOpen && (
+      {isEnquiryModalOpen && selectedCustomer && (
         <div
           id="enquiry-modal"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity"
@@ -1167,14 +1165,11 @@ export const AdminCustomersPage: React.FC = () => {
                     Matched Customer:
                   </span>
                   <span className="font-bold text-on-surface text-sm">
-                    {selectedCustomer?.name || "Customer"}
+                    {selectedCustomer.name}
                   </span>
                 </div>
                 <span className="font-mono font-bold text-primary bg-surface-container-lowest px-2.5 py-1 rounded border border-outline-variant/60">
-                  +91{" "}
-                  {selectedCustomer?.phone
-                    ? selectedCustomer.phone.replace(/\D/g, "").slice(-10)
-                    : ""}
+                  +91 {selectedCustomer.phone.replace(/\D/g, "").slice(-10)}
                 </span>
               </div>
 

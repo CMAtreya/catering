@@ -18,6 +18,7 @@ import {
   createManualOrderInSupabase,
   updateOrderInSupabase,
   getCustomersFromSupabase,
+  invalidateCustomersCache,
   saveCategoryToSupabase,
   deleteCategoryFromSupabase,
   saveMenuItemToSupabase,
@@ -640,6 +641,7 @@ export async function recordEnquiry(enquiry: {
   eventDate: string
   notes?: string
 }): Promise<CustomerRecord> {
+  invalidateCustomersCache()
   const existing = customersStore[enquiry.phone]
   const today = new Date().toISOString().split('T')[0]
 
