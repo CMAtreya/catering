@@ -268,6 +268,11 @@ export const AdminCustomersPage: React.FC = () => {
   // Handle Enquiry Submit
   const handleEnquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedCustomer) {
+      toast.error("Please select a patron first.");
+      return;
+    }
+
     if (!enquiryNotes.trim()) {
       toast.error("Please enter customer conversation notes.");
       return;
@@ -298,7 +303,7 @@ export const AdminCustomersPage: React.FC = () => {
       );
 
       toast.success(
-        `✅ Enquiry recorded successfully! Matched with ${selectedCustomer.name} (+91 ${cleanPhone}).`,
+        `Enquiry recorded successfully. Matched with ${selectedCustomer.name} (+91 ${cleanPhone}).`,
       );
       setIsEnquiryModalOpen(false);
       setEnquiryNotes("");
@@ -1010,7 +1015,7 @@ export const AdminCustomersPage: React.FC = () => {
                             Recorded Patron Notes &amp; Preferences
                           </span>
                           <p className="text-xs text-on-surface leading-relaxed">
-                            {selectedCustomer.notes}
+                            {selectedCustomer?.notes}
                           </p>
                         </div>
                       ) : null}
@@ -1162,11 +1167,14 @@ export const AdminCustomersPage: React.FC = () => {
                     Matched Customer:
                   </span>
                   <span className="font-bold text-on-surface text-sm">
-                    {selectedCustomer.name}
+                    {selectedCustomer?.name || "Customer"}
                   </span>
                 </div>
                 <span className="font-mono font-bold text-primary bg-surface-container-lowest px-2.5 py-1 rounded border border-outline-variant/60">
-                  +91 {selectedCustomer.phone.replace(/\D/g, "").slice(-10)}
+                  +91{" "}
+                  {selectedCustomer?.phone
+                    ? selectedCustomer.phone.replace(/\D/g, "").slice(-10)
+                    : ""}
                 </span>
               </div>
 
