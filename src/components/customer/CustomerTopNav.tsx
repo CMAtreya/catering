@@ -17,7 +17,7 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
   activeNavTab,
   onNavClick,
   onOpenLeafModal,
-  onPlanEvent,
+  onPlanEvent: _onPlanEvent,
   showAnnouncement = true
 }) => {
   const location = useLocation()
@@ -58,14 +58,6 @@ export const CustomerTopNav: React.FC<CustomerTopNavProps> = ({
     } else {
       navigate(`/#${tab}`)
     }
-  }
-
-  const handlePlanEventBanquet = () => {
-    if (onPlanEvent) {
-      onPlanEvent()
-      return
-    }
-    navigate('/request')
   }
 
   const handleBagClick = () => {

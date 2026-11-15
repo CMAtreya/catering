@@ -459,7 +459,7 @@ export const CataloguePage: React.FC = () => {
                   .map((id) => data?.items?.find((it) => it.id === id))
                   .filter(
                     (it): it is MenuItem =>
-                      Boolean(it) && it.available !== false,
+                      it !== undefined && it.available !== false,
                   );
                 const feastPrice = resolvedDishes.reduce(
                   (sum, it) => sum + it.pricePerPlate,
